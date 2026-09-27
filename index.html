@@ -1,0 +1,4293 @@
+<style>
+    
+    /* शीर्ष पर स्थिर रहने वाला मुख्य कंटेनर (Sticky Top) */
+    .sticky-header-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background-color: #f4f7f6;
+        padding: 8px 12px 2px 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* नियॉन ग्लोइंग टूलबार */
+    .toolbar-container {
+        background-color: #151922;
+        padding: 6px 10px;
+        border-radius: 4px;
+        margin-bottom: 6px;
+    }
+
+    .toolbar-title {
+        color: #7f8c8d;
+        font-size: 9px;
+        margin-bottom: 4px;
+        font-family: monospace;
+    }
+
+    .toolbar-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        align-items: end;
+    }
+
+   .toolbar-column { display: flex; flex-direction: column; }
+.column-label { font-size: 9px; font-weight: bold; text-align: center; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; font-family: sans-serif; }
+.lbl-cred2load { color: #00d2ff; } .lbl-research { color: #00ff66; } .lbl-ndb { color: #ffcc00; } .lbl-contract { color: #b76eff; } .lbl-coming { color: #ff5555; }
+.select-row { display: flex; margin-bottom: 4px; }
+select { width: 100%; background-color: #0d1117; color: #fff; border: 1px solid #2d3748; padding: 1px 6px; font-size: 10px; height: 22px; border-radius: 11px; outline: none; }
+.btn-run { width: 100%; padding: 1px 12px; font-size: 9px; font-weight: bold; cursor: pointer; height: 22px; background-color: #0d1117; border-radius: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.run-cred2load { color: #00d2ff; border: 1px solid rgba(0, 210, 255, 0.6); box-shadow: 0 2px 6px rgba(0, 210, 255, 0.15); }
+.run-cred2load:hover { box-shadow: 0 0 14px rgba(0, 210, 255, 0.6), inset 0 0 4px rgba(0, 210, 255, 0.3); background-color: #00d2ff; color: #000; }
+.run-research { color: #00ff66; border: 1px solid rgba(0, 255, 102, 0.6); box-shadow: 0 2px 6px rgba(0, 255, 102, 0.15); }
+.run-research:hover { box-shadow: 0 0 14px rgba(0, 255, 102, 0.6), inset 0 0 4px rgba(0, 255, 102, 0.3); background-color: #00ff66; color: #000; }
+.run-ndb { color: #ffcc00; border: 1px solid rgba(255, 204, 0, 0.6); box-shadow: 0 2px 6px rgba(255, 204, 0, 0.15); }
+.run-ndb:hover { box-shadow: 0 0 14px rgba(255, 204, 0, 0.6), inset 0 0 4px rgba(255, 204, 0, 0.3); background-color: #ffcc00; color: #000; }
+.run-contract { color: #b76eff; border: 1px solid rgba(183, 110, 255, 0.6); box-shadow: 0 2px 6px rgba(183, 110, 255, 0.15); }
+.run-contract:hover { box-shadow: 0 0 14px rgba(183, 110, 255, 0.6), inset 0 0 4px rgba(183, 110, 255, 0.3); background-color: #b76eff; color: #000; }
+.run-coming { color: #ff5555; border: 1px solid rgba(255, 85, 85, 0.3); opacity: 0.35; cursor: not-allowed; border-radius: 11px; }
+
+    /* ऊपर शिफ्ट किए गए टॉप कंट्रोल पैनल्स */
+    .top-action-bar { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(20, 24, 33, 0.85) 0%, rgba(13, 17, 23, 0.95) 100%); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 2px solid #000; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05); border-top: 1px solid rgba(255,255,255,0.08); font-family: 'Segoe UI', system-ui, sans-serif; box-sizing: border-box; }
+.tab-bar { display: flex; gap: 3px; align-items: center; }
+.tab-btn { padding: 5px 14px; font-size: 10px; font-weight: bold; border: 1px solid rgba(0, 210, 255, 0.4); background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); color: #00d2ff; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.3); display: inline-flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 0 4px rgba(0,210,255,0.5); box-sizing: border-box; white-space: nowrap; }
+.tab-btn:hover { color: #fff; border-color: #00d2ff; background: rgba(0, 210, 255, 0.15); box-shadow: 0 0 10px rgba(0, 210, 255, 0.4), inset 0 1px 0 rgba(255,255,255,0.2); }
+.tab-btn:active, .btn-action:active { transform: translateY(1.5px) scale(0.96) !important; box-shadow: inset 0 3px 6px rgba(0,0,0,0.9) !important; }
+.tab-btn.active-tab { background: linear-gradient(180deg, #00d2ff 0%, #0088cc 100%); color: #000; font-weight: 900; border-color: #00e5ff; box-shadow: 0 0 14px rgba(0, 210, 255, 0.6), inset 0 1px 0 rgba(255,255,255,0.3); text-shadow: none; }
+.footer-actions { display: flex; gap: 6px; align-items: center; }
+.btn-action { padding: 3px 12px; font-size: 10px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-align: center; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); box-sizing: border-box; white-space: nowrap; }
+.btn-transfer { background: linear-gradient(180deg, #00ff66 0%, #00a340 100%); color: #fff; border-color: #00ff66; box-shadow: 0 2px 6px rgba(0,255,102,0.3), inset 0 1px 0 rgba(255,255,255,0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+.btn-transfer:hover { box-shadow: 0 0 14px rgba(0,255,102,0.7); border-color: #00ff88; }
+.btn-clear { background: linear-gradient(180deg, #ff4d4d 0%, #c0292b 100%); color: #fff; border-color: #ff4d4d; box-shadow: 0 2px 6px rgba(255,77,77,0.4), inset 0 1px 0 rgba(255,255,255,0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+.btn-clear:hover { box-shadow: 0 0 14px rgba(255,77,77,0.7); border-color: #ff6b6b; }
+.btn-save { background: linear-gradient(180deg, #ffcc00 0%, #cc9900 100%); color: white; border-color: #ffcc00; box-shadow: 0 2px 6px rgba(255,204,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3); }
+.btn-save:hover { box-shadow: 0 0 14px rgba(255,204,0,0.7); border-color: #ffee00; }
+.main-content-area {
+    padding-top:130px;
+    padding-left:12px;
+    padding-right:280px;
+    padding-bottom:20px;
+}
+
+.excel-table { width: 100%; border-collapse: collapse; background-color: #ffffff; font-size: 10px; display: none; }
+.excel-table.active-sheet { display: table; }
+.excel-table th, .excel-table td { border: 1px solid #bdc3c7; padding: 1px 3px; height: 16px; vertical-align: middle; }
+.col-w-left { width: 15%; } .col-w-mid { width: 25%; } .col-w-right { width: 60%; }
+.label-cell { background-color: #eaeded; color: #2c3e50; font-weight: 600; }
+.input-cell { padding: 0 !important; }
+.input-cell input { width: 100%; height: 100%; border: none; padding: 1px 4px; box-sizing: border-box; font-size: 11px; background-color: transparent; color: #000; font-family: 'Segoe UI', sans-serif; }
+.input-cell input:focus { background-color: #fff; outline: 1px solid #3498db; }
+.section-header { background-color: #2980b9; color: white; text-align: center; font-weight: bold; font-size: 11px; }
+.spacer-row { background-color: #ffbc2dbd; height: 8px; }
+.yellow-code-cell { background-color: #FFFF00!important; color: #000 !important; font-weight: bold !important; text-align: center !important; vertical-align: middle !important; white-space: normal !important; word-wrap: break-word !important; overflow-wrap: break-word !important; padding: 2px !important; }
+.yellow-code-input { background-color:#FFFF00 !important; }
+.grid-header { background-color: #d6dbdf; color: #000; font-weight: bold; text-align: center; }
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- FIX HEADER AND BUTTONS CONTAINER ON TOP -->
+<!-- FIX HEADER AND BUTTONS CONTAINER ON TOP -->
+<div class="sticky-header-container">
+    
+    <!-- Top Dashboard Control Grid -->
+    <div class="toolbar-container">
+        <div class="toolbar-title">® ®ªAK_SuperLoad_Alpha NEXTGen_ECLIPSE v7.0</div>
+        <div class="toolbar-grid">
+            <div class="toolbar-column">
+                <div class="column-label lbl-cred2load">CRED2LOAD</div>
+                <div class="select-row">
+                    <select id="sel-cred"></select>
+                </div>
+                <button class="btn-run run-cred2load">RUN</button>
+            </div>
+            <div class="toolbar-column">
+                <div class="column-label lbl-research">RESEARCH</div>
+                <div class="select-row"><select id="sel-res"></select></div>
+                <button class="btn-run run-research">RUN</button>
+            </div>
+            <div class="toolbar-column">
+                <div class="column-label lbl-ndb">NDB DEMOGRAPHIC</div>
+                <div class="select-row"><select id="sel-ndb"></select></div>
+                <button class="btn-run run-ndb">DEMO RUN</button>
+            </div>
+            <div class="toolbar-column">
+                <div class="column-label lbl-contract">CONTRACT LOAD</div>
+                <div class="select-row"><select id="sel-contract"></select></div>
+                <button class="btn-run run-contract">RUN</button>
+            </div>
+            <div class="toolbar-column">
+                <div class="column-label lbl-coming">COMING SOON</div>
+                <div class="select-row"><select id="sel-coming" disabled></select></div>
+                <button class="btn-run run-coming" disabled>COMING SOON</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALL BUTTONS SHIFTED TO TOP NOW (With Premium 4D Capsule Tracks) -->
+    <div class="top-action-bar">
+        <!-- Sheet Tab Navigation Outer Track -->
+        <div class="tab-bar">
+            <button class="tab-btn active-tab" onclick="switchSheet('main', this)">Main Sheet</button>
+            <button class="tab-btn" onclick="switchSheet('ndb', this)">NDB</button>
+            <button class="tab-btn" onclick="switchSheet('cosmos', this)">COSMOS</button>
+            <button class="tab-btn" onclick="switchSheet('csp', this)">CSP</button>
+            <button class="tab-btn" onclick="switchSheet('m1', this)">Maint 1</button>
+            <button class="tab-btn" onclick="switchSheet('m2', this)">Maint 2</button>
+            <button class="tab-btn" onclick="switchSheet('m3', this)">Maint 3</button>
+            <button class="tab-btn" onclick="switchSheet('m4', this)">Maint 4</button>
+        </div>
+
+        <!-- Selection Checkboxes Container (With Forced White Text Logic) -->
+        <div class="checkbox-container" style="color: #ffffff !important;">
+            <label style="color: #ffffff !important; cursor: pointer;"><input type="checkbox" id="chkNDB" style="accent-color: #00d2ff;"> NDB</label>
+            <label style="color: #ffffff !important; cursor: pointer;"><input type="checkbox" id="chkCOSMOS" style="accent-color: #00d2ff;"> COSMOS</label>
+            <label style="color: #ffffff !important; cursor: pointer;"><input type="checkbox" id="chkCSP" style="accent-color: #00d2ff;"> CSP</label>
+        </div>
+
+        <!-- 4D Mechanical Capsule Action Controls Outer Track -->
+        <div class="footer-actions">
+            <button type="button" class="btn-action btn-transfer" onclick="transferData()">TRANSFER DATA</button>
+            <button type="button" class="btn-action btn-clear" onclick="clearUserData()">CLEAR FORM</button>
+            <button type="button" class="btn-action btn-save" onclick="exportToExcel()">SAVE DATA (EXCEL)</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- CONTAINER FOR SCROLLABLE FORMS -->
+<div class="main-content-area">
+<form id="masterDataForm">
+
+    <!-- SHEET 1: NDB TEMPLATE (EXACT EXCEL MATCH - ULTRA COMPACT & BLANK) -->
+    <div id="sheet-ndb" class="excel-table" style="display: none; padding-top: 5px;">
+
+        <!-- TOP Parameters Grid -->
+        <table style="width: 80%; border-collapse: collapse; table-layout: fixed; margin-bottom: 8px;">
+            <colgroup>
+                <col style="width: 90px;">
+                <col style="width: 90px;">
+                <col style="width: 500px;">
+            </colgroup>
+<div style="width:80%;height:35px;background:#FFFF00;font-size:24px;font-weight:600;text-align:center;line-height:35px;color:#000;border-left:4px solid #000;border-right:4px solid #000;box-sizing:border-box;">
+    NDB CONTRACT LOAD TEMPLATE
+</div>
+           <td colspan="3" class="section-header" style="background-color:#1f618d;font-size:15px;height:30px;font-weight:500;color:#fff;text-align:center;">
+NDB CONTRACT LOAD TEMPLATE
+</td>  
+<!-- TOP Parameters Grid Rows (With Width Control and Logic Linked) -->
+<tr>
+    <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">DEL or NON-DEL</td>
+    <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+        <input type="text" class="ndb-top-param-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+    </td>
+    <td style="background-color:#ffffff; border:none;"></td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">DEL CODE</td>
+    <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+        <input type="text" class="ndb-top-param-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+    </td>
+    <td style="background-color:#ffffff; border:none;"></td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">Timely Filing</td>
+    <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+        <input type="text" class="ndb-top-param-input" style="width:100%; height:25px; font-weight:bold; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+    </td>
+    <td style="background-color:#ffffff; border:none;"></td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">Market Number</td>
+    <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+        <input type="text" class="ndb-top-param-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+    </td>
+    <td style="background-color:#ffffff; border:none;"></td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">Penalty Table</td>
+    <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+        <input type="text" class="ndb-top-param-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+    </td>
+    <td style="background-color:#ffffff; border:none;"></td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">ENW Indicator</td>
+    <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+        <input type="text" class="ndb-top-param-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+    </td>
+    <td style="background-color:#ffffff; border:none;"></td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">Emptoris ID (E&amp;I)</td>
+    <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+        <input type="text" class="ndb-top-param-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+    </td>
+    <td style="background-color:#ffffff; border:none;"></td>
+</tr>
+</table>
+
+<script>
+// Logic specific to these parameters handles vertical multiline clipboard parses
+document.querySelectorAll('.ndb-top-param-input').forEach((inputElement, index, allInputs) => {
+    
+    // 1. Vertical Multi-Row Paste Action
+    inputElement.addEventListener("paste", function(e) {
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData("text");
+        
+        if (pastedData.includes("\n") || pastedData.includes("\t")) {
+            e.preventDefault();
+            
+            const lines = pastedData.split(/\r?\n/);
+            if (lines[lines.length - 1] === "") lines.pop();
+            
+            lines.forEach((lineText, offset) => {
+                const targetInput = allInputs[index + offset];
+                if (!targetInput) return;
+                
+                const columns = lineText.split("\t");
+                targetInput.value = columns[0].trim();
+            });
+        }
+    });
+
+    // 2. Black Excel Border Focus Effect Action
+    inputElement.addEventListener("focus", function() {
+        this.style.outline = "2px solid #000000";
+        this.style.outlineOffset = "-2px";
+        this.style.position = "relative";
+        this.style.zIndex = "10";
+    });
+    
+    inputElement.addEventListener("blur", function() {
+        this.style.outline = "none";
+        this.style.position = "static";
+        this.style.zIndex = "auto";
+    });
+});
+</script>
+
+
+<div style="height:10px;"></div>
+
+        <!-- MIDDLE NDB CONTRACT MASTERS (6 COLUMNS) -->
+<table style="width: 80%; border-collapse: collapse; table-layout: fixed; margin-bottom: 12px;">
+    <colgroup>
+        <col style="width: 140px;"> <!-- Effective Date -->
+        <col style="width: 100px;"> <!-- Master ID -->
+        <col style="width: 110px;"> <!-- Fee Schedule -->
+        <col style="width: 130px;"> <!-- NDB Product Code -->
+        <col style="width: 140px;"> <!-- Penalty Table -->
+        <col style="width: 250px;"> <!-- Split Description -->
+    </colgroup>
+    <thead>
+        <tr>
+            <td colspan="6" class="section-header" style="background-color: #2980b9; font-size: 14px; height: 30px; color: #fff; text-align: center; font-weight: bold; font-family: sans-serif;">
+                NDB Contract Masters
+            </td>
+        </tr>
+        <tr class="grid-header" style="font-size: 11px; height: 34px; background-color: #f2f2f2; font-weight: bold; text-align: center; font-family: sans-serif;">
+            <td style="border: 1px solid #ccc;">Effective Date<br>(to be used if different from header)</td>
+            <td style="border: 1px solid #ccc;">Master ID</td>
+            <td style="border: 1px solid #ccc;">Fee Schedule</td>
+            <td style="border: 1px solid #ccc;">NDB Product code</td>
+            <td style="border: 1px solid #ccc;">Penalty Table<br>(to be used if different from header)</td>
+            <td style="border: 1px solid #ccc;">MD/DO, Mid-Level, PPO, Non-PPO, Specialty<br>(to be used if split fee schedule)</td>
+        </tr>
+    </thead>
+    <tbody id="ndbMasterGridRows"></tbody>
+</table>
+
+<script>
+// 1. Generate 21 Clean Rows dynamically using javascript loop structure
+const ndbMasterRowTemplate = `
+<tr class="ndb-master-row">
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-master-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-master-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-master-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-master-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-master-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-master-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+</tr>
+`;
+
+// Fulfills the grid template by running the generator logic 21 times
+document.getElementById("ndbMasterGridRows").innerHTML = ndbMasterRowTemplate.repeat(21);
+
+// 2. Multi-Row Excel Paste Feature for NDB Master Grid
+document.getElementById("ndbMasterGridRows").addEventListener("paste", function(e) {
+    if (!e.target.classList.contains("ndb-master-input")) return;
+    
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedData = clipboardData.getData("text");
+    
+    if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+    
+    e.preventDefault();
+    
+    const rows = pastedData.split(/\r?\n/);
+    if (rows[rows.length - 1] === "") rows.pop();
+    
+    const currentInput = e.target;
+    const currentTd = currentInput.closest("td");
+    const currentTr = currentInput.closest("tr");
+    
+    const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+    const allRows = Array.from(document.querySelectorAll("#ndbMasterGridRows .ndb-master-row"));
+    const startRowIndex = allRows.indexOf(currentTr);
+    
+    rows.forEach((rowText, rOffset) => {
+        const targetRow = allRows[startRowIndex + rOffset];
+        if (!targetRow) return;
+        
+        const columns = rowText.split("\t");
+        columns.forEach((cellText, cOffset) => {
+            const targetTd = targetRow.children[startColIndex + cOffset];
+            if (!targetTd) return;
+            
+            const input = targetTd.querySelector(".ndb-master-input");
+            if (input) {
+                input.value = cellText.trim();
+            }
+        });
+    });
+});
+
+// 3. Excel-like Black Focus Border Tracker Logic
+document.querySelectorAll('.ndb-master-input').forEach(inputElement => {
+    inputElement.addEventListener("focus", function() {
+        this.style.outline = "2px solid #000000";
+        this.style.outlineOffset = "-2px";
+        this.style.position = "relative";
+        this.style.zIndex = "10";
+    });
+    
+    inputElement.addEventListener("blur", function() {
+        this.style.outline = "none";
+        this.style.position = "static";
+        this.style.zIndex = "auto";
+    });
+});
+</script>
+
+                <!-- LOWER NDB GRID SECTION (10 COLUMNS AS PER EXCEL SPECIFICATION) -->
+        <table style="width: 95%; border-collapse: collapse; table-layout: 200%;">
+            <colgroup>
+                <col style="width: 100px;"> <!-- Auditor Notes -->
+                <col style="width: 90px;"> <!-- DLA Notes -->
+                <col style="width: 140px;"> <!-- Provider Name -->
+                <col style="width: 90px;">  <!-- MPIN -->
+                <col style="width: 90px;">  <!-- TIN -->
+                <col style="width: 120px;"> <!-- Speciality -->
+                <col style="width: 55px;">  <!-- PCP Yes or No -->
+                <col style="width: 90px;"> <!-- Effective Date -->
+                <col style="width: 90px;"> <!-- MD/DO, Mid-Level Notes -->
+                <col style="width: 90px;">  <!-- Notes -->
+            </colgroup>
+            <tr><td colspan="10" class="section-header" style="background-color: #2980b9; font-size: 14px; height: 25px;">NDB Contract Masters</td></tr>
+            <tr class="grid-header" style="font-size: 14px; height: 24px;">
+                <td>Auditor Notes</td>
+                <td>DLA Notes</td>
+                <td>Provider Name</td>
+                <td>MPIN</td>
+                <td>TIN</td>
+                <td>Speciality</td>
+                <td>PCP Yes or No</td>
+                <td>Effective Date (to be used if different from header)</td>
+                <td>MD/DO, Mid-Level.</td>
+                <td>Notes</td>
+            </tr>
+            <!-- Rows Segments (Centering and Padding Configured) -->
+            <!-- 10 COLUMNS GRID BODY -->
+<tbody id="ndbTenColGridRows"></tbody>
+
+<script>
+// 1. Generate 5 Clean Rows dynamically using a javascript loop structure
+// Aligned precisely to match the left (left) and center (center) specifications of your original first row
+const ndbTenColRowTemplate = `
+<tr class="ndb-ten-col-row">
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-ten-col-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+</tr>
+`;
+
+// Fulfills the grid template by running the generator logic 5 times
+document.getElementById("ndbTenColGridRows").innerHTML = ndbTenColRowTemplate.repeat(5);
+
+// 2. Multi-Row Excel Paste Feature for NDB 10-Column Grid
+document.getElementById("ndbTenColGridRows").addEventListener("paste", function(e) {
+    if (!e.target.classList.contains("ndb-ten-col-input")) return;
+    
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedData = clipboardData.getData("text");
+    
+    if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+    
+    e.preventDefault();
+    
+    const rows = pastedData.split(/\r?\n/);
+    if (rows[rows.length - 1] === "") rows.pop();
+    
+    const currentInput = e.target;
+    const currentTd = currentInput.closest("td");
+    const currentTr = currentInput.closest("tr");
+    
+    const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+    const allRows = Array.from(document.querySelectorAll("#ndbTenColGridRows .ndb-ten-col-row"));
+    const startRowIndex = allRows.indexOf(currentTr);
+    
+    rows.forEach((rowText, rOffset) => {
+        const targetRow = allRows[startRowIndex + rOffset];
+        if (!targetRow) return;
+        
+        const columns = rowText.split("\t");
+        columns.forEach((cellText, cOffset) => {
+            const targetTd = targetRow.children[startColIndex + cOffset];
+            if (!targetTd) return;
+            
+            const input = targetTd.querySelector(".ndb-ten-col-input");
+            if (input) {
+                input.value = cellText.trim();
+            }
+        });
+    });
+});
+
+// 3. Excel-like Black Focus Border Tracker Logic
+document.querySelectorAll('.ndb-ten-col-input').forEach(inputElement => {
+    inputElement.addEventListener("focus", function() {
+        this.style.outline = "2px solid #000000";
+        this.style.outlineOffset = "-2px";
+        this.style.position = "relative";
+        this.style.zIndex = "10";
+    });
+    
+    inputElement.addEventListener("blur", function() {
+        this.style.outline = "none";
+        this.style.position = "static";
+        this.style.zIndex = "auto";
+    });
+});
+</script>
+
+        </table>
+        </div>   
+<div id="sheet-cosmos"
+     class="excel-table"
+     style="display:none;padding-top:5px;">
+
+<div style="width:80%;height:35px;background:#FFFF00;font-size:24px;font-weight:600;text-align:center;line-height:35px;color:#000;border-left:4px solid #000;border-right:4px solid #000;box-sizing:border-box;">
+    COSMOS CONTRACT LOAD TEMPLATE
+</div>
+        
+   <!-- 1. TOP PARAMETERS GRID (5 ROWS LAYOUT - FULLY FIXED) -->
+<table style="width: 80%; border-collapse: collapse; table-layout: fixed; margin-bottom: 8px;">
+    <colgroup>
+        <col style="width: 150px;"> <!-- पहले कॉलम (Labels) को बड़ा किया ताकि टेक्स्ट न कटे -->
+        <col style="width: 160px;"> <!-- दूसरे कॉलम (Input Box) को एक्सेल जैसा परफेक्ट साइज दिया -->
+        <col style="width: auto;">  <!-- तीसरा कॉलम खाली स्पेस रहेगा -->
+    </colgroup>
+    
+    <tr>
+        <td colspan="3" class="section-header" style="background-color: #2980b9; font-size: 16px; height: 26px; color: #fff; font-weight: bold; text-align: center; font-family: sans-serif;">
+            COSMOS Contract Load Template
+        </td>
+    </tr>
+    
+    <tr>
+        <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">DEL or NON-DEL</td>
+        <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+            <input type="text" id="cosmos-del-type" class="cosmos-top-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+        <td style="background-color:#ffffff; border:none;"></td>
+    </tr>
+
+    <tr>
+        <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">DEL CODE</td>
+        <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+           <input type="text" id="cosmos-del-code" class="cosmos-top-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+        </td>
+        <td style="background-color:#ffffff; border:none;"></td>
+    </tr>
+
+    <tr>
+        <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">Timely Filing</td>
+        <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+         <input type="text" id="cosmos-timely-filing" class="cosmos-top-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+        </td>
+        <td style="background-color:#ffffff; border:none;"></td>
+    </tr>
+
+    <tr>
+        <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">Penalty Table</td>
+        <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+            <input type="text" id="cosmos-penalty-table" class="cosmos-top-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+        </td>
+        <td style="background-color:#ffffff; border:none;"></td>
+    </tr>
+
+    <tr>
+        <td class="label-cell" style="font-size:12px; height:25px; background:#fff2cc; color:#000; font-weight:bold; padding-left:5px; border:1px solid #ccc; font-family:sans-serif;">Emptoris ID (E&amp;I)</td>
+        <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+            <input type="text" id="cosmos-emptoris-id" class="cosmos-top-input" style="width:100%; height:25px; text-align:left; padding-left:5px; box-sizing:border-box; border:none; font-size:12px; outline:none;">
+        </td>
+        <td style="background-color:#ffffff; border:none;"></td>
+    </tr>
+</table>
+
+<script>
+// इस विशिष्ट ग्रिड के लिए वर्टिकल मल्टी-रो पेस्ट और ब्लैक फोकस बॉर्डर स्क्रिप्ट
+document.querySelectorAll('.cosmos-top-input').forEach((inputElement, index, allInputs) => {
+    
+    // 1. जादुई एक्सेल वर्टिकल पेस्ट (नीचे की तरफ डेटा बिखेरना)
+    inputElement.addEventListener("paste", function(e) {
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData("text");
+        
+        if (pastedData.includes("\n") || pastedData.includes("\t")) {
+            e.preventDefault();
+            
+            const lines = pastedData.split(/\r?\n/);
+            if (lines[lines.length - 1] === "") lines.pop();
+            
+            lines.forEach((lineText, offset) => {
+                const targetInput = allInputs[index + offset];
+                if (!targetInput) return;
+                
+                const columns = lineText.split("\t");
+                targetInput.value = columns[0].trim();
+            });
+        }
+    });
+
+    // 2. क्लिक करने पर ब्लैक एक्सेल बॉर्डर इफेक्ट
+    inputElement.addEventListener("focus", function() {
+        this.style.outline = "2px solid #000000";
+        this.style.outlineOffset = "-2px";
+        this.style.position = "relative";
+        this.style.zIndex = "10";
+    });
+    
+    inputElement.addEventListener("blur", function() {
+        this.style.outline = "none";
+        this.style.position = "static";
+        this.style.zIndex = "auto";
+    });
+});
+</script>
+
+
+        <!-- 2. MIDDLE GRID (7 COLUMNS - EXACTLY 12 ROWS AS PER IMAGE) -->
+        <table style="width: 80%; border-collapse: collapse; table-layout: fixed; margin-bottom: 12px;">
+            <colgroup>
+                <col style="width: 70px;">
+                <col style="width: 70px;">
+                <col style="width: 70px;">
+                <col style="width: 70px;">
+                <col style="width: 70px;">
+                <col style="width: 70px;">
+                <col style="width: 70px;">
+            </colgroup>
+            <tr><td colspan="7" class="section-header" style="background-color: #2980b9; font-size: 14px; height: 20px;">COSMOS Contract Load Template</td></tr>
+            <tr class="grid-header" style="font-size: 14px; height: 25px;">
+                <td>Effective Date</td><td>Master ID</td><td>COSMOS DIV</td><td>COSMOS Pannel</td><td>Contract or Package</td><td>COSMOS Network Code</td><td>MD/DO, Mid-Level.</td>
+            <!-- COSMOS MAIN GRID BODY -->
+<tbody id="cosmosMainGridRows"></tbody>
+
+<script>
+// 1. टेबल की कतारें (Rows) जनरेट करना
+// यहाँ सभी इनपुट को width:100%, border:none और class="cosmos-main-input" दिया है ताकि लेआउट न हिले
+const cosmosRowTemplate = `
+<tr class="cosmos-main-row">
+    <!-- Effective Date -->
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="cosmos-main-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <!-- Master ID -->
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="cosmos-main-input cosmos-master-id-box" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <!-- COSMOS DIV -->
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="cosmos-main-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <!-- COSMOS Pannel -->
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="cosmos-main-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <!-- Contract or Package -->
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="cosmos-main-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <!-- COSMOS Network Code (टेक्स्ट बड़ा हो सकता है इसलिए फॉन्ट थोड़ा छोटा 11px रखा है) -->
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="cosmos-main-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <!-- MD/DO, Mid-Level (इमेज के हिसाब से सेंटर अलाइन कर दिया है) -->
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="cosmos-main-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+</tr>
+`;
+
+
+// यहाँ 16 बार कतारें रिपीट होंगी (आप चाहें तो अपनी ज़रूरत के हिसाब से नंबर बदल सकते हैं)
+document.getElementById("cosmosMainGridRows").innerHTML = cosmosRowTemplate.repeat(16);
+
+// 2. इस ग्रिड के लिए एक्सेल मल्टी-रो पेस्ट लॉजिक
+document.getElementById("cosmosMainGridRows").addEventListener("paste", function(e) {
+    if (!e.target.classList.contains("cosmos-main-input")) return;
+    
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedData = clipboardData.getData("text");
+    
+    if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+    
+    e.preventDefault();
+    
+    const rows = pastedData.split(/\r?\n/);
+    if (rows[rows.length - 1] === "") rows.pop();
+    
+    const currentInput = e.target;
+    const currentTd = currentInput.closest("td");
+    const currentTr = currentInput.closest("tr");
+    
+    const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+    const allRows = Array.from(document.querySelectorAll("#cosmosMainGridRows .cosmos-main-row"));
+    const startRowIndex = allRows.indexOf(currentTr);
+    
+    rows.forEach((rowText, rOffset) => {
+        const targetRow = allRows[startRowIndex + rOffset];
+        if (!targetRow) return;
+        
+        const columns = rowText.split("\t");
+        columns.forEach((cellText, cOffset) => {
+            const targetTd = targetRow.children[startColIndex + cOffset];
+            if (!targetTd) return;
+            
+            const input = targetTd.querySelector(".cosmos-main-input");
+            if (input) {
+                input.value = cellText.trim();
+            }
+        });
+    });
+});
+</script>
+
+        <!-- 3. LOWER GRID (11 COLUMNS - EXACTLY 5 ROWS AS PER IMAGE) -->
+        <table style="width: 80%; border-collapse: collapse; table-layout: fixed;">
+            <colgroup>
+                <col style="width: 80px;">
+                <col style="width: 80px;">
+                <col style="width: 80px;">
+                <col style="width: 80px;">
+                <col style="width: 80px;">
+                <col style="width: 80px;">
+                <col style="width: 50px;">
+                <col style="width: 85px;">
+                <col style="width: 85px;">
+                <col style="width: 80px;">
+                <col style="width: 85px;">
+                   <!-- ... Previous Code ... -->
+        </colgroup>
+        <tr><td colspan="11" class="section-header" style="background-color: #2980b9; font-size: 14px; height: 20px;">COSMOS Contract Load Template</td></tr>
+        <tr class="grid-header" style="font-size: 14px; height: 25px;">
+            <td>Auditor Notes</td><td>DLA Notes</td><td>Provider Name</td><td>MPIN</td><td>TIN</td><td>Speciality</td><td>PCP</td><td>Eff. date</td><td>Notes</td><td>MD/DO, Mid-Level, PPO, Non-PPO</td><td>UHCID</td>
+        </tr>
+        <!-- CSS Rule to apply formatting without repeating style tags -->
+        <style>
+            .input-cell input { width: 100%; height: 25px; box-sizing: border-box; }
+            .c-align input { text-align: center; }
+            .l-align input { text-align: left; padding-left: 4px; }
+            .w-120 input { width: 120px; text-align: center; }
+        </style>
+       <!-- CLEAN GRID BODY -->
+<tbody id="cleanGridRows"></tbody>
+</table>
+
+<script>
+// 1. टेबल की कतारें (Rows) जनरेट करना
+// यहाँ कुल 11 कॉलम्स हैं। अलाइनमेंट के हिसाब से text-align सेट कर दिया है।
+const cleanRowTemplate = `
+<tr class="clean-grid-row">
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:left; padding-left:4px; box-sizing:border-box; border:none; font-size:12px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="clean-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px;"></td>
+</tr>
+`;
+
+// यहाँ हमने 5 रोज़ जनरेट की हैं, आप चाहें तो इसे बढ़ाकर 10 या 16 भी कर सकते हैं (.repeat(5))
+document.getElementById("cleanGridRows").innerHTML = cleanRowTemplate.repeat(5);
+
+// 2. इस ग्रिड के लिए एक्सेल मल्टी-रो पेस्ट लॉजिक
+document.getElementById("cleanGridRows").addEventListener("paste", function(e) {
+    if (!e.target.classList.contains("clean-input")) return;
+    
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedData = clipboardData.getData("text");
+    
+    if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+    
+    e.preventDefault();
+    
+    const rows = pastedData.split(/\r?\n/);
+    if (rows[rows.length - 1] === "") rows.pop();
+    
+    const currentInput = e.target;
+    const currentTd = currentInput.closest("td");
+    const currentTr = currentInput.closest("tr");
+    
+    const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+    const allRows = Array.from(document.querySelectorAll("#cleanGridRows .clean-grid-row"));
+    const startRowIndex = allRows.indexOf(currentTr);
+    
+    rows.forEach((rowText, rOffset) => {
+        const targetRow = allRows[startRowIndex + rOffset];
+        if (!targetRow) return;
+        
+        const columns = rowText.split("\t");
+        columns.forEach((cellText, cOffset) => {
+            const targetTd = targetRow.children[startColIndex + cOffset];
+            if (!targetTd) return;
+            
+            const input = targetTd.querySelector(".clean-input");
+            if (input) {
+                input.value = cellText.trim();
+            }
+        });
+    });
+});
+</script>
+
+</div>
+<div id="sheet-csp"
+     class="excel-table"
+     style="display:none;padding-top:5px;">
+
+<div style="width:80%;height:35px;background:#FFFF00;font-size:24px;font-weight:600;text-align:center;line-height:35px;color:#000;border-left:4px solid #000;border-right:4px solid #000;box-sizing:border-box;">
+    CSP CONTRACT LOAD TEMPLATE
+</div>
+
+<table style="width:80%;border-collapse:collapse;table-layout:fixed;margin-bottom:8px;">
+    <colgroup>
+        <col style="width:90px;">
+        <col style="width:90px;">
+        <col style="width:500px;">
+    </colgroup>
+
+    <td colspan="3" class="section-header" style="background-color:#1f618d;font-size:15px;height:30px;font-weight:500;color:#fff;text-align:center;">
+CSP CONTRACT LOAD TEMPLATE
+</td>  
+
+<table style="width:80%; border-collapse:collapse; table-layout:fixed; margin-bottom:8px;">
+    <colgroup>
+        <col style="width:130px;"> <!-- Label Column -->
+        <col style="width:160px;"> <!-- Input Column -->
+        <col style="width:auto;">  <!-- Blank Space -->
+    </colgroup>
+
+   <tr>
+    <td class="label-cell" style="background:#fff2cc; font-size:12px; font-weight:bold; font-family:sans-serif; padding:5px 10px; border:1px solid #ccc;">
+        DEL or NON-DEL
+    </td>
+    <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+        <input
+            type="text"
+            id="csp-del-type"
+            class="top-input"
+            style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none; transition:all 0.1s;">
+    </td>
+    <td style="border:none;"></td>
+</tr>
+
+<tr>
+    <td class="label-cell" style="background:#fff2cc; font-size:12px; font-weight:bold; font-family:sans-serif; padding:5px 10px; border:1px solid #ccc;">
+        DEL CODE
+    </td>
+    <td class="input-cell" style="border:1px solid #ccc; padding:0;">
+        <input
+            type="text"
+            id="csp-del-code"
+            class="top-input"
+            style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none; transition:all 0.1s;">
+    </td>
+    <td style="border:none;"></td>
+</tr>
+</table>
+
+<!-- इस स्टाइल टैग को अपने HTML के <head> में या पेज में कहीं भी डाल दें (ब्लैक बॉर्डर इफ़ेक्ट के लिए) -->
+<style>
+    /* जब किसी भी इनपुट बॉक्स पर क्लिक (Focus) होगा, तो उसका बॉर्डर एक्सेल की तरह ब्लैक हो जाएगा */
+    .top-input:focus, .csp-input:focus, .cosmos-input:focus {
+        outline: 2px solid #000000 !important;
+        outline-offset: -2px;
+        position: relative;
+        z-index: 10;
+    }
+</style>
+
+<script>
+// ऊपर वाली छोटी टेबल के लिए भी एक्सेल मल्टी-लाइन पेस्ट लॉजिक
+document.querySelectorAll('.top-input').forEach(inputElement => {
+    inputElement.addEventListener("paste", function(e) {
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData("text");
+        
+        // अगर डेटा में नई लाइन या टैब है, तभी जादुई पेस्ट काम करे
+        if (pastedData.includes("\n") || pastedData.includes("\t")) {
+            e.preventDefault();
+            
+            const rows = pastedData.split(/\r?\n/);
+            if (rows[rows.length - 1] === "") rows.pop();
+            
+            // वर्तमान इनपुट और उसकी कतार (Row) का पता लगाना
+            const currentInput = e.target;
+            const currentTr = currentInput.closest("tr");
+            const allTrs = Array.from(currentTr.parentNode.querySelectorAll("tr"));
+            const startRowIndex = allTrs.indexOf(currentTr);
+            
+            // नीचे की कतारों में डेटा भरना
+            rows.forEach((rowText, rOffset) => {
+                const targetTr = allTrs[startRowIndex + rOffset];
+                if (!targetTr) return;
+                
+                const columns = rowText.split("\t");
+                // चूंकि इस छोटी टेबल में हर रो में सिर्फ 1 ही इनपुट है, इसलिए पहला कॉलम डेटा ही लेंगे
+                const input = targetTr.querySelector(".top-input");
+                if (input && columns[0] !== undefined) {
+                    input.value = columns[0].trim();
+                }
+            });
+        }
+    });
+});
+</script>
+
+
+<!-- CSP MAIN GRID -->
+
+<table style="width:100%; border-collapse:collapse; table-layout:fixed;">
+    <colgroup>
+        <col style="width:100px;"> <!-- Auditor Notes -->
+        <col style="width:130px;"> <!-- Medicare Credentialed? -->
+        <col style="width:160px;"> <!-- Provider Name -->
+        <col style="width:85px;">  <!-- MPIN -->
+        <col style="width:85px;">  <!-- TIN -->
+        <col style="width:120px;"> <!-- Speciality -->
+        <col style="width:60px;">  <!-- PCP -->
+        <col style="width:95px;">  <!-- Eff. date -->
+        <col style="width:60px;">  <!-- LOB -->
+        <col style="width:120px;"> <!-- Agreement IDs (N) -->
+        <col style="width:120px;"> <!-- Agreement IDs (Y) -->
+        <col style="width:100px;"> <!-- Notes -->
+        <col style="width:110px;"> <!-- Medicaid ID -->
+    </colgroup>
+    
+    <tr>
+        <td colspan="13" class="section-header" style="background-color:#1f618d; font-size:12px; height:25px; font-weight:500; color:#fff; text-align:center; font-family: sans-serif;">
+            CSP CONTRACT LOAD TEMPLATE
+        </td>  
+    </tr>
+
+    <tr class="grid-header" style="background-color: #f2f2f2; font-weight: bold; font-size: 11px; text-align: center; height: 30px; font-family: sans-serif;">
+        <td style="border: 1px solid #ccc;">Auditor Notes</td>
+        <td style="border: 1px solid #ccc;">Medicare Credentialed?</td>
+        <td style="border: 1px solid #ccc;">Provider Name</td>
+        <td style="border: 1px solid #ccc;">MPIN</td>
+        <td style="border: 1px solid #ccc;">TIN</td>
+        <td style="border: 1px solid #ccc;">Speciality</td>
+        <td style="border: 1px solid #ccc;">PCP</td>
+        <td style="border: 1px solid #ccc;">Eff. date</td>
+        <td style="border: 1px solid #ccc;">LOB</td>
+        <td style="border: 1px solid #ccc;">Agreement IDs (N)</td>
+        <td style="border: 1px solid #ccc;">Agreement IDs (Y)</td>
+        <td style="border: 1px solid #ccc;">Notes</td>
+        <td style="border: 1px solid #ccc;">Medicaid ID</td>
+    </tr>
+
+    <tbody id="cspRows"></tbody>
+</table>
+
+<script>
+// 1. टेबल की 16 कतारें (Rows) जनरेट करना
+// यहाँ 11वें कॉलम को भी बाकी कॉलम्स की तरह बिल्कुल क्लीन (border:none) कर दिया है
+const cspRowTemplate = `
+<tr class="csp-row">
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:11px;"></td>
+</tr>
+`;
+document.getElementById("cspRows").innerHTML = cspRowTemplate.repeat(16);
+
+// 2. एक्सेल मल्टी-रो पेस्ट लॉजिक
+document.getElementById("cspRows").addEventListener("paste", function(e) {
+    if (!e.target.classList.contains("csp-input")) return;
+    
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedData = clipboardData.getData("text");
+    
+    if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+    
+    e.preventDefault();
+    
+    const rows = pastedData.split(/\r?\n/);
+    if (rows[rows.length - 1] === "") rows.pop();
+    
+    const currentInput = e.target;
+    const currentTd = currentInput.closest("td");
+    const currentTr = currentInput.closest("tr");
+    
+    const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+    const allRows = Array.from(document.querySelectorAll("#cspRows .csp-row"));
+    const startRowIndex = allRows.indexOf(currentTr);
+    
+    rows.forEach((rowText, rOffset) => {
+        const targetRow = allRows[startRowIndex + rOffset];
+        if (!targetRow) return;
+        
+        const columns = rowText.split("\t");
+        columns.forEach((cellText, cOffset) => {
+            const targetTd = targetRow.children[startColIndex + cOffset];
+            if (!targetTd) return;
+            
+            const input = targetTd.querySelector(".csp-input");
+            if (input) {
+                input.value = cellText.trim();
+            }
+        });
+    });
+});
+</script>
+</div>
+</div> <!-- sheet-cosmos ends here -->
+
+<!-- SHEET M2 main 2 -->
+<div id="sheet-m2" class="excel-table" style="display:none;padding-top:5px;">
+
+<table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+
+<tr style="font-size:9px;height:24px;font-weight:bold;text-align:center;color:#000;">
+    <td style="background:#ffeb3b;">Select</td>
+    <td style="background:#ffeb3b;">BAID</td>
+    <td style="background:#ffeb3b;">PAID</td>
+    <td style="background:#ffeb3b;">DIV</td>
+    <td style="background:#ffeb3b;">PROV</td>
+    <td style="background:#ffeb3b;">UHCID</td>
+    <td style="background:#ffeb3b;">EFF DT</td>
+    <td style="background:#ffeb3b;">EXP DT</td>
+    <td style="background:#ffeb3b;">CRED</td>
+    <td style="background:#ffeb3b;">UR</td>
+    <td style="background:red;color:white;">Original Eff Date</td>
+    <td style="background:#d4ac0d;">MPIN</td>
+    <td style="background:#d4ac0d;">TIN</td>
+</tr>
+
+<tbody id="m2Rows"></tbody>
+
+</table>
+
+</div>
+
+<!-- SHEET 4: MAINT 1 -->
+<div id="sheet-m1" class="excel-table" style="display: none; padding-top: 5px;">
+
+    <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+
+        <colgroup>
+            <col style="width:55px;">
+            <col style="width:60px;">
+            <col style="width:85px;">
+            <col style="width:85px;">
+            <col style="width:65px;">
+            <col style="width:75px;">
+            <col style="width:85px;">
+            <col style="width:85px;">
+            <col style="width:85px;">
+            <col style="width:75px;">
+            <col style="width:95px;">
+            <col style="width:95px;">
+        </colgroup>
+
+        <tr style="font-size:9px;height:24px;font-weight:bold;text-align:center;color:#000;">
+            <td style="background:#ffeb3b;">Select</td>
+            <td style="background:#ffeb3b;">CNTY</td>
+            <td style="background:#ffeb3b;">Tax ID</td>
+            <td style="background:#ffeb3b;">MKT Number</td>
+            <td style="background:#ffeb3b;">IPA</td>
+            <td style="background:#ffeb3b;">PRD/ARR</td>
+            <td style="background:#ffeb3b;">Eff Date</td>
+            <td style="background:#ffeb3b;">Cance Date</td>
+            <td style="background:#ffeb3b;">Fee SCH</td>
+            <td style="background:#ffeb3b;">PCP/PAT</td>
+            <td style="background:#d4ac0d;">MPIN</td>
+            <td style="background:#d4ac0d;">TAXID</td>
+        </tr>
+
+        <tbody id="m1Rows"></tbody>
+
+    </table>
+</div>
+<!-- MAINT 3 -->
+<div id="sheet-m3" class="excel-table" style="display:none;padding-top:5px;">
+
+<table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+
+<tr style="font-size:9px;height:24px;font-weight:bold;text-align:center;">
+    <td>A1</td>
+    <td>A2</td>
+    <td>A3</td>
+    <td>A4</td>
+    <td>A5</td>
+    <td>A6</td>
+    <td>A7</td>
+    <td>A8</td>
+    <td>A9</td>
+    <td>A10</td>
+</tr>
+
+<tbody id="m3Rows"></tbody>
+
+</table>
+
+</div>
+<!-- MAINT 4 -->
+<div id="sheet-m4" class="excel-table" style="display:none;padding-top:5px;">
+
+<table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+
+<tr style="font-size:9px;height:24px;font-weight:bold;text-align:center;">
+    <td>B1</td>
+    <td>B2</td>
+    <td>B3</td>
+</tr>
+
+<tbody id="m4Rows"></tbody>
+
+</table>
+
+</div>
+
+<!-- MAIN sheet COMBINED DASHBOARD SHEET -->
+
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+        <colgroup>
+            <col style="width: 110px;">
+            <col style="width: 110px;">
+            <col style="width: 80px;">
+            <col style="width: 80px;">
+            <col style="width: 80px;">
+            <col style="width: 50px;">
+            <col style="width: 100px;">
+            <col style="width: 70px;">
+            <col style="width: 60px;">
+        </colgroup>
+        
+        <!-- SECTION 1: Practitioner Add to Group (Top Panel) -->
+<tr>
+    <!-- font-size ko 20px kiya aur padding ko 10px tak badhaya -->
+   <!-- SECTION 1: Practitioner Add to Group (Top Panel - Complete Uniform Layout) -->
+<tr>
+    <td colspan="7" class="section-header" style="background-color: #2980b9; color: #fff; font-weight: bold; font-size: 15px; text-align: center; padding: 4px; font-family: sans-serif;">
+        Practitioner Add to Group
+    </td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">CME Assigned</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-cme-assigned" class="top-panel-input" style="text-align: center; font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none;"></td>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Retro Code</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;">
+        <input type="text" id="default-retro-code" class="top-panel-input" data-default="A06" value="A06" style="text-align: center; font-weight: bold; font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none;">
+    </td>
+    <td colspan="3" class="label-cell" style="text-align: center; font-size: 12px; padding: 5px; font-weight: bold; background-color: #eaeded; border: 1px solid #ccc; font-family: sans-serif;">Primary Place of Service</td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Request Number</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;">
+        <input type="text" id="top-request-num" class="top-panel-input"
+               style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;">
+    </td>
+
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Delegated</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;">
+        <input type="text" id="top-delegated" class="top-panel-input"
+               style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;">
+    </td>
+
+   <td colspan="3" rowspan="2" class="input-cell" style="border: 1px solid #ccc; padding: 0;">
+    <textarea id="top-primary-pos"
+              class="top-panel-input"
+              onpaste="parseFacilityPaste(event)"
+              style="font-size:16px; height:51px; width:100%; box-sizing:border-box; border:none; outline:none; text-align:center; resize:none;"></textarea>
+</td>
+</tr>
+
+<tr>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Effective Date</td>
+
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;">
+        <input type="text" id="top-req-eff-date" class="top-panel-input"
+               placeholder="mm/dd/yyyy"
+               style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;">
+    </td>
+
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Timely Filing</td>
+
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;">
+        <input type="text" id="top-timely-filing" class="top-panel-input"
+               style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;">
+    </td>
+</tr>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Healthplan / State</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-healthplan" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">County</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-county" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+    <td colspan="3" class="label-cell" style="text-align: center; font-size: 16px; padding: 5px; font-weight: bold; background-color: #eaeded; border: 1px solid #ccc; font-family: sans-serif;">PHONE NUMBER</td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Contract Type</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-contract-type" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Market Name</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-market-name" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+    <td colspan="3" class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-phone-num" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Clinic Name</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-clinic-name" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">PTI Mpin</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-pti-mpin" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+    <td colspan="3" class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-phone-extra-1" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; padding-left: 5px;"></td>
+</tr>
+<tr>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Emptoris Base Agreement/CID</td>
+    <td class="input-cell" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-emptoris-agreement" class="top-panel-input" style="font-size: 10px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+    <td class="sub-header-blue" style="background-color: #2980b9; color: #fff; font-weight: bold; text-align: center; font-size: 12px; padding: 5px; border: 1px solid #ccc; font-family: sans-serif;">Market #</td>
+    <td class="sub-header-blue" style="background-color: #2980b9; color: #fff; font-weight: bold; text-align: center; font-size: 12px; padding: 5px; border: 1px solid #ccc; font-family: sans-serif;">Products</td>
+    <td class="sub-header-blue" style="background-color: #2980b9; color: #fff; font-weight: bold; text-align: center; font-size: 12px; padding: 5px; border: 1px solid #ccc; font-family: sans-serif;">Included(pti) in Contract</td>
+    <td colspan="2" class="sub-header-blue" style="background-color: #2980b9; color: #fff; font-weight: bold; text-align: center; font-size: 12px; padding: 5px; border: 1px solid #ccc; font-family: sans-serif;">Platform</td>
+</tr>
+    <!-- 1. Provider Cred Date Row (Containing NDB and Commercial Fields) -->
+    <tr>
+        <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Provider Cred Date (601)</td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-prov-cred-date" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+        <td style="background-color: #eaeded; padding: 0; border: 1px solid #ccc;">
+            <input type="text" id="editable-ndb-label" class="top-panel-input" data-default="NDB :" value="NDB :" style="font-weight: bold; text-align: left; padding-left: 6px; font-size: 12px; color: #2c3e50; width: 100%; height: 25px; border: none; background: transparent; outline: none;">
+        </td>
+        <td style="text-align: center; background-color: #ffffff; font-size: 12px; padding: 5px; border: 1px solid #ccc; font-family: sans-serif; font-weight: 500;">Commercial</td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-comm-included" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+        <td colspan="2" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-comm-platform" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; padding-left: 5px;"></td>
+    </tr>
+
+    <!-- 2. Cred Application Date Row (THE MISSING EVECARE BLOCK FULLY RESTORED) -->
+    <tr>
+        <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Cred Application Date (205/252)</td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-cred-app-date" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+        <td style="background-color: #eaeded; padding: 0; border: 1px solid #ccc;">
+            <input type="text" id="editable-evecare-label" class="top-panel-input" data-default="EVECARE :" value="EVECARE :" style="font-weight: bold; text-align: left; padding-left: 6px; font-size: 12px; color: #2c3e50; width: 100%; height: 25px; border: none; background: transparent; outline: none;">
+        </td>
+        <td style="text-align: center; background-color: #ffffff; font-size: 12px; padding: 5px; border: 1px solid #ccc; font-family: sans-serif; font-weight: 500;">Medicare</td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-medi-included" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+        <td colspan="2" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-medi-platform" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; padding-left: 5px;"></td>
+    </tr>
+
+
+<!-- 2. Final Row: Provider Effective Date / CSP / Medicaid (Fully Fixed Sizing) -->
+<tr>
+    <td class="label-cell" style="font-size: 12px; padding: 5px; border: 1px solid #ccc;">Provider Effective Date</td>
+    <td style="border: 1px solid #ccc; padding: 0; background-color: #ffffff;">
+        <input type="text" id="default-eff-date" class="top-panel-input" placeholder="mm/dd/yyyy" style="text-align: center; font-weight: bold; font-size: 12px; width: 100%; height: 25px; box-sizing: border-box; border: none; outline: none;">
+    </td>
+    <td style="font-weight: bold; text-align: left; padding-left: 6px; background-color: #eaeded; font-size: 12px; padding: 5px; border: 1px solid #ccc; color: #2c3e50;">CSP :</td>
+    <td style="text-align: center; background-color: #ffffff; font-size: 12px; padding: 5px; border: 1px solid #ccc; font-family: sans-serif; font-weight: 500;">Medicaid</td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-mcaid-included" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+    <td colspan="2" style="border: 1px solid #ccc; padding: 0;"><input type="text" id="top-mcaid-platform" class="top-panel-input" style="font-size: 12px; height: 25px; width: 100%; box-sizing: border-box; border: none; outline: none; text-align: center;"></td>
+</tr>
+<tr class="spacer-row"><td colspan="7" style="height: 8px;"></td></tr>
+</tbody>
+
+ <!-- SECTION 2: NEWLY ADDED Practitioner Details Panel -->
+<tbody id="practitionerPanelBody">
+    <tr>
+        <td colspan="7" class="section-header" style="background-color: #2980b9; color: #fff; font-weight: bold; font-size: 15px; text-align: center; padding: 2px; font-family:sans-serif;">
+            Practitioner Details Panel
+        </td>
+    </tr>
+    <tr style="background-color: #eaeded; font-weight: bold; text-align: center; font-size: 12px; font-family:sans-serif;">
+        <td style="padding: 5px; border:1px solid #ccc;">Practitioner Name</td>
+        <td style="padding: 5px; border:1px solid #ccc;">MPIN</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Tax ID</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Specialty</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Tier</td>
+        <td style="padding: 5px; border:1px solid #ccc;">TPSM code</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Facility Penalty Table #</td>
+    </tr>
+    <tr class="prac-details-row">
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Practitioner-Name" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Practitioner-MPIN" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Practitioner-TaxID" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Practitioner-Specialty" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Practitioner-Tier" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Practitioner-TPSM" class="prac-input"value="99Z"style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Practitioner-FacilityPenalty" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    </tr>
+    <tr style="background-color: #eaeded; font-weight: bold; text-align: center; font-size: 12px; font-family:sans-serif;">
+        <td style="padding: 5px; border:1px solid #ccc;">Medicaid ID (TPI Number)</td>
+        <td style="padding: 5px; border:1px solid #ccc;">NPI</td>
+        <td style="padding: 5px; border:1px solid #ccc;">UHCID's built correctly</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Titan Request Needed</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Bill Aid</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Cos Prov</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Del Code</td>
+    </tr>
+    <tr class="prac-details-row">
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Medicaid-ID" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="NPI" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+<td style="border: 1px solid #ccc; padding: 0;"><select id="UHCID-Built-Correctly" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none; background-color:#ffffff; color:#000000; text-align-last:center;"><option value="" style="background-color:#ffffff; color:#000000;"></option><option value="Yes" style="background-color:#ffffff; color:#000000;">Yes</option><option value="No" style="background-color:#ffffff; color:#000000;">No</option></select></td>
+<td style="border: 1px solid #ccc; padding: 0;"><select id="Titan-Request-Needed" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none; background-color:#ffffff; color:#000000; text-align-last:center;"><option value="" style="background-color:#ffffff; color:#000000;"></option><option value="Yes" style="background-color:#ffffff; color:#000000;">Yes</option><option value="No" style="background-color:#ffffff; color:#000000;">No</option></select></td>
+
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Bill-Aid" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Cos-Prov" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        <td style="border: 1px solid #ccc; padding: 0;"><input type="text" id="Del-Code" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    </tr>
+    <tr style="background-color: #eaeded; font-weight: bold; text-align: center; font-size: 12px; font-family:sans-serif;">
+        <td style="padding: 5px; border:1px solid #ccc;">Commercial Credentialed?</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Medicare Credentialed?</td>
+        <td style="padding: 5px; border:1px solid #ccc;">Medicaid Credentialed?</td>
+        <td style="padding: 5px; border:1px solid #ccc;">PCP?</td>
+        <td colspan="3" style="padding: 5px; border:1px solid #ccc;">Meets Criteria Comment (I, C, Z)</td>
+    </tr>
+    <tr class="prac-details-row">
+    <!-- Commercial Credentialed Dropdown -->
+    <td style="border: 1px solid #ccc; padding: 0;">
+        <select id="Commercial-Credentialed" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none; background-color:#ffffff; color:#000000; text-align-last:center;">
+            <option value="" style="background-color:#ffffff; color:#000000;"></option>
+            <option value="Yes" style="background-color:#ffffff; color:#000000;">Yes</option>
+            <option value="No" style="background-color:#ffffff; color:#000000;">No</option>
+            <option value="N/A" style="background-color:#ffffff; color:#000000;">N/A</option>
+        </select>
+    </td>
+    
+    <!-- Medicare Credentialed Dropdown -->
+    <td style="border: 1px solid #ccc; padding: 0;">
+        <select id="Medicare-Credentialed" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none; background-color:#ffffff; color:#000000; text-align-last:center;">
+            <option value="" style="background-color:#ffffff; color:#000000;"></option>
+            <option value="Yes" style="background-color:#ffffff; color:#000000;">Yes</option>
+            <option value="No" style="background-color:#ffffff; color:#000000;">No</option>
+            <option value="N/A" style="background-color:#ffffff; color:#000000;">N/A</option>
+        </select>
+    </td>
+    
+    <!-- Medicaid Credentialed Dropdown -->
+    <td style="border: 1px solid #ccc; padding: 0;">
+        <select id="Medicaid-Credentialed" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none; background-color:#ffffff; color:#000000; text-align-last:center;">
+            <option value="" style="background-color:#ffffff; color:#000000;"></option>
+            <option value="Yes" style="background-color:#ffffff; color:#000000;">Yes</option>
+            <option value="No" style="background-color:#ffffff; color:#000000;">No</option>
+            <option value="N/A" style="background-color:#ffffff; color:#000000;">N/A</option>
+        </select>
+    </td>
+    
+    <!-- PCP / SPC Dropdown -->
+    <td style="border: 1px solid #ccc; padding: 0;">
+        <select id="PCP" class="prac-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none; background-color:#ffffff; color:#000000; text-align-last:center;">
+            <option value="" style="background-color:#ffffff; color:#000000;"></option>
+            <option value="PCP" style="background-color:#ffffff; color:#000000;">PCP</option>
+            <option value="SPC" style="background-color:#ffffff; color:#000000;">SPC</option>
+        </select>
+    </td>
+    
+    <!-- Meets Criteria Comment -->
+    <td colspan="3" style="border: 1px solid #ccc; padding: 0;">
+        <input type="text" id="Meets-Criteria-Comment" class="prac-input" style="width:100%; height:25px; text-align:left; padding-left:6px; box-sizing:border-box; border:none; font-size:12px; outline:none; background-color:transparent;">
+    </td>
+</tr>
+
+    <tr class="spacer-row"><td colspan="7" style="height: 8px;"></td></tr>
+</tbody>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("practitionerPanelBody");
+    if (!container) return;
+
+    // 1. Flatten array to accurately map cells sequentially across multi-row structures
+    const inputOrderIds = [
+        "Practitioner-Name", "Practitioner-MPIN", "Practitioner-TaxID", "Practitioner-Specialty", "Practitioner-Tier", "Practitioner-TPSM", "Practitioner-FacilityPenalty",
+        "Medicaid-ID", "NPI", "UHCID-Built-Correctly", "Titan-Request-Needed", "Bill-Aid", "Cos-Prov", "Del-Code",
+        "Commercial-Credentialed", "Medicare-Credentialed", "Medicaid-Credentialed", "PCP", "Meets-Criteria-Comment"
+    ];
+
+    // 2. Intelligent Flattened Sequential Excel Clipboard Paste Logic
+    container.addEventListener("paste", function(e) {
+        if (!e.target.classList.contains("prac-input")) return;
+        
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData("text");
+        
+        if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+        
+        e.preventDefault();
+        
+        // Split clipboard matrix into rows and cells
+        const rows = pastedData.split(/\r?\n/);
+        if (rows[rows.length - 1] === "") rows.pop();
+        
+        let pastedCells = [];
+        rows.forEach(rowText => {
+            const columns = rowText.split("\t");
+            columns.forEach(cellText => {
+                pastedCells.push(cellText.trim());
+            });
+        });
+        
+        // Map elements sequentially based on the current target active ID index
+        const currentId = e.target.id;
+        const startTargetIndex = inputOrderIds.indexOf(currentId);
+        
+        pastedCells.forEach((cellText, offset) => {
+            const destinationId = inputOrderIds[startTargetIndex + offset];
+            if (!destinationId) return;
+            
+            const targetInput = document.getElementById(destinationId);
+            if (targetInput) {
+                targetInput.value = cellText;
+            }
+        });
+    });
+
+    // 3. Volumetric Black Excel-like Active Focus Outline Logic
+    container.querySelectorAll('.prac-input').forEach(inputField => {
+        inputField.addEventListener("focus", function() {
+            this.style.outline = "2px solid #000000";
+            this.style.outlineOffset = "-2px";
+            this.style.position = "relative";
+            this.style.zIndex = "10";
+        });
+        
+        inputField.addEventListener("blur", function() {
+            this.style.outline = "none";
+            this.style.position = "static";
+            this.style.zIndex = "auto";
+        });
+    });
+});
+</script>
+
+<!-- NDB Contract Masters (All Products Unlocked & Fully Editable) -->
+<tr>
+    <td colspan="7" class="section-header" style="background-color: #1f618d; font-size: 15px; font-weight: bold; color: white; padding: 2px; font-family:sans-serif; text-align:center;">
+        NDB Contract Masters
+    </td>
+</tr>
+<tr class="grid-header" style="font-size: 12px; font-weight: bold; text-align: center; background-color: #eaeded; font-family:sans-serif;">
+    <td style="padding: 5px; border:1px solid #ccc;">Product Information</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Contract Master Name</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Master ID</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Fee Schedule</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Penalty Table</td>
+    <td colspan="2" style="padding: 5px; border:1px solid #ccc;">Notes</td> 
+</tr>
+
+<tbody id="ndbRows"></tbody>
+
+<script>
+const ndbProducts = [
+    "AA-O", "A1 A2 A3", "C0 C1 C2 S0 S1 S2 STDNONPPO", "EA EB EC ACO-NR",
+    "ED EE EF ACO-R", "EG EH EI ACO-OA", "LG LH LI DR-PLAN", "P3",
+    "SG SH SI NAV", "S7 S8 S9 CHTR", "G0", "G0", "F4 VACCN", "ER",
+    "EM EO", "EJ EK EL", "V3", "OX", "P2", "P4", "IND N4"
+];
+
+const ndbRows = document.getElementById("ndbRows");
+
+if (ndbRows) {
+    let htmlContent = "";
+    
+    // 1. Loop through products and generate inputs with fully editable text fields
+    ndbProducts.forEach(item => {
+        htmlContent += `
+        <tr class="ndb-row">
+            <!-- First column is now editable and has the standard clean background layout -->
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-input yellow-code-input" data-default="${item}" value="${item}" style="width:100%; height:25px; font-weight:bold; text-align:center; box-sizing:border-box; border:none; font-size:11px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td colspan="2" style="border: 1px solid #ccc; padding: 0;"><input type="text" class="ndb-input" style="width:100%; height:25px; text-align:left; padding-left:6px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        </tr>`;
+    });
+    
+    ndbRows.innerHTML = htmlContent;
+
+    // 2. Intelligent Multi-Row Excel Clipboard Paste Logic (Now allows pasting into column 0 too!)
+    ndbRows.addEventListener("paste", function(e) {
+        if (!e.target.classList.contains("ndb-input")) return;
+        
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData("text");
+        
+        if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+        
+        e.preventDefault();
+        
+        const lines = pastedData.split(/\r?\n/);
+        if (lines[lines.length - 1] === "") lines.pop();
+        
+        const currentInput = e.target;
+        const currentTd = currentInput.closest("td");
+        const currentTr = currentInput.closest("tr");
+        
+        const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+        const allRowsArray = Array.from(document.querySelectorAll("#ndbRows .ndb-row"));
+        const startRowIndex = allRowsArray.indexOf(currentTr);
+        
+        lines.forEach((rowText, rOffset) => {
+            const targetRow = allRowsArray[startRowIndex + rOffset];
+            if (!targetRow) return;
+            
+            const matrixColumns = rowText.split("\t");
+            matrixColumns.forEach((cellText, cOffset) => {
+                const targetColIndex = startColIndex + cOffset;
+                const targetTd = targetRow.children[targetColIndex];
+                if (!targetTd) return;
+                
+                const inputElement = targetTd.querySelector(".ndb-input");
+                if (inputElement) {
+                    inputElement.value = cellText.trim();
+                }
+            });
+        });
+    });
+
+    // 3. Volumetric Black Excel-like Active Focus Outline Logic
+    ndbRows.querySelectorAll('.ndb-input').forEach(inputField => {
+        inputField.addEventListener("focus", function() {
+            this.style.outline = "2px solid #000000";
+            this.style.outlineOffset = "-2px";
+            this.style.position = "relative";
+            this.style.zIndex = "10";
+        });
+        
+        inputField.addEventListener("blur", function() {
+            this.style.outline = "none";
+            this.style.position = "static";
+            this.style.zIndex = "auto";
+        });
+    });
+}
+</script>
+
+
+<!-- ENW Yes or No: Customized Dropdown and Excel Logic Sync -->
+<tr class="enw-grid-row">
+    <!-- Protected Header Cell -->
+    <td class="label-cell" style="background-color: #FFFF00 !important; color: #000 !important; font-weight: bold !important; text-align: center; font-family: 'Segoe UI', sans-serif; border: 1px solid #ccc;">ENW Yes or No</td>
+    
+    <!-- Centered Excel-like Dropdown Select -->
+    <td style="text-align: center; background-color: #ffffff; padding: 0 !important; border: 1px solid #ccc;">
+        <select id="enw-dropdown" class="enw-row-input" style="width: 100%; height: 25px; border: none; background: transparent; color: #000; text-align: center; text-align-last: center; font-weight: bold; font-family: 'Segoe UI', sans-serif; outline: none; cursor: pointer;">
+            <option value="YES" selected>YES</option>
+            <option value="NO">NO</option>
+        </select>
+    </td>
+    
+    <!-- Unified 100% Width Form Inputs -->
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="enw-row-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="enw-row-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="enw-row-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td colspan="2" style="border: 1px solid #ccc; padding: 0;"><input type="text" class="enw-row-input" style="width:100%; height:25px; text-align:left; padding-left:6px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+</tr>
+
+<script>
+// 1. Magic Multi-Row Excel Clipboard Distribution Logic for ENW Row
+document.querySelector(".enw-grid-row").addEventListener("paste", function(e) {
+    if (!e.target.classList.contains("enw-row-input")) return;
+    
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedData = clipboardData.getData("text");
+    
+    // Allow normal pasting if it doesn't contain rows/tabs
+    if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+    
+    e.preventDefault();
+    
+    const lines = pastedData.split(/\r?\n/);
+    if (lines[lines.length - 1] === "") lines.pop();
+    
+    const currentElement = e.target;
+    const currentTd = currentElement.closest("td");
+    const currentTr = currentElement.closest("tr");
+    
+    // Find visual cell index starting index point
+    const startCellIndex = Array.from(currentTr.cells).indexOf(currentTd);
+    
+    const rowText = lines[0]; // Processing single row paste array safely
+    const matrixColumns = rowText.split("\t");
+    
+    matrixColumns.forEach((cellText, cOffset) => {
+        const targetCellIndex = startCellIndex + cOffset;
+        const targetTd = currentTr.cells[targetCellIndex];
+        if (!targetTd) return;
+        
+        // Skip index 0 (Label column)
+        if (targetCellIndex === 0) return;
+        
+        // Handle input vs dropdown update paths safely
+        const inputElement = targetTd.querySelector("input[type='text']");
+        const selectElement = targetTd.querySelector("select");
+        
+        const cleanText = cellText.trim().toUpperCase();
+        
+        if (inputElement) {
+            inputElement.value = cellText.trim();
+        } else if (selectElement) {
+            // Checks if pasted data matches valid options before mapping value
+            if (cleanText === "YES" || cleanText === "NO") {
+                selectElement.value = cleanText;
+            }
+        }
+    });
+});
+
+// 2. Volumetric Black Border Focus Tracker Logic
+document.querySelectorAll('.enw-row-input').forEach(element => {
+    element.addEventListener("focus", function() {
+        this.style.outline = "2px solid #000000";
+        this.style.outlineOffset = "-2px";
+        this.style.position = "relative";
+        this.style.zIndex = "10";
+    });
+    
+    element.addEventListener("blur", function() {
+        this.style.outline = "none";
+        this.style.position = "static";
+        this.style.zIndex = "auto";
+    });
+});
+</script>
+
+
+<!-- Cosmos Contract Masters Section (Total 9 Columns) -->
+<tr>
+    <td colspan="9" class="section-header" style="background-color: #1f618d; font-size: 15px; font-weight: bold; color: white; padding: 2px; font-family:sans-serif; text-align:center;">
+        Cosmos Contract Masters
+    </td>
+</tr>
+<tr class="grid-header" style="font-size: 12px; font-weight: bold; text-align: center; background-color: #eaeded; font-family:sans-serif;">
+    <td style="text-align: left; padding: 4px; border:1px solid #ccc;">Market Number</td>
+    <td style="padding: 4px; border:1px solid #ccc;">M&R Fee Schedule</td>
+    <td style="padding: 4px; border:1px solid #ccc;">Cosmos Div</td>
+    <td style="padding: 4px; border:1px solid #ccc;">Cosmos Panel</td>
+    <td style="padding: 4px; border:1px solid #ccc;">Cosmos Network Code</td>
+    <td style="padding: 4px; border:1px solid #ccc;">COSMOS Contract or Package</td>
+    <td style="padding: 4px; border:1px solid #ccc;">Contract Master Name</td>
+    <td style="padding: 4px; border:1px solid #ccc;">Contract Master</td>
+    <td style="padding: 4px; border:1px solid #ccc;">Notes</td>
+</tr>
+
+<!-- Cosmos Dynamic Rows Container Body -->
+<tbody id="cosmosRows"></tbody>   
+
+<script>
+    const cosmosRows = document.getElementById("cosmosRows");
+    if (cosmosRows) {
+        let htmlBuffer = "";
+        
+        // 1. Loop through and generate 18 rows with exact left/center alignments
+       for(let i = 0; i < 18; i++){
+
+    let marketValue = "";
+
+    if(i === 0){
+        marketValue = "NDB :";
+    }
+    else if(i === 6){
+        marketValue = "EVERCARE :";
+    }
+
+    htmlBuffer += `
+    <tr class="cosmos-master-row">
+
+        <td style="border:1px solid #ccc;padding:0;">
+            <input type="text"
+       id="${i===0 ? 'editable-cosmos-ndb' : i===6 ? 'editable-cosmos-evecare' : ''}"
+       class="cosmos-master-input"
+       value="${marketValue}"
+                   style="width:100%;
+                          height:25px;
+                          text-align:left;
+                          padding-left:4px;
+                          box-sizing:border-box;
+                          border:none;
+                          font-size:12px;
+                          outline:none;
+                          font-weight:bold;">
+        </td>
+
+        <td style="border:1px solid #ccc;padding:0;"><input type="text" class="cosmos-master-input" style="width:100%;height:25px;text-align:center;border:none;"></td>
+        <td style="border:1px solid #ccc;padding:0;"><input type="text" class="cosmos-master-input" style="width:100%;height:25px;text-align:center;border:none;"></td>
+        <td style="border:1px solid #ccc;padding:0;"><input type="text" class="cosmos-master-input" style="width:100%;height:25px;text-align:center;border:none;"></td>
+        <td style="border:1px solid #ccc;padding:0;"><input type="text" class="cosmos-master-input" style="width:100%;height:25px;text-align:center;border:none;"></td>
+        <td style="border:1px solid #ccc;padding:0;"><input type="text" class="cosmos-master-input" style="width:100%;height:25px;text-align:center;border:none;"></td>
+        <td style="border:1px solid #ccc;padding:0;"><input type="text" class="cosmos-master-input" style="width:100%;height:25px;text-align:center;border:none;"></td>
+        <td style="border:1px solid #ccc;padding:0;"><input type="text" class="cosmos-master-input" style="width:100%;height:25px;text-align:center;border:none;"></td>
+        <td style="border:1px solid #ccc;padding:0;"><input type="text" class="cosmos-master-input" style="width:100%;height:25px;text-align:center;border:none;"></td>
+
+    </tr>`;
+}
+        cosmosRows.innerHTML = htmlBuffer;
+
+        // 2. Magic Multi-Row Excel Clipboard Distribution Logic
+        cosmosRows.addEventListener("paste", function(e) {
+            if (!e.target.classList.contains("cosmos-master-input")) return;
+            
+            const clipboardData = e.clipboardData || window.clipboardData;
+            const pastedData = clipboardData.getData("text");
+            
+            if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+            
+            e.preventDefault();
+            
+            const lines = pastedData.split(/\r?\n/);
+            if (lines[lines.length - 1] === "") lines.pop();
+            
+            const currentInput = e.target;
+            const currentTd = currentInput.closest("td");
+            const currentTr = currentInput.closest("tr");
+            
+            const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+            const allRowsArray = Array.from(document.querySelectorAll("#cosmosRows .cosmos-master-row"));
+            const startRowIndex = allRowsArray.indexOf(currentTr);
+            
+            lines.forEach((rowText, rOffset) => {
+                const targetRow = allRowsArray[startRowIndex + rOffset];
+                if (!targetRow) return;
+                
+                const matrixColumns = rowText.split("\t");
+                matrixColumns.forEach((cellText, cOffset) => {
+                    const targetTd = targetRow.children[startColIndex + cOffset];
+                    if (!targetTd) return;
+                    
+                    const inputElement = targetTd.querySelector(".cosmos-master-input");
+                    if (inputElement) {
+                        inputElement.value = cellText.trim();
+                    }
+                });
+            });
+        });
+
+        // 3. Volumetric Black Border Focus Tracker Logic
+        cosmosRows.querySelectorAll('.cosmos-master-input').forEach(inputField => {
+            inputField.addEventListener("focus", function() {
+                this.style.outline = "2px solid #000000";
+                this.style.outlineOffset = "-2px";
+                this.style.position = "relative";
+                this.style.zIndex = "10";
+            });
+            
+            inputField.addEventListener("blur", function() {
+                this.style.outline = "none";
+                this.style.position = "static";
+                this.style.zIndex = "auto";
+            });
+        });
+    }
+</script>
+
+<!-- CSP Facets Agreement ID's Section (Total 16 Rows) -->
+<tr>
+    <td colspan="9" class="section-header" style="background-color: #1f618d; font-size: 15px; font-weight: bold; color: white; padding: 2px; font-family:sans-serif; text-align:center;">
+        CSP Facets Agreement ID's
+    </td>
+</tr>
+<tr class="grid-header" style="font-size: 12px; font-weight: bold; text-align: center; background-color: #eaeded; font-family:sans-serif;">
+    <td style="text-align: left; padding: 5px 5px 5px 6px; border:1px solid #ccc;">DSNP Border States to Load</td>
+    <td style="text-align: left; padding: 5px 5px 5px 6px; border:1px solid #ccc;">PCP Mark DSNP with see DSNP selection</td>
+    <td style="padding: 5px; border:1px solid #ccc;">LOB</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Agreement ID (N)</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Agreement ID (Y-PPAC)</td>
+    <td style="padding: 5px; border:1px solid #ccc;">CAP CODE OR Notes</td>
+    <td style="padding: 5px; border:1px solid #ccc;">CAP Code Effective Date</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Disclosure Required</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Disclosure ID Number</td>
+</tr>
+<!-- 2. CSP Rows Container Body -->
+<tbody id="cspFacetRows"></tbody>
+
+<script>
+    const cspRows = document.getElementById("cspFacetRows");
+    if (cspRows) {
+        let htmlString = "";
+        
+        // 1. Loop through and generate 16 rows with exact left/center alignments
+        for(let i = 0; i < 16; i++) {
+            htmlString += `
+            <tr class="csp-facet-row">
+                <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-facet-input" style="width:100%; height:25px; text-align:left; padding-left:6px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+                <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-facet-input" style="width:100%; height:25px; text-align:left; padding-left:6px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+                <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-facet-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+                <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-facet-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+                <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-facet-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+                <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-facet-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+                <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-facet-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+                <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-facet-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+                <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="csp-facet-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            </tr>`;
+        }
+        cspRows.innerHTML = htmlString;
+
+        // 2. Magic Multi-Row Excel Clipboard Distribution Logic
+        cspRows.addEventListener("paste", function(e) {
+            if (!e.target.classList.contains("csp-facet-input")) return;
+            
+            const clipboardData = e.clipboardData || window.clipboardData;
+            const pastedData = clipboardData.getData("text");
+            
+            if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+            
+            e.preventDefault();
+            
+            const lines = pastedData.split(/\r?\n/);
+            if (lines[lines.length - 1] === "") lines.pop();
+            
+            const currentInput = e.target;
+            const currentTd = currentInput.closest("td");
+            const currentTr = currentInput.closest("tr");
+            
+            const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+            const allRowsArray = Array.from(document.querySelectorAll("#cspFacetRows .csp-facet-row"));
+            const startRowIndex = allRowsArray.indexOf(currentTr);
+            
+            lines.forEach((rowText, rOffset) => {
+                const targetRow = allRowsArray[startRowIndex + rOffset];
+                if (!targetRow) return;
+                
+                const matrixColumns = rowText.split("\t");
+                matrixColumns.forEach((cellText, cOffset) => {
+                    const targetTd = targetRow.children[startColIndex + cOffset];
+                    if (!targetTd) return;
+                    
+                    const inputElement = targetTd.querySelector(".csp-facet-input");
+                    if (inputElement) {
+                        inputElement.value = cellText.trim();
+                    }
+                });
+            });
+        });
+
+        // 3. Volumetric Black Border Focus Tracker Logic
+        cspRows.querySelectorAll('.csp-facet-input').forEach(inputField => {
+            inputField.addEventListener("focus", function() {
+                this.style.outline = "2px solid #000000";
+                this.style.outlineOffset = "-2px";
+                this.style.position = "relative";
+                this.style.zIndex = "10";
+            });
+            
+            inputField.addEventListener("blur", function() {
+                this.style.outline = "none";
+                this.style.position = "static";
+                this.style.zIndex = "auto";
+            });
+        });
+    }
+</script>
+
+<!-- NICE Section (Total 3 Rows + Left/Center Alignment Fixed) -->
+<tr>
+    <td colspan="9" class="section-header" style="background-color: #1f618d; font-size: 15px; font-weight: bold; color: white; padding: 2px; text-align: center; font-family:sans-serif;">NICE</td>
+</tr>
+<tr class="grid-header" style="font-size: 12px; font-weight: bold; text-align: center; background-color: #eaeded; font-family:sans-serif;">
+    <td style="text-align: left; padding: 5px 5px 5px 4px; border:1px solid #ccc;">Notes</td>
+    <td style="padding: 5px; border:1px solid #ccc;">PCP Yes or No</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Group DEC</td>
+    <td style="padding: 5px; border:1px solid #ccc;">NICE CO or SH FS (or indicate if C2 shell applies)</td>
+    <td style="padding: 5px; border:1px solid #ccc;">NICE SH FS</td>
+    <td style="padding: 5px; border:1px solid #ccc;">PNI</td>
+    <td style="padding: 5px; border:1px solid #ccc;">PMG (AZ/CO/NV only)</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Company/ Division</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Z LINE - PCP Commercial</td>
+</tr>
+<tbody id="niceRows"></tbody>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tbody = document.getElementById("niceRows");
+    let html = "";
+
+    // 1. Generate 3 Clean Rows dynamically with exact alignment mappings
+    for (let i = 0; i < 3; i++) {
+        html += `
+        <tr class="nice-grid-row">
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="nice-input" style="width:100%; height:25px; text-align:left; padding-left:6px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="nice-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="nice-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="nice-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="nice-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="nice-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="nice-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="nice-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+            <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="nice-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+        </tr>`;
+    }
+    
+    tbody.innerHTML = html;
+
+    // 2. Multi-Row Excel Paste Feature for NICE Grid
+    tbody.addEventListener("paste", function(e) {
+        if (!e.target.classList.contains("nice-input")) return;
+        
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData("text");
+        
+        if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+        
+        e.preventDefault();
+        
+        const rows = pastedData.split(/\r?\n/);
+        if (rows[rows.length - 1] === "") rows.pop();
+        
+        const currentInput = e.target;
+        const currentTd = currentInput.closest("td");
+        const currentTr = currentInput.closest("tr");
+        
+        const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+        const allRows = Array.from(document.querySelectorAll("#niceRows .nice-grid-row"));
+        const startRowIndex = allRows.indexOf(currentTr);
+        
+        rows.forEach((rowText, rOffset) => {
+            const targetRow = allRows[startRowIndex + rOffset];
+            if (!targetRow) return;
+            
+            const columns = rowText.split("\t");
+            columns.forEach((cellText, cOffset) => {
+                const targetTd = targetRow.children[startColIndex + cOffset];
+                if (!targetTd) return;
+                
+                const input = targetTd.querySelector(".nice-input");
+                if (input) {
+                    input.value = cellText.trim();
+                }
+            });
+        });
+    });
+
+    // 3. Excel-like Black Focus Border Tracker Logic
+    tbody.querySelectorAll('.nice-input').forEach(inputElement => {
+        inputElement.addEventListener("focus", function() {
+            this.style.outline = "2px solid #000000";
+            this.style.outlineOffset = "-2px";
+            this.style.position = "relative";
+            this.style.zIndex = "10";
+        });
+        
+        inputElement.addEventListener("blur", function() {
+            this.style.outline = "none";
+            this.style.position = "static";
+            this.style.zIndex = "auto";
+        });
+    });
+});
+</script>
+
+<!-- System Maintenance Grid (Dates completely changed to normal text fields) -->
+<tr>
+    <td colspan="9" class="section-header" style="background-color:#1f618d; font-size: 15px; font-weight: bold; color: white; padding:2px; font-family:sans-serif; text-align:center;">
+        System Maintenance Grid
+    </td>
+</tr>
+<tr class="grid-header" style="font-size: 12px; font-weight: bold; text-align: center; background-color: #eaeded; font-family:sans-serif;">
+    <td style="padding: 5px; border:1px solid #ccc;">System</td>
+    <td style="padding: 5px; border:1px solid #ccc;">PhyCon Submission ID</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Navigator Submission ID</td>
+    <td style="padding: 5px; border:1px solid #ccc;">DATE</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Submission Complete</td>
+    <td style="padding: 5px; border:1px solid #ccc;">Post-Audit Complete Date</td>
+    <!-- Comments column 3 columns wide is kept and row center aligned -->
+    <td colspan="3" style="padding: 5px; border:1px solid #ccc;">Comments</td>
+</tr>
+<tbody id="systemRows"></tbody>
+
+<script>
+const systems = [
+  "Contractual Request",
+  "Contractual Request",
+  "Contractual Request",
+  "Demographic Request",
+  "TITAN",
+  "GD Created"
+];
+
+let html = "";
+
+// 1. Loop through systems and render text inputs correctly with 100% width and clean borders
+systems.forEach((name, i) => {
+  html += `
+  <tr class="sys-maint-row">
+    <td style="border: 1px solid #ccc; padding: 0; background:#f9f9f9;"><input type="text" class="sys-maint-input" value="${name}" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; font-weight:600; outline:none; background:transparent;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="sys-maint-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="sys-maint-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="sys-maint-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="sys-maint-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="sys-maint-input" style="width:100%; height:25px; text-align:center; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+    <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="sys-maint-input" style="width:100%; height:25px; text-align:left; padding-left:6px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+     <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="sys-maint-input" style="width:100%; height:25px; text-align:left; padding-left:6px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+      <td style="border: 1px solid #ccc; padding: 0;"><input type="text" class="sys-maint-input" style="width:100%; height:25px; text-align:left; padding-left:6px; box-sizing:border-box; border:none; font-size:12px; outline:none;"></td>
+  </tr>`;
+});
+
+document.getElementById("systemRows").innerHTML = html;
+
+// 2. Excel Magic Paste Handler (Skips the hardcoded System Name column to protect it)
+document.getElementById("systemRows").addEventListener("paste", function(e) {
+    if (!e.target.classList.contains("sys-maint-input")) return;
+    
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedData = clipboardData.getData("text");
+    
+    if (!pastedData.includes("\n") && !pastedData.includes("\t")) return;
+    
+    e.preventDefault();
+    
+    const rows = pastedData.split(/\r?\n/);
+    if (rows[rows.length - 1] === "") rows.pop();
+    
+    const currentInput = e.target;
+    const currentTd = currentInput.closest("td");
+    const currentTr = currentInput.closest("tr");
+    
+    const startColIndex = Array.from(currentTr.children).indexOf(currentTd);
+    const allRows = Array.from(document.querySelectorAll("#systemRows .sys-maint-row"));
+    const startRowIndex = allRows.indexOf(currentTr);
+    
+    rows.forEach((rowText, rOffset) => {
+        const targetRow = allRows[startRowIndex + rOffset];
+        if (!targetRow) return;
+        
+        const columns = rowText.split("\t");
+        columns.forEach((cellText, cOffset) => {
+            const targetColIndex = startColIndex + cOffset;
+            const targetTd = targetRow.children[targetColIndex];
+            if (!targetTd) return;
+            
+            // Skip the first column (index 0) if pasting to avoid overwriting the System names
+            if (targetColIndex === 0) return;
+            
+            const input = targetTd.querySelector(".sys-maint-input");
+            if (input) {
+                input.value = cellText.trim();
+            }
+        });
+    });
+});
+
+// 3. Black Excel Focus Border Tracker Logic
+document.getElementById("systemRows").querySelectorAll('.sys-maint-input').forEach(inputElement => {
+    inputElement.addEventListener("focus", function() {
+        this.style.outline = "2px solid #000000";
+        this.style.outlineOffset = "-2px";
+        this.style.position = "relative";
+        this.style.zIndex = "10";
+    });
+    
+    inputElement.addEventListener("blur", function() {
+        this.style.outline = "none";
+        this.style.position = "static";
+        this.style.zIndex = "auto";
+    });
+});
+</script>
+
+</script>
+
+<script>
+    // 1. टूलबार ड्रॉपडाउन पॉप्युलेट
+    const optionsList = ["10", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "a", "1"];
+    ["sel-cred", "sel-res", "sel-ndb", "sel-contract", "sel-coming"].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) {
+            optionsList.forEach(opt => {
+                const o = document.createElement("option");
+                o.value = opt; o.textContent = opt;
+                el.appendChild(o);
+            });
+        }
+    });
+
+       // 2. गारंटेड वर्किंग स्टिकी टैब स्विच और ऑटो-डेटा ट्रांसफर लॉजिक
+// सिर्फ टैब बदलने (Screen Switch) के लिए साफ़-सुथरा कोड
+function switchSheet(sheetId, btn) {
+
+    document.querySelectorAll('.excel-table').forEach(table => {
+        table.style.display = 'none';
+        table.classList.remove('active-sheet');
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(t => {
+        t.classList.remove('active-tab');
+    });
+
+    let targetSheet =
+    document.getElementById('sheet-' + sheetId);
+
+    if (targetSheet) {
+        targetSheet.style.display = 'block';
+        targetSheet.classList.add('active-sheet');
+    }
+
+    if (btn) {
+        btn.classList.add('active-tab');
+    }
+
+    // Main Sheet par aate hi checkbox reset
+    if (sheetId === "main") {
+
+        document.getElementById("chkNDB").checked = false;
+        document.getElementById("chkCOSMOS").checked = false;
+        document.getElementById("chkCSP").checked = false;
+
+    }
+
+    window.scrollTo(0, 0);
+}
+document.getElementById("chkNDB").addEventListener("change", function () {
+    if (this.checked) {
+        document.querySelector('.tab-btn[onclick*="ndb"]').click();
+    }
+});
+
+document.getElementById("chkCOSMOS").addEventListener("change", function () {
+    if (this.checked) {
+        document.querySelector('.tab-btn[onclick*="cosmos"]').click();
+    }
+});
+
+document.getElementById("chkCSP").addEventListener("change", function () {
+    if (this.checked) {
+        document.querySelector('.tab-btn[onclick*="csp"]').click();
+    }
+});
+// 3. अपडेटेड स्मार्ट डेटा क्लीनर (ब्रैकेट्स की गड़बड़ी पूरी तरह ठीक कर दी गई है)
+    function clearUserData() {
+        // पता करें कि यूजर अभी कौन सी स्क्रीन (टैब) पर खुला है
+        const activeTable = document.querySelector('.excel-table.active-sheet') || document.querySelector('.excel-table[style*="block"], .excel-table[style*="table"]');
+        if (!activeTable) return;
+
+        // स्क्रीन का हेडर नाम निकालें
+        const sectionTitle = activeTable.querySelector('.section-header')?.innerText || "इस स्क्रीन";
+
+        if(confirm(`क्या आप केवल "${sectionTitle}" का लिखा हुआ डेटा साफ़ करना चाहते हैं?`)) {
+            // सिर्फ इसी एक्टिव स्क्रीन के इनपुट बॉक्स साफ़ करें
+            const inputs = activeTable.querySelectorAll('input');
+            inputs.forEach(input => {
+                // डिफ़ॉल्ट फिक्स वाले और पीले लेबल्स को छोड़कर बाकी सब खाली करें
+                if (
+    !input.closest('td').classList.contains('yellow-code-input') &&
+    !input.classList.contains('yellow-code-input') &&
+    input.type !== "button" &&
+    input.id !== 'default-eff-date' &&
+    input.id !== 'default-retro-code' &&
+    input.id !== 'default-tpsm-code' &&
+    input.id !== 'editable-ndb-label' &&
+    input.id !== 'editable-evecare-label' &&
+    input.id !== 'editable-csp-label' &&
+    input.id !== 'Practitioner-TPSM' &&
+    input.id !== 'editable-cosmos-ndb' &&
+input.id !== 'editable-cosmos-evecare' &&
+    input.id !== 'top-cme-assigned'
+) {
+    input.value = '';
+}
+
+            });
+
+            // अगर आप 'Main Sheet' पर हैं, तो उसके लेबल्स और ड्रॉपडाउन को डिफ़ॉल्ट पर लाएं
+           if (activeTable.id === 'sheet-main') {
+    // 1. Resetting Editable Grid Labels (No duplicate declarations)
+    const ndbLab = document.getElementById('editable-ndb-label');
+    if (ndbLab) ndbLab.value = "NDB :";
+
+    const eveLab = document.getElementById('editable-evecare-label');
+    if (eveLab) eveLab.value = "EVECARE :";
+
+    const cspLab = document.getElementById('editable-csp-label');
+    if (cspLab) cspLab.value = cspLab.getAttribute('data-default') || "CSP :";
+
+    // 2. Resetting Cosmos Labels
+    const cosNdb = document.getElementById('editable-cosmos-ndb');
+    if (cosNdb) cosNdb.value = "NDB :";
+
+    const cosEve = document.getElementById('editable-cosmos-evecare');
+    if (cosEve) cosEve.value = "EVERCARE :";
+
+    // 3. Resetting Standard Input and Default Values
+    const effDate = document.getElementById('default-eff-date');
+    if (effDate) effDate.value = "";
+
+    const retroInput = document.getElementById('default-retro-code');
+    if (retroInput) retroInput.value = retroInput.getAttribute('data-default') || "A06";
+
+    const tpsmInput = document.getElementById('default-tpsm-code');
+    if (tpsmInput) tpsmInput.value = tpsmInput.getAttribute('data-default') || "";
+
+    // 4. Setting Practitioner Custom Value
+    const practitionerTpsm = document.getElementById('Practitioner-TPSM');
+    if (practitionerTpsm) practitionerTpsm.value = "99Z";
+
+    // 5. Resetting Default Dropdowns to YES
+    const enwDrop = document.getElementById('enw-dropdown');
+    if (enwDrop) enwDrop.value = "YES";
+}
+
+// 6. NDB Tab Dropdown Reset Condition
+if (activeTable.id === 'sheet-ndb') {
+    const ndbEnw = document.getElementById('ndb-enw-dropdown');
+    if (ndbEnw) ndbEnw.value = "YES";
+}
+
+// 7. Clear all Date Inputs (Except default-eff-date)
+const activeDates = activeTable.querySelectorAll('input[type="date"]');
+activeDates.forEach(d => {
+    if (d.id !== 'default-eff-date') d.value = "";
+});
+
+// 8. Revert Yellow Highlithed Inputs back to Data-Defaults
+const activeYellows = activeTable.querySelectorAll('.yellow-code-input');
+activeYellows.forEach(input => {
+    if (input.hasAttribute('data-default')) {
+        input.value = input.getAttribute('data-default');
+    }
+});
+
+        }
+    }
+// 4. लाइव डेटा को एक्सेल फ़ाइल में 10% और छोटे (Compact) साइज में एक्सपोर्ट करना
+function exportToExcel() {
+    const activeSheet = document.querySelector(".excel-table.active-sheet");
+
+    // ==========================================
+    // 1. MAIN SHEET (DASHBOARD) EXPORT FILTER
+    // ==========================================
+    if (activeSheet && activeSheet.id === "sheet-main") {
+        let excelXml = '<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>' +
+                       '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ' +
+                       'xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+                       'xmlns:x="urn:schemas-microsoft-com:office:excel" ' +
+                       'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" ' +
+                       'xmlns:html="http://w3.org">';
+
+        excelXml += '<Styles>' +
+                    '  <Style ss:ID="Default">' +
+                    '    <Alignment ss:Vertical="Center" ss:Horizontal="Center" ss:WrapText="1"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="10"/>' + 
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="blueTitleSection">' +
+                    '    <Interior ss:Color="#1F618D" ss:Pattern="Solid"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="11" ss:Bold="1" ss:Color="#FFFFFF"/>' + 
+                    '    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>' +
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="grayGridHeader">' +
+                    '    <Interior ss:Color="#EAEDED" ss:Pattern="Solid"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="10" ss:Bold="1" ss:Color="#000000"/>' + 
+                    '    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>' + 
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '    </Borders>' +
+                    '  </Style>';
+        excelXml += '  <Style ss:ID="creamParameterLabel">' +
+                    '    <Interior ss:Color="#FFF2CC" ss:Pattern="Solid"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="10" ss:Bold="1" ss:Color="#000000"/>' + 
+                    '    <Alignment ss:Horizontal="Left" ss:Vertical="Center" ss:WrapText="1"/>' + 
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="yellowCell">' +
+                    '    <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>' +
+                    '    <Font ss:FontName="Arial" ss:Size="10" ss:Bold="1" ss:Color="#000000"/>' +
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="lightGrayCell">' +
+                    '    <Interior ss:Color="#EAEDED" ss:Pattern="Solid"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="10"/>' + 
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="lightGrayCellLeft">' +
+                    '    <Interior ss:Color="#EAEDED" ss:Pattern="Solid"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="10"/>' + 
+                    '    <Alignment ss:Horizontal="Left" ss:Vertical="Center" ss:WrapText="1"/>' + 
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="lightGrayCellMiddle">' +
+                    '    <Interior ss:Color="#EAEDED" ss:Pattern="Solid"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="10"/>' + 
+                    '    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>' + 
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="noWrapMiddleCell">' +
+                    '    <Font ss:FontName="Arial" ss:Size="10"/>' + 
+                    '    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="0"/>' + 
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="wrapMiddleCell">' +
+                    '    <Font ss:FontName="Arial" ss:Size="10"/>' + 
+                    '    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>' + 
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="orangeTitleSection">' +
+                    '    <Interior ss:Color="#F5B041" ss:Pattern="Solid"/>' +
+                    '    <Font ss:FontName="Arial" ss:Size="8" ss:Bold="1" ss:Color="#000000"/>' +
+                    '    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' +
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="whiteCellLeft">' +
+                    '    <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>' +
+                    '    <Font ss:FontName="Arial" ss:Size="10"/>' +
+                    '    <Alignment ss:Horizontal="Left" ss:Vertical="Center" ss:WrapText="1"/>' +
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '</Styles>';
+
+const mainTable = document.querySelector("#sheet-main table");
+
+if (mainTable) {
+
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = mainTable.outerHTML;
+
+const realInputs = document.querySelectorAll("#sheet-main input");
+const clonedInputs = tempDiv.querySelectorAll("input");
+
+clonedInputs.forEach((inp, i) => {
+    inp.replaceWith(
+        document.createTextNode(realInputs[i]?.value?.trim() || "")
+    );
+});
+
+const realSelects = document.querySelectorAll("#sheet-main select");
+const clonedSelects = tempDiv.querySelectorAll("select");
+
+clonedSelects.forEach((sel, i) => {
+    sel.replaceWith(
+        document.createTextNode(realSelects[i]?.value || "")
+    );
+});
+
+            excelXml += '<Worksheet ss:Name="Main Sheet"><Table ss:DefaultRowHeight="18">';
+        excelXml += '<Column ss:Width="120"/><Column ss:Width="115"/><Column ss:Width="115"/>' +
+                    '<Column ss:Width="100"/><Column ss:Width="80"/><Column ss:Width="70"/>' +
+                    '<Column ss:Width="110"/><Column ss:Width="60"/><Column ss:Width="50"/>';
+
+    tempDiv.querySelectorAll("tr").forEach((row, rowIndex) => {
+
+        let textCheck = row.innerText.trim();
+        let isGridHeaderRow = false;
+
+        // Skip empty first row
+        if (rowIndex === 0 && textCheck === "") return;
+
+        row.querySelectorAll("td, th").forEach(cell => {
+
+            if (
+                row.classList.contains("grid-header") ||
+                cell.classList.contains("grid-header")
+            ) {
+                isGridHeaderRow = true;
+            }
+
+        });
+
+        // ==========================================
+        // ROW HEIGHT CONTROL
+        // ==========================================
+
+        if (textCheck.includes("Practitioner Add to Group")) {
+
+            excelXml += '<Row ss:Height="16" ss:AutoFitHeight="1">';
+
+        }
+        else if (textCheck.includes("Practitioner Details Panel")) {
+
+            excelXml += '<Row ss:Height="16" ss:AutoFitHeight="1">';
+
+        }
+        else if (textCheck.includes("NDB Contract Masters")) {
+
+            excelXml += '<Row ss:Height="16" ss:AutoFitHeight="1">';
+
+        }
+        else if (
+            textCheck.includes("Market #") ||
+            textCheck.includes("Products") ||
+            textCheck.includes("Platform") ||
+            textCheck.includes("Included")
+        ) {
+
+            excelXml += '<Row ss:Height="25" ss:AutoFitHeight="1">';
+
+        }
+        else if (
+            textCheck.includes("Primary Place of Service") ||
+            textCheck.includes("PHONE NUMBER")
+        ) {
+
+            excelXml += '<Row ss:Height="25" ss:AutoFitHeight="1">';
+
+        }
+        else if (isGridHeaderRow) {
+
+            excelXml += '<Row ss:Height="25" ss:AutoFitHeight="1">';
+
+        }
+        else if (
+            textCheck.includes("Emptoris") ||
+            textCheck.includes("Provider Cred Date") ||
+            textCheck.includes("Cred Application")
+        ) {
+
+            excelXml += '<Row ss:Height="26">';
+
+        }
+        else {
+
+            excelXml += '<Row>';
+
+        }
+
+        row.querySelectorAll("td, th").forEach(cell => {
+
+            let text = cell.innerText.trim()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            let cIndex = cell.cellIndex;
+            let cellColspan = parseInt(
+                cell.getAttribute("colspan") || 1
+            );
+// 1. Main Header
+if (textCheck.includes("Practitioner Add to Group")) {
+
+    if (cIndex === 0) {
+        excelXml += `<Cell ss:MergeAcross="6" ss:StyleID="blueTitleSection">
+                        <Data ss:Type="String">${text}</Data>
+                     </Cell>`;
+    }
+
+    return;
+}
+// A2:A11 Left Grey Labels
+
+if (
+    cIndex === 0 &&
+    rowIndex >= 1 &&
+    rowIndex <= 11
+) {
+
+    excelXml += `<Cell ss:StyleID="lightGrayCellLeft">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+// C2:C7 Left Grey
+
+if (
+    cIndex === 2 &&
+    rowIndex >= 1 &&
+    rowIndex <= 7
+) {
+
+    excelXml += `<Cell ss:StyleID="lightGrayCellLeft">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+
+// E18:G18 Grey Merge
+
+if (
+    rowIndex === 18 &&
+    cIndex === 4
+) {
+
+    excelXml += `<Cell ss:MergeAcross="2"
+                     ss:StyleID="grayGridHeader">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+
+if (
+    rowIndex === 18 &&
+    (cIndex === 5 || cIndex === 6)
+) {
+    return;
+}
+// G89:I89 Grey Merge
+
+if (
+    rowIndex === 89 &&
+    cIndex === 6
+) {
+
+    excelXml += `<Cell ss:MergeAcross="2"
+                     ss:StyleID="grayGridHeader">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+
+if (
+    rowIndex === 89 &&
+    (cIndex === 7 || cIndex === 8)
+) {
+    return;
+}
+// A12:G12 ORANGE PANEL
+
+if (rowIndex === 12) {
+
+    if (cIndex === 0) {
+
+        excelXml += `<Cell ss:MergeAcross="6"
+                         ss:StyleID="orangeTitleSection">
+                        <Data ss:Type="String">${text}</Data>
+                     </Cell>`;
+    }
+
+    return;
+}
+// C9 Left Only
+
+if (rowIndex === 9 && cIndex === 2) {
+    excelXml += `<Cell ss:StyleID="whiteCellLeft"><Data ss:Type="String">${text}</Data></Cell>`;
+    return;
+}
+if (rowIndex === 10 && cIndex === 2) {
+    excelXml += `<Cell ss:StyleID="whiteCellLeft"><Data ss:Type="String">${text}</Data></Cell>`;
+    return;
+}
+if (rowIndex === 11 && cIndex === 2) {
+    excelXml += `<Cell ss:StyleID="whiteCellLeft"><Data ss:Type="String">${text}</Data></Cell>`;
+    return;
+}
+// B46 Grey
+
+if (
+    rowIndex === 46 &&
+    cIndex === 1
+) {
+
+    excelXml += `<Cell ss:StyleID="grayGridHeader">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+// CSP Header Merge
+
+if (
+    rowIndex === 65 &&
+    cIndex === 0
+) {
+
+    excelXml += `<Cell ss:MergeAcross="8"
+                     ss:StyleID="blueTitleSection">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+
+if (
+    rowIndex === 65 &&
+    cIndex > 0
+) {
+    return;
+}
+// 2. A20 to G20 ORANGE PANEL
+if (rowIndex === 20) {
+    if (cIndex === 0) {
+        excelXml += `<Cell ss:MergeAcross="6" ss:StyleID="orangeTitleSection">
+                        <Data ss:Type="String">${text}</Data>
+                     </Cell>`;
+    }
+    return;
+}
+// 2. Practitioner Details Panel = BLUE
+if (textCheck.includes("Practitioner Details Panel")) {
+
+    if (cIndex === 0) {
+        excelXml += `<Cell ss:MergeAcross="6" ss:StyleID="blueTitleSection">
+                        <Data ss:Type="String">${text}</Data>
+                     </Cell>`;
+    }
+
+    return;
+}
+// A23:A43 Yellow Center No Wrap
+
+if (
+    cIndex === 0 &&
+    rowIndex >= 23 &&
+    rowIndex <= 43
+) {
+
+    excelXml += `<Cell ss:StyleID="yellowCell">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+// 3. NDB Contract Masters = ORANGE
+if (textCheck.includes("NDB Contract Masters")) {
+
+    if (cIndex === 0) {
+        excelXml += `<Cell ss:MergeAcross="6" ss:StyleID="blueTitleSection">
+                        <Data ss:Type="String">${text}</Data>
+                     </Cell>`;
+    }
+
+    return;
+}
+// A47 to A64 Left Only
+if (
+    cIndex === 0 &&
+    rowIndex >= 47 &&
+    rowIndex <= 64
+) {
+
+    excelXml += `<Cell ss:StyleID="whiteCellLeft">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+// F8:G8 Platform Merge
+
+if (
+    rowIndex === 8 &&
+    cIndex === 5
+) {
+
+    excelXml += `<Cell ss:MergeAcross="1"
+                     ss:StyleID="blueTitleSection">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+
+if (
+    rowIndex === 8 &&
+    cIndex === 6
+) {
+    return;
+}
+
+// Market Header Blue
+if (
+    text === "Market #" ||
+    text === "Products" ||
+    text === "Platform" ||
+    text.includes("Included")
+) {
+
+    excelXml += `<Cell ss:StyleID="blueTitleSection">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+// I84 Grey
+
+if (
+    rowIndex === 84 &&
+    cIndex === 8
+) {
+
+    excelXml += `<Cell ss:StyleID="grayGridHeader">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+
+    return;
+}
+// ==========================================
+// Right Side Colspan Logic
+// ==========================================
+if (cellColspan === 3) {
+
+    if (
+        textCheck.includes("Primary Place of Service") ||
+        textCheck.includes("PHONE NUMBER")
+    ) {
+
+        excelXml += `<Cell ss:MergeAcross="2" ss:StyleID="lightGrayCell">
+                        <Data ss:Type="String">${text}</Data>
+                     </Cell>`;
+
+    } else {
+
+        excelXml += `<Cell ss:MergeAcross="2" ss:StyleID="Default">
+                        <Data ss:Type="String">${text}</Data>
+                     </Cell>`;
+    }
+
+    return;
+}
+
+// ==========================================
+// Yellow Cells
+// ==========================================
+
+else if (
+    cell.classList.contains("yellow-code-cell") ||
+    (cell.style.backgroundColor || "") === "rgb(255, 255, 0)" ||
+    (cell.style.backgroundColor || "") === "yellow"
+) {
+
+    excelXml += `<Cell ss:StyleID="yellowCell">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+}
+
+// ==========================================
+// Section Header
+// ==========================================
+
+else if (cell.classList.contains("section-header")) {
+
+    let colspan = parseInt(
+        cell.getAttribute("colspan") || 1
+    );
+
+    excelXml += `<Cell ss:MergeAcross="${colspan - 1}"
+                       ss:StyleID="blueTitleSection">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+                 
+}
+
+// ==========================================
+// Label Cell
+// ==========================================
+
+else if (cell.classList.contains("label-cell")) {
+
+    excelXml += `<Cell ss:StyleID="creamParameterLabel">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+}
+
+// ==========================================
+// Gray Header Cells
+// ==========================================
+else if (
+    cell.classList.contains("grid-header") ||
+
+    text === "Commercial" ||
+    text === "Medicare" ||
+    text === "Medicaid" ||
+    
+
+    text === "Product Information" ||
+    text === "Contract Master Name" ||
+    text === "Master ID" ||
+    text === "Fee Schedule" ||
+    text === "Penalty Table" ||
+
+    text === "Practitioner Name" ||
+    text === "MPIN" ||
+    text === "Tax ID" ||
+    text === "Specialty" ||
+    text === "Tier" ||
+    text === "TPSM code" ||
+    text === "Facility Penalty Table #" ||
+    
+    
+    text === "Commercial Credentialed?" ||
+    text === "Medicare Credentialed?" ||
+    text === "Medicaid Credentialed?" ||
+
+    text === "PCP?" ||
+    text === "Medicaid ID (TPI Number)" ||
+    text === "UHCID's built correctly" ||
+    text === "Titan Request Needed" ||
+    text === "Bill Aid" ||
+    text === "Cos Prov" ||
+    text === "Del Code" ||
+    text === "NPI" ||
+    text === "Meets Criteria Comment (I, C, Z)" ||
+
+    
+
+    text === "Market Number" ||
+    text === "M&R Fee Schedule" ||
+    text === "Cosmos Div" ||
+    text === "Cosmos Panel" ||
+    text === "Cosmos Network Code" ||
+    text === "COSMOS Contract or Package" ||
+    text === "Contract Master" ||
+    text === "Notes" ||
+
+    text === "DSNP Border States to Load" ||
+    text === "PCP Mark DSNP with see DSNP selection" ||
+    text === "LOB" ||
+    text === "Agreement ID (N)" ||
+    text === "Agreement ID (Y-PPAC)" ||
+    text === "CAP CODE OR Notes" ||
+    text === "CAP Code Effective Date" ||
+    text === "Disclosure Required" ||
+    text === "Disclosure ID Number" ||
+
+    text === "PCP Yes or No" ||
+    text === "Group DEC" ||
+    text === "NICE CO or SH FS (or indicate if C2 shell applies)" ||
+    text === "NICE SH FS" ||
+    text === "PNI" ||
+    text === "PMG (AZ/CO/NV only)" ||
+    text === "Company/ Division" ||
+    text === "Z LINE - PCP" ||
+
+    text === "System" ||
+    text === "PhyCon Submission ID" ||
+    text === "Navigator Submission ID" ||
+    text === "DATE" ||
+    text === "Submission Complete" ||
+    text === "Post-Audit Complete Date" ||
+    text === "Comments" ||
+
+    text.includes("Meets Criteria Comment")
+) {
+
+    let grayCellColspan = parseInt(
+        cell.getAttribute("colspan") || 1
+    );
+
+    if (grayCellColspan > 1) {
+
+        excelXml += `<Cell ss:MergeAcross="${grayCellColspan - 1}" ss:StyleID="grayGridHeader">
+                        <Data ss:Type="String">${text}</Data>
+                     </Cell>`;
+
+    } else {
+
+        excelXml += `<Cell ss:StyleID="grayGridHeader">
+                        <Data ss:Type="String">${text}</Data>
+                     </Cell>`;
+    }
+}
+
+// ==========================================
+// Generic Colspan
+// ==========================================
+
+else if (cellColspan > 1) {
+
+    excelXml += `<Cell ss:MergeAcross="${cellColspan - 1}"
+                       ss:StyleID="Default">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+}
+
+// ==========================================
+// Default Cell
+// ==========================================
+
+else {
+
+    excelXml += `<Cell ss:StyleID="Default">
+                    <Data ss:Type="String">${text}</Data>
+                 </Cell>`;
+}
+
+});
+excelXml += '</Row>';
+});
+
+excelXml += '</Table></Worksheet>';
+}
+excelXml += '</Workbook>';
+
+        const blob = new Blob([excelXml], { type: 'application/vnd.ms-excel' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        const providerName = document.getElementById("Practitioner-Name")?.value?.trim() || "__";
+        const effDate = document.getElementById("default-eff-date")?.value || "";
+
+        let fileName = providerName;
+        if (effDate) {
+            const d = new Date(effDate);
+            fileName += "_" + String(d.getDate()).padStart(2, "0") + "." +
+                        String(d.getMonth() + 1).padStart(2, "0") + "." + d.getFullYear();
+        }
+
+        link.download = fileName + ".xls";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+    }
+
+    // --- CASE B: NDB COSMOS CSP DYNAMIC TAB ENGINE ---
+    if (activeSheet && (activeSheet.id === "sheet-ndb" || activeSheet.id === "sheet-cosmos" || activeSheet.id === "sheet-csp")) {
+        const ndbContainer    = document.getElementById("sheet-ndb");
+        const cosmosContainer = document.getElementById("sheet-cosmos");
+        const cspContainer    = document.getElementById("sheet-csp");
+        
+        const ndbHtml    = ndbContainer ? ndbContainer.innerHTML : "";
+        const cosmosHtml = cosmosContainer ? cosmosContainer.innerHTML : "";
+        const cspHtml   = cspContainer ? cspContainer.innerHTML : "";
+        
+        let excelXml = '<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>' +
+                       '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ' +
+                       'xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+                       'xmlns:x="urn:schemas-microsoft-com:office:excel" ' +
+                       'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" ' +
+                       'xmlns:html="http://w3.org">';
+
+        excelXml += '<Styles>' +
+                    '  <Style ss:ID="Default">' +
+                    '    <Alignment ss:Vertical="Center" ss:Horizontal="Center" ss:WrapText="1"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="8"/>' +
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="topYellowHeader">' +
+                    '    <Interior ss:Color="#1F618D" ss:Pattern="Solid"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>' + 
+                    '    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>' +
+                    '    <Borders>' + 
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="blueTitleSection">' +
+                    '    <Interior ss:Color="#1F618D" ss:Pattern="Solid"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>' + 
+                    '    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' +
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="grayGridHeader">' +
+                    '    <Interior ss:Color="#EAEDED" ss:Pattern="Solid"/>' + 
+                    '    <Font ss:FontName="Arial" ss:Size="10" ss:Bold="1" ss:Color="#000000"/>' + 
+                    '    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>' + 
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '  <Style ss:ID="creamParameterLabel">' +
+                    '    <Interior ss:Color="#FFF2CC" ss:Pattern="Solid"/>' +
+                    '    <Font ss:FontName="Arial" ss:Size="10" ss:Bold="1" ss:Color="#000000"/>' +
+                    '    <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>' +
+                    '    <Borders>' +
+                    '      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' + 
+                    '      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BDC3C7"/>' +
+                    '    </Borders>' +
+                    '  </Style>' +
+                    '</Styles>';
+        let sheetsAdded = 0;
+
+        // --- 1. NDB MASTER CONFIGURATION ---
+        if (document.getElementById("chkNDB").checked) {
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = ndbHtml;
+
+          const realInputs = document.querySelectorAll("#sheet-ndb input");
+const clonedInputs = tempDiv.querySelectorAll("input");
+
+clonedInputs.forEach((inp, i) => {
+    if (inp.parentElement) {
+        inp.parentElement.innerText =
+            realInputs[i]?.value?.trim() || "";
+    }
+});
+
+
+            excelXml += '<Worksheet ss:Name="NDB"><Table ss:DefaultRowHeight="12">';
+            excelXml += '<Column ss:Width="100"/><Column ss:Width="70"/><Column ss:Width="100"/>' +
+                        '<Column ss:Width="120"/><Column ss:Width="80"/><Column ss:Width="110"/>' +
+                        '<Column ss:Width="60"/><Column ss:Width="100"/><Column ss:Width="80"/><Column ss:Width="80"/>';
+
+            tempDiv.querySelectorAll("tr").forEach(row => {
+                let textCheck = row.innerText.trim();
+                let isGridHeaderRow = false;
+                row.querySelectorAll("td, th").forEach(cell => {
+                    const bgStyle = cell.style.backgroundColor || "";
+                    if (cell.classList.contains("grid-header") || bgStyle.includes("234") || bgStyle.includes("eaeded") || textCheck.includes("Effective Date") || textCheck.includes("Auditor Notes")) {
+                        isGridHeaderRow = true;
+                    }
+                });
+
+                if (isGridHeaderRow) {
+                    excelXml += '<Row ss:Height="36" ss:AutoFitHeight="1">'; 
+                } else if (textCheck.includes("NDB CONTRACT LOAD TEMPLATE")) {
+                    excelXml += '<Row ss:Height="15">'; 
+                } else if (textCheck.includes("NDB Contract Masters")) {
+                    excelXml += '<Row ss:Height="12">'; 
+                } else {
+                    excelXml += '<Row ss:Height="15">'; 
+                }
+
+                row.querySelectorAll("td, th").forEach(cell => {
+                    let text = cell.innerText.trim().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    if (cell.innerHTML.includes("NDB CONTRACT LOAD TEMPLATE") || cell.style.backgroundColor === "rgb(234, 237, 237)" || cell.style.background === "rgb(255, 255, 0)") {
+                        excelXml += `<Cell ss:MergeAcross="5" ss:StyleID="topYellowHeader"><Data ss:Type="String">${text}</Data></Cell>`;
+                    } else if (cell.classList.contains("section-header") || cell.style.backgroundColor === "rgb(31, 97, 141)") {
+                        let colspan = cell.getAttribute("colspan") || 1;
+                        if(colspan > 1) {
+                            excelXml += `<Cell ss:MergeAcross="${colspan-1}" ss:StyleID="blueTitleSection"><Data ss:Type="String">${text}</Data></Cell>`;
+                        } else {
+                            excelXml += `<Cell ss:StyleID="blueTitleSection"><Data ss:Type="String">${text}</Data></Cell>`;
+                        }
+                    } else if (cell.classList.contains("label-cell") || cell.style.backgroundColor === "rgb(255, 242, 204)") {
+                        excelXml += `<Cell ss:StyleID="creamParameterLabel"><Data ss:Type="String">${text}</Data></Cell>`;
+                    } else if (isGridHeaderRow) {
+                        excelXml += `<Cell ss:StyleID="grayGridHeader"><Data ss:Type="String">${text}</Data></Cell>`;
+                    } else {
+                        excelXml += `<Cell ss:StyleID="Default"><Data ss:Type="String">${text}</Data></Cell>`;
+                    }
+                });
+                excelXml += '</Row>';
+            });
+            excelXml += '</Table></Worksheet>';
+            sheetsAdded++;
+        }
+        // --- 2. COSMOS WORKSHEET BLOCK ---
+        if (document.getElementById("chkCOSMOS").checked && cosmosHtml) {
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = cosmosHtml;
+
+        const realInputs = document.querySelectorAll("#sheet-cosmos input");
+const clonedInputs = tempDiv.querySelectorAll("input");
+
+clonedInputs.forEach((inp, i) => {
+    if (inp.parentElement) {
+        inp.parentElement.innerText =
+            realInputs[i]?.value?.trim() || "";
+    }
+});
+
+            excelXml += '<Worksheet ss:Name="COSMOS"><Table ss:DefaultRowHeight="12">';
+            excelXml += '<Column ss:Width="90"/><Column ss:Width="70"/><Column ss:Width="100"/>' +
+                        '<Column ss:Width="120"/><Column ss:Width="80"/><Column ss:Width="110"/>' +
+                        '<Column ss:Width="60"/><Column ss:Width="100"/><Column ss:Width="80"/><Column ss:Width="80"/>';
+
+            let isFirstTable = true;
+            let cosmosRowCounter = 1; 
+
+            tempDiv.querySelectorAll("tr").forEach(row => {
+                let textCheck = row.innerText.trim();
+                if (textCheck.includes("NDB CONTRACT LOAD TEMPLATE")) return; 
+
+                let isGridHeaderRow = false;
+                row.querySelectorAll("td, th").forEach(cell => {
+                    const bgStyle = cell.style.backgroundColor || "";
+                    const className = cell.className || "";
+                    if (className.includes("grid-header") || bgStyle.includes("234") || bgStyle.includes("eaeded") || textCheck.includes("Effective Date") || cosmosRowCounter === 30) {
+                        isGridHeaderRow = true;
+                    }
+                });
+
+                if (isGridHeaderRow) {
+                    excelXml += '<Row ss:Height="36" ss:AutoFitHeight="1">'; 
+                } else if (textCheck.includes("COSMOS CONTRACT LOAD TEMPLATE") || textCheck.includes("COSMOS Contract Load Template")) {
+                    excelXml += '<Row ss:Height="15">';
+                } else if (textCheck.includes("NDB Contract Masters")) {
+                    excelXml += '<Row ss:Height="12">';
+                } else {
+                    excelXml += '<Row ss:Height="15">';
+                }
+
+                row.querySelectorAll("td, th").forEach(cell => {
+                    let text = cell.innerText.trim().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    if (cell.innerHTML.includes("COSMOS CONTRACT LOAD TEMPLATE") || cell.innerHTML.includes("COSMOS Contract Load Template")) {
+                        excelXml += `<Cell ss:MergeAcross="10" ss:StyleID="topYellowHeader"><Data ss:Type="String">${text}</Data></Cell>`;
+                    } else if (cell.classList.contains("section-header") || cell.style.backgroundColor === "rgb(31, 97, 141)" || text === "NDB Contract Masters") {
+                        let colspan = cell.getAttribute("colspan") || 1;
+                        if (isFirstTable) {
+                            if (colspan == 1 || text === "NDB Contract Masters") colspan = 6;
+                            excelXml += `<Cell ss:MergeAcross="${colspan-1}" ss:StyleID="blueTitleSection"><Data ss:Type="String">${text}</Data></Cell>`;
+                            isFirstTable = false;
+                        } else {
+                            excelXml += `<Cell ss:MergeAcross="12" ss:StyleID="blueTitleSection"><Data ss:Type="String">${text}</Data></Cell>`;
+                        }
+                    } else if (cell.classList.contains("label-cell") || cell.style.backgroundColor === "rgb(255, 242, 204)") {
+                        excelXml += `<Cell ss:StyleID="creamParameterLabel"><Data ss:Type="String">${text}</Data></Cell>`;
+                    } else if (isGridHeaderRow) {
+                        excelXml += `<Cell ss:StyleID="grayGridHeader"><Data ss:Type="String">${text}</Data></Cell>`;
+                    } else {
+                        excelXml += `<Cell ss:StyleID="Default"><Data ss:Type="String">${text}</Data></Cell>`;
+                    }
+                });
+                excelXml += '</Row>';
+                cosmosRowCounter++; 
+            });
+            excelXml += '</Table></Worksheet>';
+            sheetsAdded++;
+        }
+        // --- 3. CSP WORKSHEET BLOCK ---
+        if (document.getElementById("chkCSP").checked && cspHtml) {
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = cspHtml;
+            
+           const realInputs = document.querySelectorAll("#sheet-csp input");
+const clonedInputs = tempDiv.querySelectorAll("input");
+
+clonedInputs.forEach((inp, i) => {
+    if (inp.parentElement) {
+        inp.parentElement.innerText =
+            realInputs[i]?.value?.trim() || "";
+    }
+});
+
+            excelXml += '<Worksheet ss:Name="CSP"><Table ss:DefaultRowHeight="15">';
+            excelXml += '<Column ss:Width="90"/><Column ss:Width="75"/><Column ss:Width="100"/>' +
+                        '<Column ss:Width="65"/><Column ss:Width="65"/><Column ss:Width="80"/>' +
+                        '<Column ss:Width="40"/><Column ss:Width="60"/><Column ss:Width="30"/>' +
+                        '<Column ss:Width="85"/><Column ss:Width="85"/><Column ss:Width="80"/><Column ss:Width="80"/>';
+
+            let cspRowCounter = 1; 
+
+            tempDiv.querySelectorAll("tr").forEach(row => {
+                let textCheck = row.innerText.trim();
+                let isGridHeaderRow = false;
+
+                row.querySelectorAll("td, th").forEach(cell => {
+                    const bgStyle = cell.style.backgroundColor || "";
+                    if (cell.classList.contains("grid-header") || bgStyle.includes("234") || bgStyle.includes("eaeded") || cspRowCounter === 5) {
+                        isGridHeaderRow = true;
+                    }
+                });
+
+                if (isGridHeaderRow) {
+                    excelXml += '<Row ss:Height="24" ss:AutoFitHeight="1">';
+                } else {
+                    excelXml += '<Row>';
+                }
+
+                row.querySelectorAll("td, th").forEach(cell => {
+                    let text = cell.innerText.trim().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    if (cell.innerHTML.includes("CSP CONTRACT LOAD TEMPLATE") || cell.innerHTML.includes("CSP Contract Load Template")) {
+                        excelXml += `<Cell ss:MergeAcross="12" ss:StyleID="topYellowHeader"><Data ss:Type="String">${text}</Data></Cell>`;
+                    } else if (cell.classList.contains("label-cell") || cell.style.backgroundColor === "rgb(255, 242, 204)") {
+                        excelXml += `<Cell ss:StyleID="creamParameterLabel"><Data ss:Type="String">${text}</Data></Cell>`;
+                    } else if (isGridHeaderRow) {
+                        excelXml += `<Cell ss:StyleID="grayGridHeader"><Data ss:Type="String">${text}</Data></Cell>`;
+                    } else {
+                        excelXml += `<Cell ss:StyleID="Default"><Data ss:Type="String">${text}</Data></Cell>`;
+                    }
+                });
+                excelXml += '</Row>';
+                cspRowCounter++; 
+            });
+            excelXml += '</Table></Worksheet>';
+            sheetsAdded++;
+        }
+        excelXml += '</Workbook>';
+
+        if (!sheetsAdded) {
+            alert("Please select at least one Checkbox to download!");
+            return;
+        }
+
+        const blob = new Blob([excelXml], { type: 'application/vnd.ms-excel' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+
+        const provider = document.getElementById("Practitioner-Name")?.value?.trim() || "___";
+        let parts = [];
+        if (document.getElementById("chkNDB").checked) parts.push("NDB");
+        if (document.getElementById("chkCOSMOS").checked) parts.push("COSMOS");
+        if (document.getElementById("chkCSP").checked) parts.push("CSP");
+
+        link.download = `${parts.join(" ")} Load for ${provider}.xls`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link); 
+    }
+}
+// Function to transfer complete filtered data from Main Sheet to NDB Sheet
+// =====================================
+// MAIN SHEET -> NDB TRANSFER
+// =====================================
+function transferMpinToNdb() {
+
+    const providerName =
+        document.getElementById("Practitioner-Name")?.value.trim() || "";
+
+    const mpinVal =
+        document.getElementById("Practitioner-MPIN")?.value.trim() || "";
+
+    const tinVal =
+        document.getElementById("Practitioner-TaxID")?.value.trim() || "";
+
+    const specialtyVal =
+        document.getElementById("Practitioner-Specialty")?.value.trim() || "";
+
+    const pcpVal =
+        document.getElementById("PCP")?.value.trim() || "";
+
+    const effDateVal =
+        document.getElementById("default-eff-date")?.value.trim() || "";
+
+    const sourceRows =
+        document.querySelectorAll("#ndbRows tr");
+
+    const targetRows =
+        document.querySelectorAll("#ndbMasterGridRows tr");
+
+    const detailRows =
+        document.querySelectorAll("#ndbTenColGridRows tr");
+
+    let validRows = [];
+    const delCode =
+    document.getElementById("Del-Code")?.value.trim() || "";
+
+const delegatedVal =
+    document.getElementById("top-delegated")?.value.trim() || "";
+
+const timelyFiling =
+    document.getElementById("top-timely-filing")?.value.trim() || "";
+
+const penaltyTableHeader =
+    document.getElementById("Practitioner-FacilityPenalty")?.value.trim() || "";
+
+const emptorisId =
+    document.getElementById("top-emptoris-agreement")?.value.trim() || "";
+
+const enwValue =
+    document.getElementById("enw-dropdown")?.value.trim() || "";
+
+    sourceRows.forEach(row => {
+
+        const inputs = row.querySelectorAll("input");
+
+        if (inputs.length < 5) return;
+
+        const productInfo =
+            inputs[0]?.value.trim() || "";
+
+        const masterId =
+            inputs[2]?.value.trim() || "";
+
+        const feeSchedule =
+            inputs[3]?.value.trim() || "";
+
+        const penaltyTable =
+            inputs[4]?.value.trim() || "";
+
+        if (
+            masterId === "" ||
+            masterId.toUpperCase() === "N/A"
+        ) {
+            return;
+        }
+
+        validRows.push({
+            productInfo,
+            masterId,
+            feeSchedule,
+            penaltyTable
+        });
+
+    });
+const topInputs =
+    document.querySelectorAll(".ndb-top-param-input");
+
+if (topInputs.length >= 7) {
+
+    if (validRows.length > 0) {
+
+        // DEL or NON-DEL
+        topInputs[0].value = delegatedVal;
+
+        // DEL CODE
+        topInputs[1].value = delCode;
+
+        // Timely Filing
+        topInputs[2].value = timelyFiling;
+
+        // Market Number
+topInputs[3].value =
+    document.getElementById("editable-ndb-label")?.value.trim() || "";
+
+        // Penalty Table
+        topInputs[4].value =
+            penaltyTableHeader;
+
+        // ENW Indicator
+        topInputs[5].value =
+            enwValue;
+
+        // Emptoris
+        topInputs[6].value =
+            emptorisId;
+
+        topInputs.forEach(box => {
+
+            box.style.backgroundColor =
+                box.value.trim()
+                    ? ""
+                    : "#ffcccc";
+
+        });
+
+    } else {
+
+        topInputs.forEach(box => {
+
+            box.value = "";
+            box.style.backgroundColor = "";
+
+        });
+
+    }
+
+}
+    // =====================
+    // NDB MAIN GRID
+    // =====================
+
+    validRows.forEach((item, index) => {
+
+        if (index >= targetRows.length) return;
+
+        const targetInputs =
+            targetRows[index].querySelectorAll("input");
+
+        // Effective Date Blank
+        if (targetInputs[0]) {
+            targetInputs[0].value = "";
+        }
+
+        // Master ID
+        if (targetInputs[1]) {
+            targetInputs[1].value =
+                item.masterId;
+        }
+
+        // Fee Schedule
+        if (targetInputs[2]) {
+
+            targetInputs[2].value =
+                item.feeSchedule;
+
+            targetInputs[2].style.backgroundColor =
+                item.feeSchedule
+                    ? ""
+                    : "#ffcccc";
+        }
+
+        // Product Code
+        if (targetInputs[3]) {
+
+            targetInputs[3].value =
+                item.productInfo;
+
+            targetInputs[3].style.backgroundColor =
+                item.productInfo
+                    ? ""
+                    : "#ffcccc";
+        }
+
+        // Penalty Table
+        if (targetInputs[4]) {
+
+            targetInputs[4].value =
+                item.penaltyTable;
+
+            targetInputs[4].style.backgroundColor =
+                item.penaltyTable
+                    ? ""
+                    : "#ffcccc";
+        }
+
+    });
+
+    // Clear extra rows
+
+    for (
+        let i = validRows.length;
+        i < targetRows.length;
+        i++
+    ) {
+
+        const targetInputs =
+            targetRows[i].querySelectorAll("input");
+
+        targetInputs.forEach(inp => {
+            inp.value = "";
+            inp.style.backgroundColor = "";
+        });
+
+    }
+
+    const hasNdbData =
+        validRows.length > 0;
+
+    // =====================
+    // LOWER GRID
+    // ONLY FIRST ROW
+    // =====================
+
+    detailRows.forEach((row, index) => {
+
+        const targetInputs =
+            row.querySelectorAll("input");
+
+        if (targetInputs.length < 8) return;
+
+        if (index === 0) {
+
+            // Provider Name
+            targetInputs[2].value = providerName;
+
+            // MPIN
+            targetInputs[3].value = mpinVal;
+
+            // TIN
+            targetInputs[4].value = tinVal;
+
+            // Specialty
+            targetInputs[5].value = specialtyVal;
+
+            // PCP
+            targetInputs[6].value = pcpVal;
+
+            // Eff Date
+            targetInputs[7].value = effDateVal;
+
+            targetInputs[2].style.backgroundColor =
+                (hasNdbData && !providerName)
+                    ? "#ffcccc" : "";
+
+            targetInputs[3].style.backgroundColor =
+                (hasNdbData && !mpinVal)
+                    ? "#ffcccc" : "";
+
+            targetInputs[4].style.backgroundColor =
+                (hasNdbData && !tinVal)
+                    ? "#ffcccc" : "";
+
+            targetInputs[5].style.backgroundColor =
+                (hasNdbData && !specialtyVal)
+                    ? "#ffcccc" : "";
+
+            targetInputs[6].style.backgroundColor =
+                (hasNdbData && !pcpVal)
+                    ? "#ffcccc" : "";
+
+            targetInputs[7].style.backgroundColor =
+                (hasNdbData && !effDateVal)
+                    ? "#ffcccc" : "";
+
+        } else {
+
+            targetInputs[2].value = "";
+            targetInputs[3].value = "";
+            targetInputs[4].value = "";
+            targetInputs[5].value = "";
+            targetInputs[6].value = "";
+            targetInputs[7].value = "";
+
+            targetInputs[2].style.backgroundColor = "";
+            targetInputs[3].style.backgroundColor = "";
+            targetInputs[4].style.backgroundColor = "";
+            targetInputs[5].style.backgroundColor = "";
+            targetInputs[6].style.backgroundColor = "";
+            targetInputs[7].style.backgroundColor = "";
+        }
+
+    });
+
+}
+// Function to transfer complete filtered data from Main Sheet to COSMOS Sheet
+// =====================================
+// MAIN SHEET -> COSMOS TRANSFER
+// =====================================
+function transferMpinToCosmos() {
+
+    const mainRows =
+    document.querySelectorAll("#cosmosMainGridRows tr");
+
+    const detailRows =
+    document.querySelectorAll("#cleanGridRows tr");
+
+    const providerName =
+        document.getElementById("Practitioner-Name")?.value.trim() || "";
+
+    const mpinVal =
+        document.getElementById("Practitioner-MPIN")?.value.trim() || "";
+
+    const tinVal =
+        document.getElementById("Practitioner-TaxID")?.value.trim() || "";
+
+    const specialtyVal =
+        document.getElementById("Practitioner-Specialty")?.value.trim() || "";
+
+    const pcpVal =
+        document.getElementById("PCP")?.value.trim() || "";
+
+    const effDateVal =
+        document.getElementById("default-eff-date")?.value.trim() || "";
+
+    const delCode =
+        document.getElementById("Del-Code")?.value.trim() || "";
+
+    const delegatedVal =
+        document.getElementById("top-delegated")?.value.trim() || "";
+
+    const timelyFiling =
+        document.getElementById("top-timely-filing")?.value.trim() || "";
+
+    const penaltyTable =
+        document.getElementById("Practitioner-FacilityPenalty")?.value.trim() || "";
+
+    const emptorisId =
+        document.getElementById("top-emptoris-agreement")?.value.trim() || "";
+
+    const sourceRows =
+        document.querySelectorAll("#cosmosRows tr");
+
+    const targetMainRows =
+        document.querySelectorAll("#cosmosMainGridRows tr");
+
+    let validRows = [];
+
+    sourceRows.forEach(row => {
+
+        const inputs = row.querySelectorAll("input");
+
+        if (inputs.length < 9) return;
+
+        const cosmosDiv =
+            inputs[2]?.value.trim() || "";
+
+        const cosmosPanel =
+            inputs[3]?.value.trim() || "";
+
+        const networkCode =
+            inputs[4]?.value.trim() || "";
+
+        const contractPkg =
+            inputs[5]?.value.trim() || "";
+
+        const contractMaster =
+            inputs[7]?.value.trim() || "";
+
+        // CONTRACT MASTER MANDATORY
+        if (contractMaster === "") {
+            return;
+        }
+
+        validRows.push({
+            cosmosDiv,
+            cosmosPanel,
+            networkCode,
+            contractPkg,
+            contractMaster
+        });
+
+    });
+
+    // TOP SECTION
+
+const cosmosDelType =
+    document.getElementById("cosmos-del-type");
+
+const cosmosDelCode =
+    document.getElementById("cosmos-del-code");
+
+const cosmosTimely =
+    document.getElementById("cosmos-timely-filing");
+
+const cosmosPenalty =
+    document.getElementById("cosmos-penalty-table");
+
+const cosmosEmptoris =
+    document.getElementById("cosmos-emptoris-id");
+
+if (validRows.length > 0) {
+
+    cosmosDelType.value = delegatedVal;
+    cosmosDelCode.value = delCode;
+    cosmosTimely.value = timelyFiling;
+    cosmosPenalty.value = penaltyTable;
+    cosmosEmptoris.value = emptorisId;
+
+    cosmosDelType.style.backgroundColor =
+        delegatedVal ? "" : "#ffcccc";
+
+    cosmosDelCode.style.backgroundColor =
+        delCode ? "" : "#ffcccc";
+
+    cosmosTimely.style.backgroundColor =
+        timelyFiling ? "" : "#ffcccc";
+
+    cosmosPenalty.style.backgroundColor =
+        penaltyTable ? "" : "#ffcccc";
+
+    cosmosEmptoris.style.backgroundColor =
+        emptorisId ? "" : "#ffcccc";
+
+} else {
+
+    cosmosDelType.value = "";
+    cosmosDelCode.value = "";
+    cosmosTimely.value = "";
+    cosmosPenalty.value = "";
+    cosmosEmptoris.value = "";
+
+    cosmosDelType.style.backgroundColor = "";
+    cosmosDelCode.style.backgroundColor = "";
+    cosmosTimely.style.backgroundColor = "";
+    cosmosPenalty.style.backgroundColor = "";
+    cosmosEmptoris.style.backgroundColor = "";
+}
+
+    // MAIN COSMOS GRID
+
+    validRows.forEach((item, index) => {
+
+        if (index >= targetMainRows.length) return;
+
+        const targetInputs =
+            targetMainRows[index].querySelectorAll("input");
+
+        // Effective Date
+
+        if (targetInputs[0]) {
+            targetInputs[0].value = "";
+        }
+
+        // Master ID
+
+        if (targetInputs[1]) {
+            targetInputs[1].value =
+                item.contractMaster;
+        }
+
+        // Cosmos Div
+if (targetInputs[2]) {
+
+    targetInputs[2].value =
+        item.cosmosDiv;
+
+    targetInputs[2].style.backgroundColor =
+        item.cosmosDiv ? "" : "#ffcccc";
+}
+
+// Cosmos Panel
+if (targetInputs[3]) {
+
+    targetInputs[3].value =
+        item.cosmosPanel;
+
+    targetInputs[3].style.backgroundColor =
+        item.cosmosPanel ? "" : "#ffcccc";
+}
+
+// Contract Package
+if (targetInputs[4]) {
+
+    targetInputs[4].value =
+        item.contractPkg;
+
+    targetInputs[4].style.backgroundColor =
+        item.contractPkg ? "" : "#ffcccc";
+}
+
+// Network Code
+if (targetInputs[5]) {
+
+    targetInputs[5].value =
+        item.networkCode;
+
+    targetInputs[5].style.backgroundColor =
+        item.networkCode ? "" : "#ffcccc";
+}
+
+    });
+
+    // CLEAR EXTRA ROWS
+
+    for (
+        let i = validRows.length;
+        i < targetMainRows.length;
+        i++
+    ) {
+
+        const targetInputs =
+            targetMainRows[i].querySelectorAll("input");
+
+        targetInputs.forEach(inp => {
+            inp.value = "";
+        });
+
+    }
+
+    const hasCosmosData =
+        validRows.length > 0;
+
+    // LOWER COSMOS GRID
+
+    detailRows.forEach((row, index) => {
+
+    const targetInputs =
+        row.querySelectorAll("input");
+
+    if (targetInputs.length < 11) return;
+
+    if (index === 0) {
+
+        targetInputs[2].value = providerName;
+        targetInputs[3].value = mpinVal;
+        targetInputs[4].value = tinVal;
+        targetInputs[5].value = specialtyVal;
+        targetInputs[6].value = pcpVal;
+        targetInputs[7].value = effDateVal;
+
+        targetInputs[2].style.backgroundColor =
+            (hasCosmosData && !providerName) ? "#ffcccc" : "";
+
+        targetInputs[3].style.backgroundColor =
+            (hasCosmosData && !mpinVal) ? "#ffcccc" : "";
+
+        targetInputs[4].style.backgroundColor =
+            (hasCosmosData && !tinVal) ? "#ffcccc" : "";
+
+        targetInputs[5].style.backgroundColor =
+            (hasCosmosData && !specialtyVal) ? "#ffcccc" : "";
+
+        targetInputs[6].style.backgroundColor =
+            (hasCosmosData && !pcpVal) ? "#ffcccc" : "";
+
+        targetInputs[7].style.backgroundColor =
+            (hasCosmosData && !effDateVal) ? "#ffcccc" : "";
+
+    } else {
+
+        targetInputs[2].value = "";
+        targetInputs[3].value = "";
+        targetInputs[4].value = "";
+        targetInputs[5].value = "";
+        targetInputs[6].value = "";
+        targetInputs[7].value = "";
+
+        targetInputs[2].style.backgroundColor = "";
+        targetInputs[3].style.backgroundColor = "";
+        targetInputs[4].style.backgroundColor = "";
+        targetInputs[5].style.backgroundColor = "";
+        targetInputs[6].style.backgroundColor = "";
+        targetInputs[7].style.backgroundColor = "";
+    }
+
+});
+
+}
+// Function to transfer complete filtered data from Main Sheet to CSP Sheet
+// =====================================
+// MAIN SHEET -> CSP TRANSFER
+// =====================================
+function transferData() {
+    // TOP PANEL DATA
+    const providerName =
+        document.getElementById("Practitioner-Name")?.value.trim() || "";
+
+    const mpinVal =
+        document.getElementById("Practitioner-MPIN")?.value.trim() || "";
+
+    const tinVal =
+        document.getElementById("Practitioner-TaxID")?.value.trim() || "";
+
+    const specialtyVal =
+        document.getElementById("Practitioner-Specialty")?.value.trim() || "";
+    
+    const delCode =
+        document.getElementById("Del-Code")?.value.trim() || ""; 
+    
+    const delegatedVal =
+    document.getElementById("top-delegated")?.value.trim() || "";
+
+    const pcpVal =
+        document.getElementById("PCP")?.value.trim() || "";
+
+    const effDateVal =
+        document.getElementById("default-eff-date")?.value.trim() || "";
+
+    // CSP FACETS SOURCE
+    const mainRows =
+        document.querySelectorAll("#cspFacetRows tr");
+
+    // CSP DESTINATION
+    const targetRows =
+        document.querySelectorAll("#cspRows tr");
+
+    let validRowsData = [];
+
+    mainRows.forEach(row => {
+
+        const inputs = row.querySelectorAll("input");
+
+        if (inputs.length < 9) return;
+
+        const lobVal =
+            inputs[2] ? inputs[2].value.trim() : "";
+
+        const agreementN =
+            inputs[3] ? inputs[3].value.trim() : "";
+
+        const agreementY =
+    inputs[4] ? inputs[4].value.trim() : "";
+
+// LOB mandatory
+if (lobVal === "") {
+    return;
+}
+
+validRowsData.push({
+    lobVal,
+    agreementN,
+    agreementY
+});
+
+    });
+// DEL non DEL   
+if (validRowsData.length > 0) {
+
+    document.getElementById("csp-del-type").value = delegatedVal;
+    document.getElementById("csp-del-code").value = delCode;
+
+} else {
+
+    document.getElementById("csp-del-type").value = "";
+    document.getElementById("csp-del-code").value = "";
+
+}
+const cspDelType =
+    document.getElementById("csp-del-type");
+
+const cspDelCode =
+    document.getElementById("csp-del-code");
+
+if (validRowsData.length > 0) {
+
+    if (cspDelType) {
+        cspDelType.style.backgroundColor =
+            cspDelType.value.trim() ? "" : "#ffcccc";
+    }
+
+    if (cspDelCode) {
+        cspDelCode.style.backgroundColor =
+            cspDelCode.value.trim() ? "" : "#ffcccc";
+    }
+
+} else {
+
+    if (cspDelType) {
+        cspDelType.style.backgroundColor = "";
+    }
+
+    if (cspDelCode) {
+        cspDelCode.style.backgroundColor = "";
+    }
+
+}
+validRowsData.forEach((item, index) => {
+
+    if (index >= targetRows.length) return;
+
+    const targetInputs =
+        targetRows[index].querySelectorAll("input");
+
+    if (targetInputs.length < 11) return;
+
+// Provider Name
+if (targetInputs[2]) {
+
+    if(index === 0){
+        targetInputs[2].value = providerName;
+    } else {
+        targetInputs[2].value = "";
+    }
+
+    targetInputs[2].style.backgroundColor =
+        providerName ? "" : "#ffcccc";
+}
+// MPIN
+if (targetInputs[3]) {
+
+    if(index === 0){
+        targetInputs[3].value = mpinVal;
+    } else {
+        targetInputs[3].value = "";
+    }
+
+    targetInputs[3].style.backgroundColor =
+        mpinVal ? "" : "#ffcccc";
+}
+
+// TIN
+if (targetInputs[4]) {
+    if (index === 0) {
+        targetInputs[4].value = tinVal;
+    } else {
+        targetInputs[4].value = "";
+    }
+    targetInputs[4].style.backgroundColor = tinVal ? "" : "#ffcccc";
+}
+
+// SPECIALTY
+if (targetInputs[5]) {
+    if (index === 0) {
+        targetInputs[5].value = specialtyVal;
+    } else {
+        targetInputs[5].value = "";
+    }
+    targetInputs[5].style.backgroundColor = specialtyVal ? "" : "#ffcccc";
+}
+
+// PCP
+if (targetInputs[6]) {
+    if (index === 0) {
+        targetInputs[6].value = pcpVal;
+    } else {
+        targetInputs[6].value = "";
+    }
+    targetInputs[6].style.backgroundColor = pcpVal ? "" : "#ffcccc";
+}
+
+// EFFECTIVE DATE
+if (targetInputs[7]) {
+    if (index === 0) {
+        targetInputs[7].value = effDateVal;
+    } else {
+        targetInputs[7].value = "";
+    }
+    targetInputs[7].style.backgroundColor = effDateVal ? "" : "#ffcccc";
+}
+
+        // LOB
+        if (targetInputs[8]) {
+            targetInputs[8].value = item.lobVal;
+        }
+
+        // AGREEMENT N
+        if (
+    pcpVal.toUpperCase() === "YES"
+) {
+
+    if (targetInputs[9]) {
+        targetInputs[9].value = item.agreementN;
+        targetInputs[9].style.backgroundColor =
+        item.agreementN ? "" : "#ffcccc";
+    }
+
+    if (targetInputs[10]) {
+        targetInputs[10].value = item.agreementY;
+        targetInputs[10].style.backgroundColor =
+        item.agreementY ? "" : "#ffcccc";
+    }
+
+} else {
+
+    if (targetInputs[9]) {
+        targetInputs[9].value = item.agreementN;
+        targetInputs[9].style.backgroundColor =
+        item.agreementN ? "" : "#ffcccc";
+    }
+
+    if (targetInputs[10]) {
+        targetInputs[10].value = "";
+        targetInputs[10].style.backgroundColor = "";
+    }
+
+}
+
+    });
+
+    // CLEAR EXTRA ROWS
+    for (
+        let i = validRowsData.length;
+        i < targetRows.length;
+        i++
+    ) {
+
+        const targetInputs =
+            targetRows[i].querySelectorAll("input");
+
+        targetInputs.forEach(inp => {
+            inp.value = "";
+        });
+
+    }
+
+    // NDB
+    if (typeof transferMpinToNdb === "function") {
+        transferMpinToNdb();
+    }
+
+    // COSMOS
+    if (typeof transferMpinToCosmos === "function") {
+        transferMpinToCosmos();
+    }
+const today = new Date();
+
+const formattedDate =
+    String(today.getMonth() + 1).padStart(2, '0') + '/' +
+    String(today.getDate()).padStart(2, '0') + '/' +
+    today.getFullYear();
+
+document.querySelectorAll('#systemRows tr').forEach((row, index) => {
+
+    if(index > 2) return; // only first 3 rows
+
+    const inputs = row.querySelectorAll('input');
+
+    if (inputs[3]) {
+        inputs[3].value = formattedDate;
+    }
+
+});
+
+document.querySelectorAll("input").forEach(inp => {
+    inp.setAttribute("value", inp.value);
+});
+
+document.querySelectorAll("select").forEach(sel => {
+    sel.setAttribute("data-copy", sel.value);
+});
+
+    alert("Transfer Completed");
+
+}
+const delCode =
+document.getElementById("Del-Code")?.value.trim() || "";
+
+// MAINT 1 - AUTO 200 ROWS
+document.addEventListener("DOMContentLoaded", function () {
+
+    const m1Rows = document.getElementById("m1Rows");
+
+    if (!m1Rows) return;
+
+    let html = "";
+
+    for (let i = 0; i < 200; i++) {
+    html += `
+    <tr>
+        <td class="input-cell">
+            <input type="text" class="m1-select">
+        </td>
+
+        <td class="input-cell"><input type="text"></td>
+        <td class="input-cell"><input type="text"></td>
+        <td class="input-cell"><input type="text"></td>
+        <td class="input-cell"><input type="text"></td>
+        <td class="input-cell"><input type="text"></td>
+        <td class="input-cell"><input type="text"></td>
+        <td class="input-cell"><input type="text"></td>
+        <td class="input-cell"><input type="text"></td>
+        <td class="input-cell"><input type="text"></td>
+        <td class="input-cell"><input type="text" class="m1-mpin-box"></td>
+        <td class="input-cell"><input type="text"></td>
+    </tr>`;
+}
+    m1Rows.innerHTML = html;
+});
+
+// =========================
+// MAINT 2 - AUTO 200 ROWS
+// =========================
+document.addEventListener("DOMContentLoaded", function () {
+
+    const m2Rows = document.getElementById("m2Rows");
+
+    if (!m2Rows) return;
+
+    let html = "";
+
+    for (let i = 0; i < 200; i++) {
+
+        html += `
+        <tr>
+            <td class="input-cell">
+                <input type="text" class="m2-select">
+            </td>
+
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+
+            <td class="input-cell">
+                <input type="text" class="m2-origdate">
+            </td>
+
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+        </tr>`;
+    }
+
+    m2Rows.innerHTML = html;
+
+});
+// MAINT 1 SELECT AUTOFILL
+
+document.addEventListener("input", function(e){
+
+    if(e.target.classList.contains("m1-select")){
+
+        const firstBox = document.querySelector(".m1-select");
+
+        // Sirf first row master rahe
+        if(e.target === firstBox){
+
+            const val = firstBox.value;
+
+            document.querySelectorAll(".m1-select").forEach(box=>{
+                box.value = val;
+            });
+        }
+    }
+
+});
+// MAINT 2 AUTOFILL
+
+document.addEventListener("input", function(e){
+
+    // SELECT COLUMN
+    if(e.target.classList.contains("m2-select")){
+
+        const firstBox = document.querySelector(".m2-select");
+
+        // SIRF FIRST ROW CHANGE HONE PAR COPY KARO
+        if(e.target === firstBox){
+
+            const val = firstBox.value;
+
+            document.querySelectorAll(".m2-select").forEach(box=>{
+                box.value = val;
+            });
+        }
+    }
+
+    // ORIGINAL EFFECTIVE DATE
+    if(e.target.classList.contains("m2-origdate")){
+
+        const firstDate = document.querySelector(".m2-origdate");
+
+        // SIRF FIRST ROW CHANGE HONE PAR COPY KARO
+        if(e.target === firstDate){
+
+            const val = firstDate.value;
+
+            document.querySelectorAll(".m2-origdate").forEach(box=>{
+                box.value = val;
+            });
+        }
+    }
+
+});
+// ===== MAINT 3 : AUTO 200 ROWS =====
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const m3Rows = document.getElementById("m3Rows");
+
+    if (!m3Rows) return;
+
+    let html = "";
+
+    for(let i = 0; i < 200; i++){
+
+        html += `
+        <tr>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+        </tr>`;
+    }
+
+    m3Rows.innerHTML = html;
+});
+
+// ===== MAINT 4 : AUTO 200 ROWS =====
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const m4Rows = document.getElementById("m4Rows");
+
+    if (!m4Rows) return;
+
+    let html = "";
+
+    for(let i = 0; i < 200; i++){
+
+        html += `
+        <tr>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+            <td class="input-cell"><input type="text"></td>
+        </tr>`;
+    }
+
+    m4Rows.innerHTML = html;
+});
+
+// =====================================
+// HMS FACILITY SCREEN PARSER
+// Paste directly into Primary Place of Service
+// =====================================
+
+function parseFacilityPaste(e) {
+
+    const txt =
+        (e.clipboardData || window.clipboardData)
+        .getData("text");
+
+    if (!txt) return;
+
+    e.preventDefault();
+
+    const phoneMatch =
+        txt.match(/\((\d{3})\)\s*(\d{3})-(\d{4})/);
+
+    if (phoneMatch) {
+
+        document.getElementById("top-phone-num").value =
+            `${phoneMatch[1]}-${phoneMatch[2]}-${phoneMatch[3]}`;
+    }
+
+    const adrMatch =
+        txt.match(/\d{9}-(\d{4})/);
+
+    if (adrMatch) {
+
+        document.getElementById("top-mcaid-platform").value =
+            adrMatch[1];
+    }
+
+const lines = txt
+    .split(/\r?\n/)
+    .map(x => x.trim())
+    .filter(Boolean);
+
+if (lines.length >= 2) {
+
+    document.getElementById("top-primary-pos").value =
+        lines[0].replace(/\s{2,}.*/, "") +
+        " " +
+        lines[1].replace(/\s{2,}.*/, "");
+}
+}
+</script>
