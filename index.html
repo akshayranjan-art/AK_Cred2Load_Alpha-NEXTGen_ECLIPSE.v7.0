@@ -2762,4 +2762,164 @@ function jvHits(q){const w=q.toLowerCase().replace(/[^a-z0-9&\/\s.-]/g," ").spli
  _a(q);const H=jvHits(q);if(H.length)asSay("ai",`<b>From your saved data</b>${H.map(h=>`<div style="margin-top:5px"><span class="chip">${esc(h[1])}</span> ${esc(h[2].slice(0,220))}</div>`).join("")}`)}}
 </script>
 
+<style>
+/* ---- multi-tab link viewer ---- */
+.frameBox{inset:3% 3%!important}
+.frameBox .fh{flex-wrap:wrap}
+.fbTabs{display:flex;gap:5px;flex-wrap:wrap;flex:1;min-width:0}
+.fbTab{display:inline-flex;align-items:center;gap:6px;max-width:200px;padding:4px 6px 4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--soft2);font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.fbTab span{overflow:hidden;text-overflow:ellipsis}.fbTab.on{background:linear-gradient(90deg,#7B5CFF,#33C8F0);color:#fff;border-color:transparent}
+.fbTab b{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;background:rgba(0,0,0,.12)}
+.fbUp{width:30px;height:26px;border-radius:8px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-weight:800}
+.frameBox.mini{inset:auto 3% auto 3%!important;top:6px!important;height:auto!important}.frameBox.mini iframe{display:none}
+.frameBox iframe{display:none}.frameBox iframe.on{display:block}
+/* ---- links panel ---- */
+.lkgrid2{display:flex;flex-direction:column;gap:14px;max-height:66vh;overflow:auto;padding:2px}
+.lkgh{display:flex;align-items:center;gap:8px;margin:2px 0 6px;font-family:var(--f-sci);font-size:11px;letter-spacing:.14em;color:var(--c)}
+.lkgh i{font-style:normal;font-size:16px}.lkgh span{flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--c),transparent)}
+.lkrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:10px}
+.lc{position:relative;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 12%,var(--panel)),var(--panel) 70%);border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));box-shadow:0 4px 14px color-mix(in srgb,var(--c) 14%,transparent);transition:transform .15s}
+.lc:hover{transform:translateY(-2px)}
+.lc .no{position:absolute;top:6px;right:10px;font-family:var(--f-sci);font-size:10px;color:var(--c);opacity:.8}
+.lc .ic2{width:40px;height:40px;flex:none;border-radius:12px;display:grid;place-items:center;font-size:20px;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 45%,#000));box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 10px color-mix(in srgb,var(--c) 40%,transparent)}
+.lc .bd{flex:1;min-width:0}.lc .nm{font-weight:800;font-size:13.5px}.lc .ur{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc .ac{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}.lc .ac button,.lc .ac a{border:0;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:800;cursor:pointer;text-decoration:none}
+.lc .ac .p{background:var(--c);color:#fff}.lc .ac .s{background:color-mix(in srgb,var(--c) 14%,var(--panel));color:var(--ink)}
+.lkchips{display:flex;gap:6px;flex-wrap:wrap}.lkchips button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;font-size:11.5px;font-weight:700;cursor:pointer}.lkchips button.on{background:var(--plum);color:#fff;border-color:transparent}
+/* ---- small things ---- */
+#gTabs [data-g="NAS"]{display:none!important}
+#trkPrev{display:none!important}
+.tk.fnd{background:#E3F8EF!important;border-color:#1FA874!important;color:#1FA874!important}.tk.nf{background:#FDE8EC!important;border-color:#E0435F!important;color:#E0435F!important}
+.thin{height:24px;border:1px solid color-mix(in srgb,var(--plum) 45%,var(--line));border-radius:999px;padding:0 12px;background:color-mix(in srgb,var(--plum) 8%,var(--panel));color:var(--plum);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.04em}
+.thin.r{border-color:#E0435F;color:#C93A57;background:#FDE8EC}
+.erl{display:flex;flex-direction:column;gap:10px;max-height:62vh;overflow:auto}.erl .card{margin:0}
+.erl table td.hid,.erl tr.hid td{opacity:.35;text-decoration:line-through}
+/* ---- CSP page: no map, long LOB then PCP rules ---- */
+#v-csp .card:has(#cMap){display:none!important}
+#v-csp .card:has(#cLobT){flex:1 1 100%!important;order:-3!important;max-height:none!important}#cLobT{max-height:none!important}
+#v-csp .card:has(#cKv){flex:1 1 100%!important;order:-2!important;max-height:none!important}
+.pcpAll{margin-top:10px}
+/* ---- state rules 3D map ---- */
+#v-rules .split{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)!important}
+#rMap.usm{background:radial-gradient(700px 300px at 30% 0%,#2a2f6e 0,#141632 55%,#0a0b1c 100%)!important;padding:14px!important;border-radius:18px;box-shadow:inset 0 0 40px rgba(120,100,255,.25),0 10px 30px rgba(10,8,40,.35)}
+#rMap.usm text{fill:#fff;font-size:13px;paint-order:stroke;stroke:rgba(0,0,0,.55);stroke-width:2.4px}
+#rMap.usm path.st{stroke:#0b0d22!important;stroke-width:1!important;filter:drop-shadow(0 3px 0 rgba(0,0,0,.55)) drop-shadow(0 6px 6px rgba(0,0,0,.35));transition:transform .18s,filter .18s;transform-box:fill-box;transform-origin:center}
+#rMap.usm path.st[data-r=West]{fill:url(#gW)!important}#rMap.usm path.st[data-r=Central]{fill:url(#gC)!important}#rMap.usm path.st[data-r=East]{fill:url(#gE)!important}
+#rMap.usm path.st:hover{transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 6px 0 rgba(0,0,0,.5)) drop-shadow(0 0 10px #9FD3FF)}
+#rMap.usm path.st.slk{fill:#5b5f72!important}
+#rMap.usm path.st.on{fill:url(#gS)!important;stroke:#fff!important;stroke-width:2!important;filter:drop-shadow(0 0 12px #fff) drop-shadow(0 6px 0 rgba(0,0,0,.5))}
+#rMap.usm g.sb rect{stroke:#0b0d22}#rMap.usm g.sb[data-r=West] rect{fill:#2ea66a}#rMap.usm g.sb[data-r=Central] rect{fill:#d9a93d}#rMap.usm g.sb[data-r=East] rect{fill:#8e44c0}#rMap.usm g.sb.slk rect{fill:#5b5f72}#rMap.usm g.sb.on rect{fill:#fff}#rMap.usm g.sb.on text{fill:#3A2680;stroke:none}
+/* ---- sticky notes & private links ---- */
+.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;max-height:68vh;overflow:auto;padding:4px}
+.note{border-radius:14px;padding:10px;box-shadow:0 8px 20px rgba(0,0,0,.12);display:flex;flex-direction:column;gap:6px;transform:rotate(var(--r))}
+.note input{border:0;background:transparent;font-weight:800;font-size:14px;outline:0}.note textarea{flex:1;min-height:160px;border:0;background:transparent;resize:vertical;font-size:13px;line-height:1.5;outline:0}
+.note .nb{display:flex;gap:6px;justify-content:space-between;align-items:center;font-size:10.5px;opacity:.75}.note .nb button{border:0;background:rgba(0,0,0,.08);border-radius:8px;cursor:pointer;padding:2px 8px}
+.btn.tb.planet{font-size:15px;padding:0 9px}
+input.nosw{width:14px!important;height:14px!important;margin:0 4px!important;vertical-align:middle}
+/* ---- tracker ---- */
+.trkbar2{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+#eWrap td.rn input.trkc{margin:0 4px 0 0}
+</style>
+<script>
+/* ===== build 12 ===== */
+FEAT.push(["linktabs","Link viewer tabs + ▲ minimise"],["mktck","Market / M&R FS ✔ green when found in A1025"],["stick","Keep switch settings (J1400, County, VACCN, MNR A1025)"],["enrrules","Medicaid · Enrollment rules button"],["notes","Sticky notes"],["trkplus","Tracker columns · tick & delete · TXT"]);
+/* --- link viewer: tabs, minimise --- */
+const FBT=[];let FBA=-1;
+(function(){const fh=$("#frameBox .fh");if(!fh)return;fh.innerHTML='<button class="fbUp" id="fbUp" title="Minimise / restore">▲</button><div class="fbTabs" id="fbTabs"></div><span class="small muted">If a site stays blank it blocks embedding</span><a class="btn sm" id="fbNew" target="_blank" rel="noopener">Open in new tab</a><button class="btn sm red" id="fbX">Close all</button>';$("#fbF").remove()})();
+function fbPaint(){$("#fbTabs").innerHTML=FBT.map((t,i)=>`<span class="fbTab ${i===FBA?"on":""}" data-fbt="${i}"><span>${esc(t.n)}</span><b data-fbc="${i}">✕</b></span>`).join("");$$("#frameBox iframe").forEach((f,i)=>f.classList.toggle("on",i===FBA));const t=FBT[FBA];if(t)$("#fbNew").href=t.u;
+ if(!FBT.length){$("#frameBox").classList.remove("on","mini")}}
+function fbOpen(n,u){let i=FBT.findIndex(t=>t.u===u);if(i<0){if(FBT.length>=15){toast("15 pages open · close one first","bad");return}const f=document.createElement("iframe");f.src=u;$("#frameBox").appendChild(f);FBT.push({n,u,f});i=FBT.length-1}FBA=i;$("#frameBox").classList.add("on");$("#frameBox").classList.remove("mini");$("#fbUp").textContent="▲";fbPaint()}
+openLink=function(i){const l=DB.links[i];if(!l)return;if(!/^https?:/.test(l.url)){navigator.clipboard&&navigator.clipboard.writeText(l.url);return toast("Folder/file path copied: "+l.url,"ok")}fbOpen(l.name,l.url);log("Opened "+l.name)};
+ACT.nasInside=()=>{};
+document.addEventListener("click",e=>{const c=e.target.closest("[data-fbc]");if(c){const i=+c.dataset.fbc;FBT[i].f.remove();FBT.splice(i,1);FBA=Math.min(FBA,FBT.length-1);if(FBA<0&&FBT.length)FBA=0;return fbPaint()}
+ const t=e.target.closest("[data-fbt]");if(t){FBA=+t.dataset.fbt;$("#frameBox").classList.remove("mini");$("#fbUp").textContent="▲";return fbPaint()}
+ if(e.target.id==="fbUp"){const m=$("#frameBox").classList.toggle("mini");e.target.textContent=m?"▼":"▲";return}
+ if(e.target.id==="fbX"){FBT.forEach(t=>t.f.remove());FBT.length=0;FBA=-1;fbPaint()}});
+/* --- links panel: groups, icons, numbers --- */
+const LKI=[[/pega|phycon/i,"🩺"],[/amaardi|amd/i,"🧬"],[/msps|pros/i,"🏥"],[/mnr|a1025|medicare/i,"🛡"],[/c&s|j1400|csp|medicaid/i,"📋"],[/smpf/i,"🧭"],[/npi|nppes/i,"🔎"],[/state|rule|grid/i,"🗺"],[/qvc|varicent/i,"📊"],[/console|hub/i,"🖥"],[/tracker/i,"📈"],[/automat|tool|vercel/i,"⚙"],[/acr/i,"🧾"],[/sop|knowledge/i,"📚"],[/mail|outlook/i,"✉"],[/share|sharepoint|drive/i,"🗂"]];
+const LKC=["#7B5CFF","#19A7C9","#1FA874","#E07A2B","#D63FA6","#3D7DFF","#C9962E","#E0435F"];
+const lkIcon=l=>(LKI.find(([r])=>r.test(l.name+" "+l.url))||[0,"🔗"])[1];
+const gIcon=g=>/auto/i.test(g)?"⚙":/process|load/i.test(g)?"🧩":/ref|knowledge|rule/i.test(g)?"📚":/system/i.test(g)?"🖥":"✦";
+lkRender=function(){const L=DB.links,ed=permOf(ME,"links"),groups=[...new Set(L.filter(l=>l.name||l.url).map(l=>l.group||"My links"))].sort();
+ const used=L.filter(l=>l.name||l.url).length;$("#lkN").textContent=used+" of 50 used";$("#mH").textContent="Links · "+used+" of 50";
+ $("#lkG").innerHTML=["All"].concat(groups).map(g=>`<option ${g===LKG?"selected":""}>${esc(g)}</option>`).join("");
+ if(LKEDIT>=0){const l=L[LKEDIT];$("#lkOut").className="lkgrid";$("#lkOut").innerHTML=`<div class="lk" style="grid-column:1/-1"><input id="lkn" placeholder="Name" value="${esc(l.name)}"><input id="lku" placeholder="https://… or folder path" value="${esc(l.url)}" class="mono"><input id="lkg" placeholder="Group (e.g. Process, Automation)" value="${esc(l.group||"My links")}" list="lkGroups"><datalist id="lkGroups">${["Process","Automation","Systems","Reference"].concat(groups).map(g=>`<option value="${esc(g)}">`).join("")}</datalist><label class="row small"><input type="checkbox" id="lki" ${l.inside?"checked":""}> open inside Superload</label><div class="a"><button class="btn sm pri" data-lks="${LKEDIT}">Save</button><button class="btn sm" data-lkc="1">Cancel</button>${l.name||l.url?`<button class="btn sm danger" data-lkd="${LKEDIT}">Delete</button>`:""}</div></div>`;return}
+ const q=LKQ.trim().toLowerCase();$("#lkOut").className="lkgrid2";let n=0;
+ const blocks=groups.filter(g=>LKG==="All"||g===LKG).map((g,gi)=>{const c=LKC[gi%LKC.length];const items=L.map((l,i)=>[l,i]).filter(([l])=>(l.name||l.url)&&(l.group||"My links")===g&&(!q||(l.name+" "+l.url).toLowerCase().includes(q))).sort((a,b)=>a[0].name.localeCompare(b[0].name));if(!items.length)return"";
+  return `<div style="--c:${c}"><div class="lkgh"><i>${gIcon(g)}</i>${esc(g.toUpperCase())} · ${items.length}<span></span></div><div class="lkrow">${items.map(([l,i])=>{n++;const web=/^https?:/.test(l.url);return `<div class="lc"><span class="no">${String(n).padStart(2,"0")}</span><div class="ic2">${lkIcon(l)}</div><div class="bd"><div class="nm">${esc(l.name)}</div><div class="ur" title="${esc(l.url)}">${esc(l.url)}</div><div class="ac">${web?(l.inside?`<button class="p" data-lko="${i}">▣ Open inside</button><a class="s" href="${esc(l.url)}" target="_blank" rel="noopener">↗ New tab</a>`:`<a class="p" href="${esc(l.url)}" target="_blank" rel="noopener">↗ New tab</a>`):`<button class="p" data-lko="${i}">⎘ Copy path</button>`}${ed?`<button class="s" data-lke="${i}">✎ Edit</button>`:""}</div></div></div>`}).join("")}</div></div>`}).join("");
+ $("#lkOut").innerHTML=blocks||`<div class="empty">No link matches</div>`};
+/* --- Info tools: Erase per tab, Enrollment rules, no CSP / MNR rapid buttons --- */
+gToolsHTML=function(fl){const T=GTOOLS[GTAB]||[],LKF={"J1400":"j1400","County":"county","MNR A1025":"a1025"};
+ const inl=T.filter(t=>t[0]!=="b").map(t=>t[0]==="chk"?`<label class="row small"><input type="checkbox" data-flag="${t[1]}" ${fl[t[1]]?"checked":""}> ${t[1]}</label>${LKF[t[1]]?`<button class="tk" data-lk="${LKF[t[1]]}" title="Open the ${t[1]} list">✔</button>`:""}`:`<label class="row small"><b>${t[1]}</b><select class="sel" data-flag="${t[1]}">${["Yes","No"].map(o=>`<option ${(fl[t[1]]||"Yes")===o?"selected":""}>${o}</option>`).join("")}</select></label>`).join("");
+ const er=GTAB==="CS"&&fx("enrrules")?`<button class="thin" data-act="enrRules">Enrollment rules</button>`:"";
+ return inl+`<span class="sp"></span>`+er+(["CS","EI","MR"].includes(GTAB)?`<button class="thin r" data-act="gErase2">✕ Erase</button>`:"")};
+ACT.gErase2=()=>{const g=curGrid();ask("Erase "+g.name,"All rows of <b>"+esc(g.name)+"</b> are cleared (HTML + Excel). Use RECALL if needed.","Erase",()=>{if(typeof snapNow==="function")snapNow("Erase "+g.name);if(GTAB==="EI"){const pi=g.head.indexOf("Product Info");g.rows=NDB_PROD.map(p=>{const r=g.head.map(()=>"");if(pi>=0)r[pi]=p;return r})}else g.rows=[];touch("Erased "+g.name);renderGrid();try{writeCells(true)}catch(e){}})};
+/* Enrollment rules: LOBs in Medicaid C&S → PCP rules by specialty, hide what you do not need */
+ACT.enrRules=()=>{const st=gf("ST"),g=DB.editors.CS,li=g.head.indexOf("LOB"),lobs=[...new Set(g.rows.map(r=>r&&r[li]).filter(Boolean))],spc=String(gf("SPC Name")||"").toLowerCase();
+ const H=DB.settings.erHide=DB.settings.erHide||{};const all=DB.csp.enr.filter(r=>r[0]===st),useL=lobs.length?lobs:[...new Set(all.map(r=>r[1]))];
+ const body=useL.map(l=>{const R=all.filter(r=>r[1]===l);const lob=DB.csp.lob.find(r=>r[0]===st&&r[1]===l)||[];return `<div class="card"><h3>${esc(l)} <span class="small muted">${esc(lob[2]||"")}</span></h3>${R.length?`<table class="g"><thead><tr><th>Show</th><th>Specialty</th><th>Limit</th><th>Age</th><th>Gender</th><th>Auto</th><th>New</th><th>Existing</th></tr></thead><tbody>${R.map(r=>{const k=st+"|"+l+"|"+r[3],h=!!H[k],me=spc&&String(r[3]).toLowerCase()===spc;return `<tr class="${h?"hid":""}" style="${me?"background:color-mix(in srgb,#1FA874 14%,transparent)":""}"><td><input type="checkbox" class="nosw" data-erh="${esc(k)}" ${h?"":"checked"}></td><td><b>${esc(r[3])}</b>${me?" ✔":""}</td><td>${esc(r[2])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td>${esc(r[6])}</td><td>${esc(r[7])}</td><td>${esc(r[8])}</td></tr>`}).join("")}</tbody></table>`:`<div class="small muted">No PCP enrollment rules for ${esc(l)} · CSP › Dump state data</div>`}</div>`}).join("");
+ modal("Enrollment rules · "+(st||"pick ST"),`<div class="row" style="gap:8px;margin-bottom:8px"><span class="small muted">${lobs.length?"LOBs from Medicaid C&amp;S":"No LOB in Medicaid C&amp;S yet · showing all LOBs of "+esc(st)}. Green = this provider's specialty. Untick = hide (remembered).</span><span class="sp"></span><label class="row small"><input type="checkbox" class="nosw" id="erAll"> show hidden</label></div><div class="erl" id="erL">${body||'<div class="empty">Pick ST first</div>'}</div>`,[{t:"Close"}]);
+ document.querySelector("#modal .mbox").style.width="min(1000px,96vw)";const paint=()=>{const a=$("#erAll").checked;$$("#erL tr.hid").forEach(tr=>tr.style.display=a?"":"none")};paint();$("#erAll").onchange=paint};
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.erh!==undefined){const H=DB.settings.erHide=DB.settings.erHide||{};if(t.checked)delete H[t.dataset.erh];else H[t.dataset.erh]=1;t.closest("tr").classList.toggle("hid",!t.checked);touch("Enrollment rule view")}});
+/* --- Mkt Num / M&R FS ✔: green when found in A1025, red when not --- */
+setInterval(()=>{try{if(!DB||!ME||!fx("mktck"))return;const M=DB.a1025;[["Mkt Num.","Market Number",v=>v.replace(/\D/g,"")],["M&R FS","M&R Fee Schedule",v=>v.trim().toLowerCase()]].forEach(([f,col,nz])=>{const inp=document.getElementById("f_grp_"+norm(f));if(!inp)return;const b=inp.closest(".lkw")&&inp.closest(".lkw").querySelector(".tk");if(!b)return;const v=nz(String(inp.value||""));const ci=M.head.indexOf(col);const ok=v&&ci>=0&&M.rows.some(r=>nz(String(r[ci]||""))===v);b.classList.toggle("fnd",!!(v&&ok));b.classList.toggle("nf",!!(v&&!ok))})}catch(e){}},700);
+/* --- switches remembered --- */
+const STK=["J1400","County","VACCN","MNR A1025"];
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&STK.includes(t.dataset.flag)&&fx("stick")){(DB.settings.stick=DB.settings.stick||{})[t.dataset.flag]=t.checked;touch()}});
+setInterval(()=>{try{if(!DB||!ME||!fx("stick"))return;const S=DB.settings.stick||{},F=DB.info.flags=DB.info.flags||{};let ch=0;STK.forEach(k=>{if(k in S&&!!F[k]!==!!S[k]){F[k]=S[k];ch=1}});if(ch&&VIEW==="info")renderGrid()}catch(e){}},1200);
+/* --- Tracker on top --- */
+(function(){const tb=$(".topbtns");if(tb&&!tb.querySelector('[data-go="ext"]'))tb.insertAdjacentHTML("beforeend",'<button class="tbn t7" data-go="ext" title="Tracker"><i>≡</i>TRACKER</button>')})();
+/* --- Tracker: hide / add columns, tick & delete, TXT --- */
+const TKS=new Set();
+{const _x=RENDER.ext;RENDER.ext=function(){_x.apply(this,arguments);if(!fx("trkplus"))return;const w=$("#eWrap"),T=DB.tracker,Hd=DB.settings.trkHide||[];
+ if(!$("#trkBar2")){const d=document.createElement("div");d.id="trkBar2";d.className="trkbar2";d.innerHTML='<button class="thin" data-act="trkCols">👁 Columns</button><button class="thin" data-act="trkAddCol">＋ Column</button><button class="thin r" data-act="trkDelT">🗑 Delete ticked</button><button class="thin" data-act="trkTxt">⇩ TXT</button><span class="small muted" id="trkTn"></span>';w.parentElement.insertBefore(d,w)}
+ w.querySelectorAll("tbody tr").forEach(tr=>{const r=+tr.dataset.r,td=tr.querySelector("td.rn");if(td&&!td.querySelector(".trkc")&&T.rows[r]&&T.rows[r].some(x=>x))td.insertAdjacentHTML("afterbegin",`<input type="checkbox" class="trkc nosw" data-tk="${r}" ${TKS.has(r)?"checked":""}>`)});
+ T.head.forEach((h,c)=>{const hide=Hd.includes(h);w.querySelectorAll(`[data-c="${c}"]`).forEach(x=>{const cell=x.tagName==="INPUT"?x.closest("td"):x;cell.style.display=hide?"none":""})});$("#trkTn").textContent=TKS.size?TKS.size+" ticked":""}}
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.tk!==undefined){const r=+t.dataset.tk;t.checked?TKS.add(r):TKS.delete(r);$("#trkTn").textContent=TKS.size?TKS.size+" ticked":""}});
+ACT.trkDelT=()=>{if(!TKS.size)return toast("Tick rows first","bad");ask("Delete rows",TKS.size+" ticked row(s) are deleted.","Delete",()=>{const T=DB.tracker;T.rows=T.rows.filter((r,i)=>!TKS.has(i));TKS.clear();touch("Tracker rows deleted");RENDER.ext()})};
+ACT.trkCols=()=>{const T=DB.tracker,Hd=DB.settings.trkHide||[];modal("Tracker columns",`<div class="row" style="gap:6px 14px;flex-wrap:wrap">${T.head.map(h=>`<label class="row small"><input type="checkbox" data-tch="${esc(h)}" ${Hd.includes(h)?"":"checked"}> ${esc(h)}</label>`).join("")}</div><div class="small muted" style="margin-top:8px">Untick = hide (data stays). Remembered.</div>`,[{t:"Cancel"},{t:"Save",c:"pri",fn:()=>{DB.settings.trkHide=$$("[data-tch]").filter(x=>!x.checked).map(x=>x.dataset.tch);touch("Tracker columns");RENDER.ext()}}])};
+ACT.trkAddCol=()=>modal("Add a Tracker column",`<input class="inp" id="tkNew" style="width:100%" placeholder="Column name">`,[{t:"Cancel"},{t:"Add",c:"pri",fn:()=>{const n=$("#tkNew").value.trim();const T=DB.tracker;if(!n||T.head.includes(n)){toast("Type a new name","bad");return false}T.head.push(n);T.rows.forEach(r=>r&&r.push(""));touch("Tracker column "+n);RENDER.ext()}}]);
+ACT.trkTxt=()=>dlFile("Tracker_"+today()+".txt",toTSV(DB.tracker));
+/* --- Amd: big dumps (100 000 rows) --- */
+amCD.lim=2000;["demo","csp","sync"].forEach(k=>{try{const c=amCfg(k);if(!c.lim||c.lim<2000){c.lim=2000;amCfgSave(k,c)}}catch(e){}});
+/* --- TXT backups (Tracker, PTI MPIN, notes) · PTI MPIN no longer grows an Excel --- */
+{const i=SECTIONS.findIndex(s=>s.id==="pti");if(i>=0)SECTIONS.splice(i,1)}
+const BK2={};setInterval(async()=>{try{if(!DB||!ME||typeof DIR==="undefined"||!DIR)return;if((await DIR.queryPermission({mode:"readwrite"}))!=="granted")return;
+ for(const [n,G] of [["Tracker",DB.tracker],["PTI_MPIN",DB.pti],["Sticky_Notes",{head:["Title","Text","Updated"],rows:(DB.notes||[]).map(x=>[x.t,String(x.b||"").replace(/\n/g," ⏎ "),x.u||""])}]]){if(!G||!G.head)continue;const t=toTSV(G),h=t.length+":"+t.slice(-60);if(BK2[n]===h)continue;await fWrite(DIR,"Backup/"+n+".txt",t);BK2[n]=h}}catch(e){}},8000);
+/* --- Command deck clean · Boards → Sticky notes --- */
+setInterval(()=>{try{$$('#v-home [data-go="ext"],#v-home [data-act="linkPanel"],#v-home [data-go="sop"]').forEach(b=>b.remove());const bb=$('.btn.tb[data-go="boards"]');if(bb){bb.dataset.go="";bb.removeAttribute("data-go");bb.dataset.act="notes";bb.title="Sticky notes";bb.textContent="🗒 Notes"}
+ const ad=$("#btnAdminTop");if(ad&&!$("#btnPlanet")){ad.insertAdjacentHTML("afterend",'<button class="btn tb planet" id="btnPlanet" data-act="privLinks" title="My links">🪐</button>')}const pl=$("#btnPlanet");if(pl)pl.style.display=ME&&ME.role==="Admin"?"":"none"}catch(e){}},800);
+const NCOL=["#FFF3A6","#C9F2FF","#FFD6E8","#D9F7C9","#E6DCFF","#FFE2C2"];
+ACT.notes=()=>{if(!fx("notes"))return toast("Notes are off (Admin › Features)","bad");DB.notes=DB.notes||[];const draw=()=>{$("#ntW").innerHTML=DB.notes.map((n,i)=>`<div class="note" style="background:${NCOL[i%NCOL.length]};--r:${(i%3-1)*0.6}deg"><input data-nt="${i}" data-k="t" value="${esc(n.t)}" placeholder="Title"><textarea data-nt="${i}" data-k="b" placeholder="Write here…">${esc(n.b)}</textarea><div class="nb"><span>${esc(n.u||"")}</span><span><button data-ncp="${i}">⎘</button> <button data-ndl="${i}">🗑</button></span></div></div>`).join("")||'<div class="empty">No notes yet · press + New note</div>'};
+ modal("🗒 Sticky notes",`<div class="row" style="gap:8px;margin-bottom:8px"><button class="btn sm pri" id="ntAdd">＋ New note</button><button class="btn sm" id="ntTxt">⇩ TXT</button><span class="small muted">Saved as you type · also Backup/Sticky_Notes.txt in the data folder</span></div><div class="notes" id="ntW"></div>`,[{t:"Close"}]);
+ document.querySelector("#modal .mbox").style.width="min(1150px,96vw)";draw();
+ $("#ntAdd").onclick=()=>{DB.notes.unshift({t:"",b:"",u:new Date().toLocaleString()});touch("Note added");draw()};
+ $("#ntTxt").onclick=()=>dlFile("Sticky_Notes_"+today()+".txt",DB.notes.map(n=>"### "+(n.t||"Note")+"\n"+n.b).join("\n\n"));
+ $("#ntW").oninput=e=>{const t=e.target;if(t.dataset.nt===undefined)return;const n=DB.notes[+t.dataset.nt];n[t.dataset.k]=t.value;n.u=new Date().toLocaleString();clearTimeout(ACT._nt);ACT._nt=setTimeout(()=>touch("Note saved"),600)};
+ $("#ntW").onclick=e=>{const d=e.target.dataset;if(d.ndl!==undefined){DB.notes.splice(+d.ndl,1);touch("Note deleted");draw()}if(d.ncp!==undefined){navigator.clipboard&&navigator.clipboard.writeText(DB.notes[+d.ncp].b);toast("Copied","ok")}}};
+/* --- 🪐 private links (Admin only, this PC) --- */
+const PLK=()=>{try{return JSON.parse(localStorage.getItem("sl_plinks_"+(ME&&ME.msid))||"[]")}catch(e){return[]}},PLKS=L=>{try{localStorage.setItem("sl_plinks_"+(ME&&ME.msid),JSON.stringify(L))}catch(e){}};
+ACT.privLinks=()=>{if(!ME||ME.role!=="Admin")return;let L=PLK(),ed=-1;const draw=()=>{$("#plW").innerHTML=L.map((l,i)=>i===ed?`<div class="lc" style="--c:#7B5CFF;grid-column:1/-1"><div class="bd"><input class="inp" id="pln" value="${esc(l.n)}" placeholder="Name"><input class="inp mono" id="plu" value="${esc(l.u)}" placeholder="https://…" style="margin-top:5px"><label class="row small" style="margin-top:5px"><input type="checkbox" class="nosw" id="pli" ${l.i?"checked":""}> open inside</label><div class="ac"><button class="p" data-pls="${i}">Save</button><button class="s" data-pld="${i}">Delete</button></div></div></div>`:`<div class="lc" style="--c:${LKC[i%LKC.length]}"><span class="no">${String(i+1).padStart(2,"0")}</span><div class="ic2">${lkIcon({name:l.n,url:l.u})}</div><div class="bd"><div class="nm">${esc(l.n)}</div><div class="ur">${esc(l.u)}</div><div class="ac">${l.i?`<button class="p" data-plo="${i}">▣ Open inside</button><a class="s" href="${esc(l.u)}" target="_blank" rel="noopener">↗ New tab</a>`:`<a class="p" href="${esc(l.u)}" target="_blank" rel="noopener">↗ New tab</a>`}<button class="s" data-ple="${i}">✎ Edit</button></div></div></div>`).join("")||'<div class="empty">No private links yet</div>'};
+ modal("🪐 My links · only you",`<div class="row" style="margin-bottom:8px"><button class="btn sm pri" id="plAdd">＋ Add link</button><span class="small muted">Kept on this PC for ${esc(ME.msid)} only · nobody else sees them</span></div><div class="lkrow" id="plW"></div>`,[{t:"Close"}]);document.querySelector("#modal .mbox").style.width="min(1000px,96vw)";draw();
+ $("#plAdd").onclick=()=>{L.push({n:"",u:"",i:false});ed=L.length-1;draw()};
+ $("#plW").onclick=e=>{const d=e.target.dataset;if(d.ple!==undefined){ed=+d.ple;draw()}if(d.pld!==undefined){L.splice(+d.pld,1);ed=-1;PLKS(L);draw()}if(d.pls!==undefined){const u=$("#plu").value.trim();L[+d.pls]={n:$("#pln").value.trim()||u,u,i:$("#pli").checked};ed=-1;PLKS(L);draw()}if(d.plo!==undefined){const l=L[+d.plo];closeModal();fbOpen(l.n,l.u)}}};
+/* --- CSP page: all PCP rules of the state under the LOB box --- */
+{const _s=cspState;cspState=function(){_s.apply(this,arguments);const kv=$("#cKv");if(!kv)return;let a=$("#pcpAll");if(!a){a=document.createElement("div");a.id="pcpAll";a.className="pcpAll tw";kv.parentElement.appendChild(a)}
+ const st=$("#cState").value,R=DB.csp.enr.filter(r=>r[0]===st);a.innerHTML=R.length?`<table class="g"><thead><tr><th>LOB</th><th>Specialty</th><th>Limit</th><th>Age</th><th>Gender</th><th>Auto</th><th>New</th><th>Existing</th></tr></thead><tbody>${R.map(r=>`<tr><td><b>${esc(r[1])}</b></td><td>${esc(r[3])}</td><td>${esc(r[2])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td>${esc(r[6])}</td><td>${esc(r[7])}</td><td>${esc(r[8])}</td></tr>`).join("")}</tbody></table>`:""}}
+/* --- State Rules map: 3D region colours --- */
+{const _p=usPaint;usPaint=function(sel,has,cur){_p(sel,has,cur);if(sel!=="#rMap")return;const el=$("#rMap"),svg=el&&el.querySelector("svg");if(!svg)return;
+ svg.insertAdjacentHTML("afterbegin",'<defs><linearGradient id="gW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5BE3A0"/><stop offset="1" stop-color="#1E8E5A"/></linearGradient><linearGradient id="gC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD979"/><stop offset="1" stop-color="#C9962E"/></linearGradient><linearGradient id="gE" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C98BFF"/><stop offset="1" stop-color="#7A2E8E"/></linearGradient><linearGradient id="gS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FE7FF"/><stop offset="1" stop-color="#3D7DFF"/></linearGradient></defs>');
+ svg.querySelectorAll(".st").forEach(p=>p.dataset.r=REGOF(p.dataset.s))}}
+/* --- RECALL from Practitioner Excel via the Transfer Map --- */
+async function prFile(){let d=null;try{if(PDIR&&((await PDIR.queryPermission({mode:"read"}))==="granted"||(await PDIR.requestPermission({mode:"read"}))==="granted"))d=PDIR}catch(e){}
+ if(d){let best=null;for await(const [n,h] of d.entries()){if(h.kind!=="file"||/^~\$/.test(n)||!/\.(xlsm|xlsx|xlsb)$/i.test(n)||/^(superload|transfer_map|pti_mpin)/i.test(n))continue;const f=await h.getFile();if(!best||f.lastModified>best.lastModified)best=f}if(best)return best}
+ return await new Promise(res=>{const i=document.createElement("input");i.type="file";i.accept=".xlsm,.xlsx,.xlsb";i.onchange=()=>res(i.files[0]||null);i.click()})}
+ACT.recallXl=async()=>{if(!permOf(ME,"recall"))return toast("Recall is not allowed for you","bad");const f=await prFile();if(!f)return;try{const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});if(typeof snapNow==="function")snapNow("Before recall from Excel");let n=0;const seen={};
+ mapLines().forEach(m=>{const ws=wb.Sheets[m.sh];if(!ws)return;const rd=a=>{const c=ws[a];return c?String(c.w!=null?c.w:c.v):""};
+  if(m.kind==="list"){for(let i=0;i<m.n;i++){const v=rd(m.col+(m.row+i));const k=m.key+"#"+(m.from+i);if(seen[k]&&!v)continue;seen[k]=1;if(m.key.startsWith("ed:")){keyListSet(m.key,m.from+i,v);n++}else if(m.key.startsWith("edna:")){keyListSet("ed:"+m.key.slice(5),m.from+i,/^n\/?a$/i.test(v.trim())?"":v);n++}}}
+  else{const v=rd(m.col+m.row);if(seen[m.key]&&!v)return;seen[m.key]=1;if(keySet(m.key,v))n++}});
+ touch("Recall from "+f.name);RENDER.info();toast("Recalled "+n+" values from "+f.name+" (Transfer Map places)","ok")}catch(e){toast("Could not read "+f.name+" · "+e.message,"bad")}};
+{const _r=ACT.recall;ACT.recall=function(){_r.apply(this,arguments);const F=$("#mF");if(F&&$("#modal").classList.contains("on")){const b=document.createElement("button");b.className="btn pri";b.textContent="⇩ Recall from Practitioner Excel";b.onclick=()=>{closeModal();ACT.recallXl()};F.insertBefore(b,F.firstChild)}else if(!(DB.snaps||[]).length){ACT.recallXl()}}}
+</script>
+
 </body></html>
