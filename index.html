@@ -822,14 +822,14 @@ tr[data-tag=urgent] td{background:#FDE3E7!important}tr[data-tag=hold] td{backgro
 
       <!-- ADMIN -->
       <section class="view" id="v-admin">
-        <div class="bar"><div class="tabs" id="adTabs"><button data-a="users" class="on">Users</button><button data-a="uacc">User access</button><button data-a="roles">Roles &amp; access</button><button data-a="settings">Settings</button><button data-a="feat">Features</button><button data-a="conn">Connections</button><button data-a="master">Master data</button><button data-a="lists">Dropdown lists</button><button data-a="tpl">Templates</button><button data-a="sync">Data &amp; Sync</button><button data-a="xl">Excel link</button><button data-a="map">Transfer Map</button><button data-a="btn">Button access</button><button data-a="log">Activity log</button></div><span class="sp"></span></div>
+        <div class="bar"><div class="tabs" id="adTabs"><button data-a="users" class="on">Users</button><button data-a="uacc">User access</button><button data-a="roles">Roles &amp; access</button><button data-a="settings">Settings</button><button data-a="feat">Features</button><button data-a="conn">Connections</button><button data-a="master">Master data</button><button data-a="lists">Dropdown lists</button><button data-a="tpl">Templates</button><button data-a="sync">Data &amp; Sync</button><button data-a="xl">Excel link</button><button data-a="map">Transfer Map</button><button data-a="btn">Button access</button><button data-a="files">📁 Files</button><button data-a="log">Activity log</button></div><span class="sp"></span></div>
         <div id="ad-users"><div class="bar"><button class="btn sm pri" data-act="userAdd">+ Add user</button><button class="btn sm" data-act="usersExport">Users to Excel</button><button class="btn sm" data-act="importExcel">Users from Excel</button><span class="sp"></span><span class="small muted">Default role Employee · default valid till = tool expiry</span></div><div class="tw" id="adUsers"></div></div>
         <div id="ad-roles" hidden><div class="card"><h3>What each role can do</h3><div class="tw"><table class="g perm" id="adRoles"></table></div></div></div>
         <div id="ad-settings" hidden><div class="grid2">
           <div class="card"><h3>Access</h3><div class="stack" style="gap:8px" id="adSet1"></div></div>
           <div class="card"><h3>Wrong password mail &amp; history</h3><div class="stack" style="gap:8px" id="adSet2"></div></div>
         </div></div>
-        <div id="ad-feat" hidden></div><div id="ad-conn" hidden></div><div id="ad-master" hidden></div><div id="ad-tpl" hidden></div><div id="ad-uacc" hidden></div><div id="ad-lists" hidden></div><div id="ad-xl" hidden></div><div id="ad-map" hidden></div><div id="ad-btn" hidden></div><div id="ad-sync" hidden>
+        <div id="ad-feat" hidden></div><div id="ad-conn" hidden></div><div id="ad-master" hidden></div><div id="ad-tpl" hidden></div><div id="ad-uacc" hidden></div><div id="ad-lists" hidden></div><div id="ad-xl" hidden></div><div id="ad-map" hidden></div><div id="ad-btn" hidden></div><div id="ad-files" hidden></div><div id="ad-sync" hidden>
         <div class="grid2">
           <div class="card"><h3>Data folder</h3>
             <div id="syFolder" class="stack" style="gap:8px"></div>
@@ -1432,7 +1432,7 @@ $("#asClose").onclick=()=>$("#assist").classList.remove("on");
 
 /* ============ ADMIN ============ */
 let ADTAB="users";
-RENDER.admin=()=>{$$("#adTabs button").forEach(b=>b.classList.toggle("on",b.dataset.a===ADTAB));["users","roles","settings","feat","conn","master","tpl","log","uacc","lists","sync","xl","map","btn"].forEach(t=>$("#ad-"+t).hidden=t!==ADTAB);
+RENDER.admin=()=>{$$("#adTabs button").forEach(b=>b.classList.toggle("on",b.dataset.a===ADTAB));["users","roles","settings","feat","conn","master","tpl","log","uacc","lists","sync","xl","map","btn","files"].forEach(t=>$("#ad-"+t).hidden=t!==ADTAB);
  if(ADTAB==="users"){$("#adUsers").innerHTML=`<table class="g"><thead><tr><th>MSID</th><th>Name</th><th>PC (last 4)</th><th>Role</th><th>Valid till</th><th>Active</th><th>Own password</th><th></th></tr></thead><tbody>${DB.users.map((u,i)=>`<tr>
   <td><input data-u="${i}" data-k="msid" value="${esc(u.msid)}" class="mono"></td><td><input data-u="${i}" data-k="name" value="${esc(u.name)}"></td><td><input data-u="${i}" data-k="pc" value="${esc(u.pc)}" class="mono"></td>
   <td><select class="sel" style="border:0;background:transparent" data-u="${i}" data-k="role">${ROLES.map(r=>`<option ${r===u.role?"selected":""}>${r}</option>`).join("")}</select></td>
@@ -2388,7 +2388,7 @@ function bxScan(){if(!DB||!DB.settings||!ME)return;
  if($("#admBx")){$("#admBx").checked=DB.settings.bxEdit!==false;$("#admSy").checked=DB.settings.syncAllowed!==false}}
 setInterval(()=>{try{bxScan()}catch(e){}},900);
 document.addEventListener("click",e=>{const b=e.target.closest("[data-bx],[data-bxadd],[data-bxshow],[data-bxreset],[data-bxdel]");if(!b)return;const S=BXS();
- if(b.dataset.bx){const c=b.closest(".bxt").parentElement.closest("[data-bx]"),key=c.dataset.bx,v=key.split(":")[0],st=S[key]=S[key]||{},k=b.dataset.bx;
+ if(b.dataset.bx){if(!b.closest(".bxt"))return;const c=b.closest(".bxt").parentElement.closest("[data-bx]"),key=c.dataset.bx,v=key.split(":")[0],st=S[key]=S[key]||{},k=b.dataset.bx;
   if(k==="k")st.k=!st.k;else if(st.k)return;
   else if(k==="x")st.x=true;else if(k==="w")st.w=BXW[(BXW.indexOf(st.w||0)+1)%BXW.length];else if(k==="h")st.h=BXH[(BXH.indexOf(st.h||0)+1)%BXH.length];
   else{const cs=[...c.parentElement.querySelectorAll(":scope>[data-bx]")].sort((x,y)=>(+x.style.order||0)-(+y.style.order||0));cs.forEach((x,i)=>{(S[x.dataset.bx]=S[x.dataset.bx]||{}).o=i*10});st.o+=(k==="l"?-15:15)}
@@ -2701,8 +2701,7 @@ LKDEF.a1025.fill=r=>{const o=rowObj(DB.a1025,r);if(a1v(o,"Market Number"))setF("
  if(fx("a1025all")){const b=document.createElement("button");b.className="btn pri";b.textContent="⇉ Transfer all to Medicare M&R";b.onclick=()=>{const q=($("#lkq2").value||"").trim().toLowerCase(),R=M.rows.filter(r=>!q||r.join(" ").toLowerCase().includes(q));if(!R.length)return toast("Nothing to transfer","bad");mrPut(R.map(r=>rowObj(M,r)),"A1025 transfer all");closeModal()};f.insertBefore(b,f.firstChild)}
  const t=document.createElement("button");t.className="btn";t.textContent="⇩ TXT backup";t.onclick=()=>dlFile("MNR_A1025_"+today()+".txt",toTSV(M));f.insertBefore(t,f.firstChild)}}
 /* big lists also kept as TXT in the data folder (Backup/...) */
-const BKH={};setInterval(async()=>{try{if(!DB||!ME||typeof DIR==="undefined"||!DIR)return;if((await DIR.queryPermission({mode:"readwrite"}))!=="granted")return;
- for(const [n,G] of [["MNR_A1025",DB.a1025],["Medicare_MR_grid",DB.editors.MR],["CSP_LOB",{head:["ST","LOB","LOB Description","NWPR","AGAG","Market/IPA","Earliest Eff","Term Date"],rows:DB.csp.lob}]]){const t=toTSV(G),h=t.length+":"+t.slice(0,40)+t.slice(-40);if(BKH[n]===h)continue;await fWrite(DIR,"Backup/"+n+".txt",t);BKH[n]=h}}catch(e){}},8000);
+/* backups now go through the file registry (build 13) */
 
 /* ---- ⚡ CSP rapid fire: same CSP page data, short ---- */
 {const _rs=rfSections;rfSections=function(kind){if(kind!=="cs"||!fx("rfcsp"))return _rs(kind);const st=gf("ST"),out=[];
@@ -2862,11 +2861,11 @@ ACT.enrRules=()=>{const st=gf("ST"),g=DB.editors.CS,li=g.head.indexOf("LOB"),lob
  document.querySelector("#modal .mbox").style.width="min(1000px,96vw)";const paint=()=>{const a=$("#erAll").checked;$$("#erL tr.hid").forEach(tr=>tr.style.display=a?"":"none")};paint();$("#erAll").onchange=paint};
 document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.erh!==undefined){const H=DB.settings.erHide=DB.settings.erHide||{};if(t.checked)delete H[t.dataset.erh];else H[t.dataset.erh]=1;t.closest("tr").classList.toggle("hid",!t.checked);touch("Enrollment rule view")}});
 /* --- Mkt Num / M&R FS ✔: green when found in A1025, red when not --- */
-setInterval(()=>{try{if(!DB||!ME||!fx("mktck"))return;const M=DB.a1025;[["Mkt Num.","Market Number",v=>v.replace(/\D/g,"")],["M&R FS","M&R Fee Schedule",v=>v.trim().toLowerCase()]].forEach(([f,col,nz])=>{const inp=document.getElementById("f_grp_"+norm(f));if(!inp)return;const b=inp.closest(".lkw")&&inp.closest(".lkw").querySelector(".tk");if(!b)return;const v=nz(String(inp.value||""));const ci=M.head.indexOf(col);const ok=v&&ci>=0&&M.rows.some(r=>nz(String(r[ci]||""))===v);b.classList.toggle("fnd",!!(v&&ok));b.classList.toggle("nf",!!(v&&!ok))})}catch(e){}},700);
+setInterval(()=>{try{if(!DB||!ME||VIEW!=="info"||!fx("mktck"))return;const M=DB.a1025;[["Mkt Num.","Market Number",v=>v.replace(/\D/g,"")],["M&R FS","M&R Fee Schedule",v=>v.trim().toLowerCase()]].forEach(([f,col,nz])=>{const inp=document.getElementById("f_grp_"+norm(f));if(!inp)return;const b=inp.closest(".lkw")&&inp.closest(".lkw").querySelector(".tk");if(!b)return;const v=nz(String(inp.value||""));const ci=M.head.indexOf(col);const ok=v&&ci>=0&&M.rows.some(r=>nz(String(r[ci]||""))===v);b.classList.toggle("fnd",!!(v&&ok));b.classList.toggle("nf",!!(v&&!ok))})}catch(e){}},1500);
 /* --- switches remembered --- */
 const STK=["J1400","County","VACCN","MNR A1025"];
 document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&STK.includes(t.dataset.flag)&&fx("stick")){(DB.settings.stick=DB.settings.stick||{})[t.dataset.flag]=t.checked;touch()}});
-setInterval(()=>{try{if(!DB||!ME||!fx("stick"))return;const S=DB.settings.stick||{},F=DB.info.flags=DB.info.flags||{};let ch=0;STK.forEach(k=>{if(k in S&&!!F[k]!==!!S[k]){F[k]=S[k];ch=1}});if(ch&&VIEW==="info")renderGrid()}catch(e){}},1200);
+setInterval(()=>{try{if(!DB||!ME||VIEW!=="info"||!fx("stick"))return;const S=DB.settings.stick||{},F=DB.info.flags=DB.info.flags||{};let ch=0;STK.forEach(k=>{if(k in S&&!!F[k]!==!!S[k]){F[k]=S[k];ch=1}});if(ch&&VIEW==="info")renderGrid()}catch(e){}},1200);
 /* --- Tracker on top --- */
 (function(){const tb=$(".topbtns");if(tb&&!tb.querySelector('[data-go="ext"]'))tb.insertAdjacentHTML("beforeend",'<button class="tbn t7" data-go="ext" title="Tracker"><i>≡</i>TRACKER</button>')})();
 /* --- Tracker: hide / add columns, tick & delete, TXT --- */
@@ -2884,14 +2883,13 @@ ACT.trkTxt=()=>dlFile("Tracker_"+today()+".txt",toTSV(DB.tracker));
 amCD.lim=2000;["demo","csp","sync"].forEach(k=>{try{const c=amCfg(k);if(!c.lim||c.lim<2000){c.lim=2000;amCfgSave(k,c)}}catch(e){}});
 /* --- TXT backups (Tracker, PTI MPIN, notes) · PTI MPIN no longer grows an Excel --- */
 {const i=SECTIONS.findIndex(s=>s.id==="pti");if(i>=0)SECTIONS.splice(i,1)}
-const BK2={};setInterval(async()=>{try{if(!DB||!ME||typeof DIR==="undefined"||!DIR)return;if((await DIR.queryPermission({mode:"readwrite"}))!=="granted")return;
- for(const [n,G] of [["Tracker",DB.tracker],["PTI_MPIN",DB.pti],["Sticky_Notes",{head:["Title","Text","Updated"],rows:(DB.notes||[]).map(x=>[x.t,String(x.b||"").replace(/\n/g," ⏎ "),x.u||""])}]]){if(!G||!G.head)continue;const t=toTSV(G),h=t.length+":"+t.slice(-60);if(BK2[n]===h)continue;await fWrite(DIR,"Backup/"+n+".txt",t);BK2[n]=h}}catch(e){}},8000);
+/* backups now go through the file registry (build 13) */
 /* --- Command deck clean · Boards → Sticky notes --- */
 setInterval(()=>{try{$$('#v-home [data-go="ext"],#v-home [data-act="linkPanel"],#v-home [data-go="sop"]').forEach(b=>b.remove());const bb=$('.btn.tb[data-go="boards"]');if(bb){bb.dataset.go="";bb.removeAttribute("data-go");bb.dataset.act="notes";bb.title="Sticky notes";bb.textContent="🗒 Notes"}
  const ad=$("#btnAdminTop");if(ad&&!$("#btnPlanet")){ad.insertAdjacentHTML("afterend",'<button class="btn tb planet" id="btnPlanet" data-act="privLinks" title="My links">🪐</button>')}const pl=$("#btnPlanet");if(pl)pl.style.display=ME&&ME.role==="Admin"?"":"none"}catch(e){}},800);
 const NCOL=["#FFF3A6","#C9F2FF","#FFD6E8","#D9F7C9","#E6DCFF","#FFE2C2"];
 ACT.notes=()=>{if(!fx("notes"))return toast("Notes are off (Admin › Features)","bad");DB.notes=DB.notes||[];const draw=()=>{$("#ntW").innerHTML=DB.notes.map((n,i)=>`<div class="note" style="background:${NCOL[i%NCOL.length]};--r:${(i%3-1)*0.6}deg"><input data-nt="${i}" data-k="t" value="${esc(n.t)}" placeholder="Title"><textarea data-nt="${i}" data-k="b" placeholder="Write here…">${esc(n.b)}</textarea><div class="nb"><span>${esc(n.u||"")}</span><span><button data-ncp="${i}">⎘</button> <button data-ndl="${i}">🗑</button></span></div></div>`).join("")||'<div class="empty">No notes yet · press + New note</div>'};
- modal("🗒 Sticky notes",`<div class="row" style="gap:8px;margin-bottom:8px"><button class="btn sm pri" id="ntAdd">＋ New note</button><button class="btn sm" id="ntTxt">⇩ TXT</button><span class="small muted">Saved as you type · also Backup/Sticky_Notes.txt in the data folder</span></div><div class="notes" id="ntW"></div>`,[{t:"Close"}]);
+ modal("🗒 Sticky notes",`<div class="row" style="gap:8px;margin-bottom:8px"><button class="btn sm pri" id="ntAdd">＋ New note</button><button class="btn sm" id="ntTxt">⇩ TXT</button><span class="small muted">Saved as you type · also Notes/Notes_<MSID>.txt in the data folder</span></div><div class="notes" id="ntW"></div>`,[{t:"Close"}]);
  document.querySelector("#modal .mbox").style.width="min(1150px,96vw)";draw();
  $("#ntAdd").onclick=()=>{DB.notes.unshift({t:"",b:"",u:new Date().toLocaleString()});touch("Note added");draw()};
  $("#ntTxt").onclick=()=>dlFile("Sticky_Notes_"+today()+".txt",DB.notes.map(n=>"### "+(n.t||"Note")+"\n"+n.b).join("\n\n"));
@@ -2920,6 +2918,208 @@ ACT.recallXl=async()=>{if(!permOf(ME,"recall"))return toast("Recall is not allow
   else{const v=rd(m.col+m.row);if(seen[m.key]&&!v)return;seen[m.key]=1;if(keySet(m.key,v))n++}});
  touch("Recall from "+f.name);RENDER.info();toast("Recalled "+n+" values from "+f.name+" (Transfer Map places)","ok")}catch(e){toast("Could not read "+f.name+" · "+e.message,"bad")}};
 {const _r=ACT.recall;ACT.recall=function(){_r.apply(this,arguments);const F=$("#mF");if(F&&$("#modal").classList.contains("on")){const b=document.createElement("button");b.className="btn pri";b.textContent="⇩ Recall from Practitioner Excel";b.onclick=()=>{closeModal();ACT.recallXl()};F.insertBefore(b,F.firstChild)}else if(!(DB.snaps||[]).length){ACT.recallXl()}}}
+</script>
+
+<style>
+/* ---- CSP state grid ---- */
+#v-csp .bxBoard{align-items:flex-start}
+.c2tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin:8px 0}
+.c2t{border:1px solid var(--line);background:var(--soft2);border-radius:7px;padding:5px 0;font-weight:800;font-size:11.5px;cursor:pointer;color:var(--muted)}
+.c2t.has{background:color-mix(in srgb,#1FA874 22%,var(--panel));color:#0f6e48;border-color:color-mix(in srgb,#1FA874 45%,var(--line))}
+.c2t.on{background:linear-gradient(135deg,#FF7A45,#F05A28);color:#fff;border-color:transparent;box-shadow:0 3px 10px rgba(240,90,40,.4)}
+.c2lbl{font-size:10.5px;font-weight:800;letter-spacing:.1em;color:var(--muted);margin:8px 0 3px;text-transform:uppercase}
+.c2sel{width:100%}.c2spc{width:100%;min-height:220px;font-size:12.5px;border:1px solid var(--line);border-radius:10px;padding:4px;background:var(--panel);color:var(--ink)}
+.c2spc option{padding:3px 6px}.c2spc option:checked{background:#2B6BEA;color:#fff}
+.c2drop{border:2px dashed color-mix(in srgb,#F05A28 45%,transparent);border-radius:12px;padding:10px;text-align:center;font-size:12px;color:var(--muted);background:color-mix(in srgb,#F05A28 5%,transparent)}
+.c2drop b{display:block;color:#C9471C;font-size:13px;margin-bottom:4px}.c2drop.hot{background:color-mix(in srgb,#1FA874 14%,transparent);border-color:#1FA874}
+.c2kv{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-bottom:8px}
+.c2kv div{border-radius:10px;padding:6px 8px;background:color-mix(in srgb,#1FA874 10%,var(--panel));border:1px solid color-mix(in srgb,#1FA874 30%,var(--line))}
+.c2kv small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}.c2kv b{font-size:14px}
+.c2tb tr.sel td{background:color-mix(in srgb,#2B6BEA 12%,transparent)!important}.c2tb tr.c2l{cursor:pointer}
+.c2tb tr.hid td{opacity:.4;text-decoration:line-through}.c2tb tr.me td{background:color-mix(in srgb,#1FA874 14%,transparent)}
+.c2tb .x{border:0;background:transparent;cursor:pointer;font-size:13px}
+.c2bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.c2info{width:100%;min-height:360px;font-size:13px;line-height:1.55;resize:vertical}
+.c2hd{font-weight:800;font-size:13px;margin-bottom:6px}.c2hd span{color:var(--muted);font-weight:600}
+.svb{border:1px solid var(--line);background:var(--panel);border-radius:8px;width:24px;height:22px;cursor:pointer;font-size:12px;padding:0;margin-left:4px}
+.svb.ok{background:#E3F8EF;border-color:#1FA874}
+.ftab td input{width:100%;font-family:var(--f-mono);font-size:11.5px}
+#eWrap td.rn{white-space:nowrap;text-align:left;padding-left:4px}#eWrap td.rn .trkc{display:inline-block;vertical-align:middle;margin:0 5px 0 0!important}
+</style>
+<script>
+/* ===== build 13: TXT database (one file per list), Files registry in Admin, CSP state grid, TIN list ===== */
+const TXTE=v=>String(v==null?"":v).replace(/\\/g,"\\\\").replace(/\r?\n/g,"\\n").replace(/\r/g,"").replace(/\t/g,"\\t");
+const TXTD=v=>String(v).replace(/\\(\\|n|t)/g,(m,c)=>c==="n"?"\n":c==="t"?"\t":"\\");
+const tsvOut=aoa=>aoa.map(r=>r.map(TXTE).join("\t")).join("\n");
+const tsvIn=t=>String(t||"").replace(/^﻿/,"").replace(/\r/g,"").split("\n").filter(l=>l.length).map(l=>l.split("\t").map(TXTD));
+const FREG=[
+ ["settings","Settings · Admin control","superload_settings.json"],["users","Users & PCs","Admin/Users.txt"],["tmap","Transfer Map","Admin/Transfer_Map.txt"],
+ ["rules","State Rules","State_Rules/State_Rules.txt"],["sops","SOP Library","SOP/SOP_Library.txt"],["csp","CSP state grid · one folder per state","States"],
+ ["a1025","MNR A1025","MNR/MNR_A1025.txt"],["excl","TIN exclusion","MNR/TIN_Exclusion.txt"],["mnr","MNR checks","MNR/MNR_Checks.txt"],
+ ["tins","TIN list (Group by TIN)","Master/TIN_List.txt"],["pti","PTI MPIN","Master/PTI_MPIN.txt"],["spec","Specialty","Master/Specialty.txt"],["county","County","Master/County.txt"],["countylob","County LOB","Master/County_LOB.txt"],
+ ["links","Links (50)","Links/Links.txt"],["agr","Agreements","Agreements/Agreements.txt"],["amardi","Amardi","Amardi/Amardi.txt"],["templates","Templates","Templates/Templates.txt"],["lists","Dropdown lists","Lists/Dropdown_Lists.txt"],
+ ["tracker","Tracker (one per user)","Tracker/Tracker_{MSID}.txt"],["notes","Sticky notes (one per user)","Notes/Notes_{MSID}.txt"]];
+const fpOf=id=>{const d=(FREG.find(x=>x[0]===id)||[])[2]||"",p=((DB.settings.fpath||{})[id])||d;return p.replace(/\{MSID\}/g,ME?ME.msid:"user")};
+const admin=()=>!!(ME&&ME.role==="Admin"),canSave=()=>admin()||permOf(ME,"save")||permOf(ME,"sync");
+const XS={tmap:"Transfer Map",a1025:"MNR A1025",excl:"TIN Exclusion",tins:"TIN Master",pti:"PTI MPIN",spec:"Specialty",county:"County",countylob:"County LOB",tracker:"Tracker",templates:"Templates",lists:"Dropdown Lists"};
+const SH={sops:"SOP Library",mnr:"MNR",links:"Links",agr:"Agreements",amardi:"Amardi"};
+function regGetSet(id){
+ if(id==="settings")return[()=>JSON.stringify({settings:DB.settings,roles:DB.roles},null,1),t=>{const o=JSON.parse(t);if(o.settings)Object.assign(DB.settings,o.settings);if(o.roles)DB.roles=o.roles},admin];
+ if(XS[id])return[()=>tsvOut(sheetAOA2(XS[id])),t=>{const a=tsvIn(t);if(a.length)applyX(XS[id],a)},id==="tmap"?admin:canSave];
+ if(SH[id])return[()=>tsvOut(sheetAOA2(SH[id])),t=>{const a=tsvIn(t);if(!a.length)return;const tg=(TARGETS.find(x=>x.n===SH[id])||{}).id;if(tg)applySheets2([{name:SH[id],aoa:a,target:tg}],true)},canSave];
+ if(id==="users")return[()=>tsvOut([["MSID","Name","PC (last 4)","Role","Valid Till","Active","Access"]].concat(DB.users.map(u=>[u.msid,u.name,u.pc,u.role,u.validTill,u.active?"Yes":"No",JSON.stringify({perm:u.perm||{},hide:u.hide||{}})]))),
+  t=>{const a=tsvIn(t).slice(1);const U=a.map(r=>{let x={};try{x=JSON.parse(r[6]||"{}")}catch(e){}return{msid:r[0],name:r[1],pc:String(r[2]||"").toUpperCase(),role:ROLES.includes(r[3])?r[3]:"Employee",validTill:r[4]||DB.settings.expiry,active:!/^no$/i.test(r[5]||""),perm:x.perm||{},hide:x.hide||{}}}).filter(u=>u.msid);if(U.some(u=>u.role==="Admin"))DB.users=U},admin];
+ if(id==="rules")return[()=>tsvOut([["State","Topic","Rule Text","Pin","Changed","By"]].concat(DB.rules.map(r=>[r.state,r.topic,r.text,r.pin?"1":"",r.ed||"",r.by||""]))),
+  t=>{const a=tsvIn(t).slice(1);DB.rules=a.filter(r=>r[0]).map(r=>({state:String(r[0]).toUpperCase(),topic:r[1]||"",text:r[2]||"",pin:r[3]==="1",ed:r[4]||undefined,by:r[5]||""}))},canSave];
+ if(id==="notes")return[()=>tsvOut([["Title","Text","Updated"]].concat((DB.notes||[]).map(n=>[n.t,n.b,n.u||""]))),t=>{DB.notes=tsvIn(t).slice(1).map(r=>({t:r[0]||"",b:r[1]||"",u:r[2]||""}))},()=>true];
+ return null}
+/* CSP: States/<ST>/LOB.txt · Enrollment.txt · Loading_Info.txt */
+const CLH=["LOB","LOB Description","NWPR","AGAG","Market Number/IPA","Earliest Eff","Term Date"],CEH=["LOB","Enrollment Limit","Provider Specialty","Age Limit","Accept Gender","Auto Assign","Accept New","Accept Existing"];
+function cspItems(states){const root=fpOf("csp");return states.flatMap(st=>[
+ [root+"/"+st+"/LOB.txt",()=>tsvOut([CLH].concat(DB.csp.lob.filter(r=>r[0]===st).map(r=>CLH.map((_,i)=>r[i+1]||"")))),t=>{const a=tsvIn(t).slice(1);DB.csp.lob=DB.csp.lob.filter(r=>r[0]!==st).concat(a.map(r=>[st].concat(CLH.map((_,i)=>r[i]||""))))}],
+ [root+"/"+st+"/Enrollment.txt",()=>tsvOut([CEH].concat(DB.csp.enr.filter(r=>r[0]===st).map(r=>CEH.map((_,i)=>r[i+1]||"")))),t=>{const a=tsvIn(t).slice(1);DB.csp.enr=DB.csp.enr.filter(r=>r[0]!==st).concat(a.map(r=>[st].concat(CEH.map((_,i)=>r[i]||""))))}],
+ [root+"/"+st+"/Loading_Info.txt",()=>{const r=DB.csp.info.find(x=>x[0]===st)||[];return[r[1],r[2],r[3]].filter(x=>String(x||"").trim()).join("\n\n")},t=>{infoSet(st,String(t).replace(/^﻿/,"").replace(/\r/g,""),true)}]].map(x=>x.concat([canSave,"csp"])))}
+const cspLocal=()=>[...new Set(DB.csp.lob.map(r=>r[0]).concat(DB.csp.enr.map(r=>r[0]),DB.csp.info.map(r=>r[0])))].filter(s=>/^[A-Z]{2}$/.test(s));
+let DST={t:0,v:[]};
+async function dirStates(){if(Date.now()-DST.t<30000)return DST.v;let v=[];try{let h=DIR;for(const p of fpOf("csp").split("/"))h=await h.getDirectoryHandle(p);for await(const [n,x] of h.entries())if(x.kind==="directory"&&/^[A-Z]{2}$/.test(n))v.push(n)}catch(e){}DST={t:Date.now(),v};return v}
+async function regItems(only){const out=[];for(const F of FREG){const id=F[0];if(only&&!only.includes(id))continue;
+  if(id==="csp"){const s=[...new Set(cspLocal().concat(await dirStates()))];out.push(...cspItems(s));continue}
+  const g=regGetSet(id);if(g)out.push([fpOf(id),g[0],g[1],g[2],id])}return out}
+async function fHnd(path,create){const p=path.split("/");let h=DIR;for(let i=0;i<p.length-1;i++)h=await h.getDirectoryHandle(p[i],{create});return h.getFileHandle(p[p.length-1],{create})}
+async function fStat(path){try{return await(await fHnd(path,false)).getFile()}catch(e){return null}}
+let SYB=false;
+/* one pass: a newer file wins (it was edited in Excel / Notepad / by a teammate), else changed data is written */
+async function regPass(full,only,force){if(SYB||!DIR||!await dirOK(false))return{r:0,w:0};SYB=true;let r=0,w=0;const M=DB.meta.fr=DB.meta.fr||{};
+ try{for(const [path,get,set,cw] of await regItems(only)){const rec=M[path]||{};let txt=null;try{txt=get()}catch(e){continue}const h=hash(txt);
+  if(!full&&!force&&h===rec.h)continue;
+  const f=await fStat(path);
+  if(f&&(force==="read"||(force!=="write"&&f.lastModified>(rec.mt||0)+1500))){const t=await f.text();const fh=hash(t);if(fh!==rec.fh||force==="read"){try{set(t)}catch(e){toast("Could not read "+path,"bad");continue}let nt="";try{nt=get()}catch(e){}M[path]={h:hash(nt),mt:f.lastModified,fh};r++;continue}M[path]=Object.assign(rec,{mt:f.lastModified});}
+  if(!cw()||(h===rec.h&&f&&force!=="write"))continue;
+  if(!f&&!String(txt).trim().replace(/^[^\n]*\n?/,"").trim()&&force!=="write")continue;
+  await fWrite(DIR,path,txt);const nf=await fStat(path);M[path]={h,mt:nf?nf.lastModified:Date.now(),fh:h,w:Date.now()};w++}}
+ catch(e){console.warn(e)}finally{SYB=false}
+ if(r){persist();try{if(VIEW!=="info"&&RENDER[VIEW])RENDER[VIEW]()}catch(e){}}if(r||w)persist();return{r,w}}
+sectionSync=async function(read){return regPass(!!read)};
+oneClickSync=async function(){if(typeof syncOK==="function"&&!syncOK())return toast("Sync is OFF","bad");if(!DIR){if(!await connect())return}
+ try{if((await DIR.queryPermission({mode:"readwrite"}))!=="granted"&&(await DIR.requestPermission({mode:"readwrite"}))!=="granted")return toast("Folder permission was not given","bad")}catch(e){return}
+ const b=$("#btnSync");if(b){b.disabled=true;b.textContent="⚡ Syncing…"}
+ try{const x=await regPass(true);DB.meta.lastSync=Date.now();DB.meta.dirty=false;await persist();log("Sync · "+x.r+" read · "+x.w+" saved");toast("Synced · "+x.r+" file(s) read · "+x.w+" saved (TXT database)","ok")}
+ catch(e){toast("Sync stopped: "+e.message,"bad")}if(b){b.disabled=false;b.textContent="⚡ Sync"}refreshConn()};
+/* background pull every 90 s while connected */
+setInterval(()=>{try{if(DB&&ME&&DIR&&!document.hidden)regPass(true)}catch(e){}},90000);
+/* 💾 on each data page */
+const SVV={mnr:["a1025","excl","mnr"],csp:["csp"],sop:["sops"],rules:["rules"],ext:["tracker"],amardi:["amardi"],agr:["agr"]};
+ACT.regSave=async(b)=>{const v=(b&&b.dataset.v)||VIEW,ids=SVV[v]||[];if(!DIR||!await dirOK(true))return toast("Connect the data folder first (⚡ Sync)","bad");const x=await regPass(true,ids,"write");toast("💾 Saved · "+x.w+" file(s) · "+ids.map(fpOf).join(", "),"ok");if(b)b.classList.add("ok")};
+setInterval(()=>{try{if(!DB||!ME||!SVV[VIEW])return;const v=$("#v-"+VIEW);if(!v)return;v.querySelectorAll(".card>h3").forEach(h=>{if(!h.querySelector(".svb"))h.insertAdjacentHTML("beforeend",`<button class="svb" data-act="regSave" data-v="${VIEW}" title="💾 Save to the database file now">💾</button>`)})}catch(e){}},1500);
+/* Admin › Files */
+function filesHTML(){const M=DB.meta.fr||{},T=t=>t?new Date(t).toLocaleString([],{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"–";
+ return `<div class="card"><h3>Files · where every list is saved <span class="sp"></span><button class="btn sm pri" data-act="sync">⚡ Sync all</button></h3><div class="small muted" style="margin-bottom:8px">One TXT file per list in the data folder (${DIR?esc(DIR.name):"not connected"}). Edit a TXT in Excel / Notepad and press Sync → it comes here. Change a path here to move the file. {MSID} = the user's own file. Info / Group / C&amp;S / E&amp;I / M&amp;R stay on the PC and go only to the Practitioner Excel.</div>
+ <div class="tw"><table class="g ftab"><thead><tr><th>#</th><th>Data</th><th>File / folder</th><th>Last saved</th><th>Last read</th><th></th></tr></thead><tbody>${FREG.map((F,i)=>{const p=fpOf(F[0]),rs=Object.entries(M).filter(([k])=>k===p||k.startsWith(p+"/"));const w=Math.max(0,...rs.map(([,v])=>v.w||0)),r=Math.max(0,...rs.map(([,v])=>v.mt||0));
+  return `<tr><td class="ro">${i+1}</td><td class="ro"><b>${esc(F[1])}</b></td><td><input data-fp="${F[0]}" value="${esc(((DB.settings.fpath||{})[F[0]])||F[2])}" ${admin()?"":"readonly"}></td><td class="ro small">${T(w)}</td><td class="ro small">${T(r)}</td><td class="ro"><button class="btn sm" data-fsv="${F[0]}">💾 Save</button> <button class="btn sm" data-fld="${F[0]}">⇩ Load</button></td></tr>`}).join("")}</tbody></table></div>
+ <div class="small muted" style="margin-top:8px">CSP: ${esc(fpOf("csp"))}/&lt;ST&gt;/LOB.txt · Enrollment.txt · Loading_Info.txt · Amd dumps: Amd/ · SOP Word / Excel: SOP_Files/ · old superload_db.json / .xlsx are not used any more (you can delete them).</div></div>`}
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.fp&&admin()){const P=DB.settings.fpath=DB.settings.fpath||{},v=t.value.trim().replace(/^\/+|\/+$/g,"");if(!v||v===(FREG.find(x=>x[0]===t.dataset.fp)||[])[2])delete P[t.dataset.fp];else P[t.dataset.fp]=v;touch("File path "+t.dataset.fp+" → "+(v||"default"));toast("Saved · next Sync writes to "+fpOf(t.dataset.fp),"ok")}});
+document.addEventListener("click",async e=>{const s=e.target.closest("[data-fsv],[data-fld]");if(!s)return;if(!DIR||!await dirOK(true))return toast("Connect the data folder first (⚡ Sync)","bad");const id=s.dataset.fsv||s.dataset.fld,x=await regPass(true,[id],s.dataset.fsv?"write":"read");toast((s.dataset.fsv?"Saved ":"Loaded ")+(x.w||x.r)+" file(s) · "+fpOf(id),"ok");$("#ad-files").innerHTML=filesHTML()});
+{const _ra=RENDER.admin;RENDER.admin=function(){_ra.apply(this,arguments);const el=$("#ad-files");if(el&&ADTAB==="files")el.innerHTML=filesHTML()}}
+renderSecFiles=function(){const el=$("#secFiles");if(el)el.innerHTML='<div class="small">Everything is saved as TXT · see <b>Admin › Files</b>.</div>'};
+/* ---- ⇪ TIN list (Group by TIN) ---- */
+ACT.tinSave=()=>{const tin=String(gf("TIN")||"").replace(/\D/g,"");if(tin.length<9)return toast("Type the TIN first","bad");const T=DB.tins,row=T.head.map(h=>h==="TIN"?tin:h==="State"?gf("ST"):h==="Date"?today():String(gf(h)||""));
+ const ti=T.head.indexOf("TIN"),pi=T.head.indexOf("PTI MPIN"),i=T.rows.findIndex(r=>String(r[ti]||"").replace(/\D/g,"")===tin&&(pi<0||String(r[pi]||"")===String(gf("PTI MPIN")||"")));
+ if(i>=0)T.rows[i]=row;else T.rows.push(row);touch("TIN list "+tin);toast((i>=0?"Updated":"Saved")+" in TIN list · "+fpOf("tins"),"ok")};
+/* ---- Loading information ↔ SOP library (code CSP-ST) ---- */
+const isHd=l=>{const t=l.trim();return t.length>=4&&t.length<=70&&/[A-Z]{3}/.test(t)&&!/[a-z]/.test(t)};
+function secParse(text){const o=[{t:"",b:[]}];String(text||"").replace(/\r/g,"").split("\n").forEach(l=>{if(isHd(l))o.push({t:l.trim(),b:[]});else o[o.length-1].b.push(l)});return o}
+const secGet=(text,t)=>{const s=secParse(text).find(x=>x.t===t);return s?s.b.join("\n").trim():""};
+function secSet(text,t,body){const S=secParse(text),s=S.find(x=>x.t===t);if(s)s.b=[body];else S.push({t,b:[body]});return S.map(x=>((x.t?x.t+"\n":"")+x.b.join("\n").trim()).trim()).filter(Boolean).join("\n\n")}
+const TOPICS0=["A. LOADING INFORMATION","B. PCP SPECIALTIES","ENROLLMENT NOTES","ENROLLMENT LIMIT","AGE LIMITS","GENDER","AUTO ASSIGN","ACCEPT NEW / EXISTING","LOB LIST","AGREEMENT IDS","CAP CODES","DSNP / BORDER STATES","TERM RULES","URGENT CARE","FQHC / RHC","GROUP RULES SHEETS (GRS)","SPECIALIST LOADING","DIRECTORY FLAGS","OTHER NOTES"];
+const topics=()=>DB.settings.cspTopics&&DB.settings.cspTopics.length?DB.settings.cspTopics:TOPICS0;
+function infoSet(st,text,quiet){const i=DB.csp.info.findIndex(r=>r[0]===st);if(i>=0)DB.csp.info[i]=[st,text,"",""];else DB.csp.info.push([st,text,"",""]);
+ const code="CSP-"+st;let s=DB.sops.find(x=>x.code===code);if(!s){s={id:"S"+Date.now().toString(36)+st,code,title:"CSP loading information · "+st,type:"CSP",version:"1.0",owner:ME?ME.name:"",state:st,eff:today(),review:"",keywords:"CSP "+st,link:"",notes:"Linked to CSP › Loading information",body:"",files:[]};DB.sops.push(s)}s.body=text;if(!quiet)touch("Loading information "+st)}
+{const _s=ACT.sopSave;ACT.sopSave=function(){_s.apply(this,arguments);const s=DB.sops.find(x=>x.id===SOPID),m=s&&String(s.code).match(/^CSP-([A-Z]{2})$/);if(m){const i=DB.csp.info.findIndex(r=>r[0]===m[1]);if(i>=0)DB.csp.info[i]=[m[1],s.body,"",""];else DB.csp.info.push([m[1],s.body,"",""]);touch("CSP info "+m[1]+" from SOP")}}}
+/* ---- CSP state grid page ---- */
+const C2={st:LS.get("cspState","AZ"),lob:"",spc:"",show:"all",topic:""},CM={st:"",lob:"",spc:"",show:"all"};
+(function(){const v=$("#v-csp");if(!v)return;v.innerHTML=`<div class="bar"><select class="sel" id="cState"></select><button class="tbn t1" data-act="dumpCsp"><i>⇣</i>PASTE STATE DATA</button><span class="sp"></span><span class="small muted">State grid · LOB · PCP enrollment · Loading information</span></div>
+ <div class="card" data-c2="grid"><h3>CSP State Grid</h3><div class="c2drop" id="c2Drop"><b>⇣ LOAD STATE FILE(S)</b>drop the state Excel / TXT here · one or many<br><label class="btn sm" style="margin-top:6px">Pick files<input type="file" id="c2Files" multiple accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.txt,.tsv" hidden></label></div><div class="small muted" id="c2Stat" style="margin-top:6px"></div>
+  <div class="c2lbl">State</div><div class="c2tiles" id="c2Tiles"></div><div class="c2lbl">LOB</div><select class="sel c2sel" data-c2lob="page" id="c2Lob"></select><div class="c2lbl">Provider specialty</div><select class="c2spc" data-c2spc="page" id="c2Spc" size="12"></select></div>
+ <div class="card" data-c2="lob"><h3>LOB <span class="sp"></span><button class="btn sm" data-act="c2EditLob">✎ Edit</button></h3><div class="c2hd" id="c2Head"></div><div class="tw" id="c2LobT"></div></div>
+ <div class="card" data-c2="info"><h3>Loading information <span class="sp"></span>${""}<button class="btn sm" data-act="c2Topics">✎ Topics</button></h3><div class="c2bar"><select class="sel" id="c2Topic" style="flex:1"></select><button class="btn sm pri" data-act="c2SaveInfo">UPDATE (save)</button></div><textarea class="area c2info" id="c2Info" placeholder="Type or paste the loading information"></textarea><div class="small muted">Saved in ${"States/&lt;ST&gt;/Loading_Info.txt"} and in SOP Library as CSP-&lt;ST&gt; (edit either one).</div></div>
+ <div class="card" data-c2="pcp"><h3>PCP enrollment rules <span class="sp"></span><button class="btn sm" data-act="c2AddRule" data-ctx="page">＋ Rule</button><button class="btn sm" data-act="c2EditEnr" data-ctx="page">✎ Edit table</button></h3><div id="c2Pcp"></div></div><div id="cBoxes" style="display:none"></div>`})();
+cspMap=function(){};
+function pcpRows(X){return DB.csp.enr.map((r,i)=>[r,i]).filter(([r])=>r[0]===X.st&&(!X.lob||r[1]===X.lob||/^all$/i.test(r[1]||"")))}
+const erKey=(st,l,s)=>st+"|"+l+"|"+s;
+function pcpHTML(X,ctx){const R=pcpRows(X),H=DB.settings.erHide=DB.settings.erHide||{},spc=String(X.spc||"").toLowerCase(),me=String(gf("SPC Name")||"").toLowerCase();
+ const one=R.find(([r])=>spc&&String(r[3]).toLowerCase()===spc);const v=one?one[0]:[];
+ const kv=[["Enrollment limit",v[2]],["Age limit",v[4]],["Accept gender",v[5]],["Auto assign",v[6]],["Accept new",v[7]],["Accept existing",v[8]]].map(([k,x])=>`<div><small>${k}</small><b>${esc(x||"-")}</b></div>`).join("");
+ let L=R;if(X.show==="one"&&spc)L=R.filter(([r])=>String(r[3]).toLowerCase()===spc);const nh=L.filter(([r])=>H[erKey(r[0],r[1],r[3])]).length;
+ if(X.show!=="hidden")L=L.filter(([r])=>!H[erKey(r[0],r[1],r[3])]);
+ return `<div class="c2kv">${kv}</div><div class="c2bar"><b class="small">Show here</b><select class="sel" data-c2show="${ctx}"><option value="all" ${X.show==="all"?"selected":""}>All specialties (table)</option><option value="one" ${X.show==="one"?"selected":""}>Only the picked specialty</option><option value="hidden" ${X.show==="hidden"?"selected":""}>Show hidden too (${nh})</option></select><span class="small muted">${L.length} of ${R.length} · untick = hide · 🗑 = delete from the file</span></div>
+ <div class="tw"><table class="g c2tb"><thead><tr><th>Show</th><th>LOB</th><th>Enrollment limit</th><th>Provider specialty</th><th>Age limit</th><th>Gender</th><th>Auto</th><th>New</th><th>Existing</th><th></th></tr></thead><tbody>${L.map(([r,i])=>{const k=erKey(r[0],r[1],r[3]),h=!!H[k];return `<tr class="${h?"hid":""} ${spc&&String(r[3]).toLowerCase()===spc?"sel":""} ${me&&String(r[3]).toLowerCase()===me?"me":""}"><td><input type="checkbox" class="nosw" data-c2h="${esc(k)}" data-ctx="${ctx}" ${h?"":"checked"}></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td><b>${esc(r[3])}</b></td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td>${esc(r[6])}</td><td>${esc(r[7])}</td><td>${esc(r[8])}</td><td><button class="x" data-c2d="${i}" data-ctx="${ctx}" title="Delete">🗑</button></td></tr>`}).join("")||`<tr><td colspan="10" class="small muted">No PCP enrollment rules · load the state file or ＋ Rule</td></tr>`}</tbody></table></div>`}
+function specOpts(X){const s=[...new Set(pcpRows(X).map(([r])=>r[3]).filter(Boolean))];return `<option value="" ${!X.spc?"selected":""}>(all)</option>`+s.map(x=>`<option ${x===X.spc?"selected":""}>${esc(x)}</option>`).join("")}
+RENDER.csp=function(){const X=C2,st=X.st,has=new Set(cspLocal());
+ $("#cState").innerHTML=STATES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("");
+ $("#c2Tiles").innerHTML=STATES.map(s=>`<button class="c2t ${has.has(s)?"has":""} ${s===st?"on":""}" data-c2s="${s}">${s}</button>`).join("");
+ $("#c2Stat").textContent="✓ "+has.size+" state(s) saved · green = loaded";
+ const lobs=DB.csp.lob.filter(r=>r[0]===st);if(X.lob&&!lobs.some(r=>r[1]===X.lob))X.lob="";
+ $("#c2Lob").innerHTML=`<option value="">(all LOBs)</option>`+lobs.map(r=>`<option value="${esc(r[1])}" ${r[1]===X.lob?"selected":""}>${esc(r[1]+" · "+(r[2]||""))}</option>`).join("");
+ $("#c2Spc").innerHTML=specOpts(X);
+ const L=lobs.find(r=>r[1]===X.lob);$("#c2Head").innerHTML=`${esc(st)}${X.lob?` · LOB ${esc(X.lob)} <span>· ${esc(L&&L[2]||"")}</span>`:` <span>· ${lobs.length} LOB(s) · click a row to pick it</span>`}`;
+ $("#c2LobT").innerHTML=`<table class="g c2tb"><thead><tr>${CLH.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${lobs.map(r=>`<tr class="c2l ${r[1]===X.lob?"sel":""}" data-c2l="${esc(r[1])}">${CLH.map((_,i)=>`<td>${esc(r[i+1]||"")}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="7" class="small muted">No LOB for ${esc(st)} yet · drop the state file</td></tr>`}</tbody></table>`;
+ $("#c2Pcp").innerHTML=pcpHTML(X,"page");
+ const info=(DB.csp.info.find(r=>r[0]===st)||[])[1]||"",found=secParse(info).map(s=>s.t).filter(Boolean),T=[...new Set(topics().concat(found))];
+ if(X.topic&&!T.includes(X.topic))X.topic="";
+ $("#c2Topic").innerHTML=`<option value="">(All information)</option>`+T.map(t=>`<option ${t===X.topic?"selected":""} ${found.includes(t)?"":'style="color:#999"'}>${esc(t)}</option>`).join("");
+ const ta=$("#c2Info");if(document.activeElement!==ta)ta.value=X.topic?secGet(info,X.topic):info;
+ if(!DB.settings.csp13){DB.settings.csp13=1;const S=BXS();Object.assign(S,{"csp:csp_state_grid":{w:25,o:0},"csp:lob":{w:50,o:10},"csp:loading_information":{w:25,o:20},"csp:pcp_enrollment_rules":{w:100,o:30}})}};
+cspState=function(){C2.st=$("#cState").value;LS.set("cspState",C2.st);RENDER.csp()};
+$("#cState").onchange=cspState;
+const c2Paint=ctx=>ctx==="modal"?enrPaint():RENDER.csp();
+document.addEventListener("click",e=>{const s=e.target.closest("[data-c2s]");if(s){C2.st=s.dataset.c2s;C2.lob=C2.spc=C2.topic="";LS.set("cspState",C2.st);return RENDER.csp()}
+ const l=e.target.closest("[data-c2l]");if(l){C2.lob=C2.lob===l.dataset.c2l?"":l.dataset.c2l;C2.spc="";return RENDER.csp()}
+ const d=e.target.closest("[data-c2d]");if(d){const r=DB.csp.enr[+d.dataset.c2d];if(!r)return;ask("Delete rule","Delete <b>"+esc(r[3])+"</b> ("+esc(r[1])+") from "+esc(r[0])+"? It goes out of the state file too.","Delete",()=>{DB.csp.enr.splice(+d.dataset.c2d,1);touch("PCP rule deleted "+r[0]+" "+r[3]);c2Paint(d.dataset.ctx)})}});
+document.addEventListener("change",e=>{const t=e.target,ctx=t.dataset&&(t.dataset.c2lob||t.dataset.c2spc||t.dataset.c2show||t.dataset.ctx);if(!ctx)return;const X=ctx==="modal"?CM:C2;
+ if(t.dataset.c2lob){X.lob=t.value;X.spc=""}else if(t.dataset.c2spc){X.spc=t.value;if(X.spc&&X.show==="all")X.show="all"}else if(t.dataset.c2show)X.show=t.value;
+ else if(t.dataset.c2h!==undefined){const H=DB.settings.erHide=DB.settings.erHide||{};if(t.checked)delete H[t.dataset.c2h];else H[t.dataset.c2h]=1;touch()}else return;c2Paint(ctx)});
+$("#c2Topic").onchange=e=>{C2.topic=e.target.value;RENDER.csp()};
+ACT.c2SaveInfo=()=>{const st=C2.st,cur=(DB.csp.info.find(r=>r[0]===st)||[])[1]||"",v=$("#c2Info").value;infoSet(st,C2.topic?secSet(cur,C2.topic,v):v);toast("Loading information "+st+" saved · TXT + SOP CSP-"+st,"ok");RENDER.csp()};
+ACT.c2Topics=()=>modal("Loading information topics",`<div class="small muted" style="margin-bottom:6px">One topic per line (CAPITAL letters). These show in the topic list for every state.</div><textarea class="area" id="c2Tp" rows="16">${esc(topics().join("\n"))}</textarea>`,[{t:"Cancel"},{t:"Default",fn:()=>{DB.settings.cspTopics=null;touch("Topics default");RENDER.csp()}},{t:"Save",c:"pri",fn:()=>{DB.settings.cspTopics=$("#c2Tp").value.split("\n").map(x=>x.trim().toUpperCase()).filter(Boolean);touch("CSP topics");RENDER.csp()}}]);
+ACT.c2EditLob=()=>{const st=C2.st,M={head:CLH.slice(),rows:DB.csp.lob.filter(r=>r[0]===st).map(r=>r.slice(1))};gridEditor("LOB · "+st,M,()=>{DB.csp.lob=DB.csp.lob.filter(r=>r[0]!==st).concat(M.rows.map(r=>[st].concat(CLH.map((_,i)=>r[i]||""))));touch("LOB edited "+st);RENDER.csp()})};
+ACT.c2EditEnr=b=>{const X=b&&b.dataset.ctx==="modal"?CM:C2,st=X.st,M={head:CEH.slice(),rows:DB.csp.enr.filter(r=>r[0]===st).map(r=>r.slice(1))};gridEditor("PCP enrollment rules · "+st,M,()=>{DB.csp.enr=DB.csp.enr.filter(r=>r[0]!==st).concat(M.rows.map(r=>[st].concat(CEH.map((_,i)=>r[i]||""))));touch("PCP rules edited "+st);c2Paint(X===CM?"modal":"page")})};
+ACT.c2AddRule=b=>{const X=b&&b.dataset.ctx==="modal"?CM:C2;DB.csp.enr.push([X.st,X.lob||"ALL",X.spc?"":"",X.spc||"New specialty","","B","Y","Y","Y"]);touch("PCP rule added");ACT.c2EditEnr(b)};
+/* ---- load state files (Excel / TXT) ---- */
+function c2Col(H,tests){return H.findIndex(h=>tests.every(t=>t.test(h)))}
+function c2Parse(sheets,fname){const out={lob:[],enr:[],info:[],st:""};const U=s=>String(s||"").trim();
+ const stIn=s=>{const m=String(s||"").toUpperCase().match(/(?:^|[^A-Z])([A-Z]{2})(?=[^A-Z]|$)/g)||[];return m.map(x=>x.replace(/[^A-Z]/g,"")).find(x=>STATES.includes(x))||""};
+ out.st=stIn(fname.replace(/\.[a-z]+$/i,""));
+ sheets.forEach(([sn,aoa])=>{let i=0,used=false;if(!out.st)out.st=stIn(sn);
+  while(i<aoa.length){const H=(aoa[i]||[]).map(x=>U(x).toLowerCase());const j=H.join(" ");
+   if(/\blob\b/.test(j)&&/(descr|nwpr|agag)/.test(j)){const c={lob:H.findIndex(h=>/^lob$|^lob\s*(code|#)?$/.test(h)),d:c2Col(H,[/desc/]),n:c2Col(H,[/nwpr/]),a:c2Col(H,[/agag/]),m:c2Col(H,[/market|ipa/]),e:c2Col(H,[/eff|earliest/]),t:c2Col(H,[/term/]),ins:c2Col(H,[/instance/])};i++;used=true;
+    while(i<aoa.length&&(aoa[i]||[]).some(x=>U(x))){const r=aoa[i].map(U);if(c.ins>=0&&!out.st){const m=String(r[c.ins]).match(/([A-Z]{2})$/);if(m&&STATES.includes(m[1]))out.st=m[1]}if(c.lob>=0&&r[c.lob])out.lob.push([r[c.lob],r[c.d]||"",r[c.n]||"",r[c.a]||"",r[c.m]||"",r[c.e]||"",r[c.t]||""]);i++}continue}
+   if(/special/.test(j)&&/(enroll|age)/.test(j)){const c={lob:H.findIndex(h=>/^lob$/.test(h)),l:c2Col(H,[/limit/,/enroll/]),s:c2Col(H,[/special/]),a:c2Col(H,[/age/]),g:c2Col(H,[/gender/]),u:c2Col(H,[/auto/]),n:c2Col(H,[/new/]),x:c2Col(H,[/exist/])};if(c.l<0)c.l=c2Col(H,[/limit/]);i++;used=true;
+    while(i<aoa.length&&(aoa[i]||[]).some(x=>U(x))){const r=aoa[i].map(U),g=k=>c[k]>=0?r[c[k]]||"":"";if(g("s"))out.enr.push([c.lob>=0?g("lob")||"ALL":"ALL",g("l"),g("s"),g("a"),g("g"),g("u"),g("n"),g("x")]);i++}continue}
+   i++}
+  if(!used||/info|loading|note/i.test(sn))aoa.forEach(r=>{const t=(r||[]).map(U).filter(Boolean).join("  ");if(t)out.info.push(t)})});
+ return out}
+async function c2Files(files){let done=[];for(const f of files){try{let sheets=[];const nm=f.name.toLowerCase();
+  if(/\.(xlsx|xlsm|xlsb|xls)$/.test(nm)){const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});sheets=wb.SheetNames.map(n=>[n,XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:false,defval:""})])}
+  else{const t=(await f.text()).replace(/\r/g,"");sheets=[[f.name,t.split("\n").map(l=>l.includes("\t")?l.split("\t"):[l])]]}
+  const p=c2Parse(sheets,f.name);const st=p.st||C2.st;
+  if(p.lob.length)DB.csp.lob=DB.csp.lob.filter(r=>r[0]!==st).concat(p.lob.map(r=>[st].concat(r)));
+  if(p.enr.length)DB.csp.enr=DB.csp.enr.filter(r=>r[0]!==st).concat(p.enr.map(r=>[st].concat(r)));
+  if(p.info.length)infoSet(st,p.info.join("\n"),true);
+  done.push(st+" ("+p.lob.length+" LOB · "+p.enr.length+" rules"+(p.info.length?" · info":"")+")");if(!p.st)toast(f.name+": state not found in the name · loaded into "+st,"bad")}catch(e){toast("Could not read "+f.name+" · "+e.message,"bad")}}
+ if(done.length){touch("State files loaded · "+done.join(", "));C2.st=done[done.length-1].slice(0,2);C2.lob=C2.spc="";RENDER.csp();toast("Loaded "+done.join(" · "),"ok")}}
+document.addEventListener("change",e=>{if(e.target.id==="c2Files"){c2Files([...e.target.files]);e.target.value=""}});
+{const V=$("#v-csp");let dc=0;if(V){V.addEventListener("dragenter",e=>{if([...(e.dataTransfer||{}).types||[]].includes("Files")){e.preventDefault();dc++;const z=$("#c2Drop");if(z)z.classList.add("hot")}});V.addEventListener("dragover",e=>{if([...(e.dataTransfer||{}).types||[]].includes("Files"))e.preventDefault()});V.addEventListener("dragleave",()=>{dc=Math.max(0,dc-1);if(!dc){const z=$("#c2Drop");if(z)z.classList.remove("hot")}});V.addEventListener("drop",e=>{e.preventDefault();dc=0;const z=$("#c2Drop");if(z)z.classList.remove("hot");if(e.dataTransfer.files.length)c2Files([...e.dataTransfer.files])})}}
+/* ---- Info › Medicaid · Enrollment rules (same data as the CSP page) ---- */
+function enrPaint(){const b=$("#enrBody");if(!b)return;const X=CM,g=DB.editors.CS,li=g.head.indexOf("LOB"),mine=[...new Set(g.rows.map(r=>r&&r[li]).filter(Boolean))],lobs=DB.csp.lob.filter(r=>r[0]===X.st);
+ const opts=[...new Set(mine.concat(lobs.map(r=>r[1])))];
+ b.innerHTML=`<div class="c2bar"><b class="small">LOB</b><select class="sel" data-c2lob="modal"><option value="">(all LOBs)</option>${opts.map(l=>{const d=(lobs.find(r=>r[1]===l)||[])[2]||"";return `<option value="${esc(l)}" ${l===X.lob?"selected":""}>${esc(l)}${d?" · "+esc(d):""}${mine.includes(l)?" ✔":""}</option>`}).join("")}</select><b class="small">Specialty</b><select class="sel" data-c2spc="modal" style="min-width:220px">${specOpts(X)}</select><span class="sp"></span><button class="btn sm" data-act="c2AddRule" data-ctx="modal">＋ Rule</button><button class="btn sm" data-act="c2EditEnr" data-ctx="modal">✎ Edit</button><button class="btn sm" data-act="c2Open">Open CSP page</button></div>${pcpHTML(X,"modal")}`}
+ACT.c2Open=()=>{closeModal();go("csp")};
+ACT.enrRules=()=>{const st=gf("ST");if(!st)return toast("Pick ST first","bad");CM.st=st;const g=DB.editors.CS,li=g.head.indexOf("LOB"),mine=g.rows.map(r=>r&&r[li]).filter(Boolean);
+ if(!CM.lob||CM._st!==st)CM.lob=mine[0]||"";CM._st=st;const sp=String(gf("SPC Name")||"");const has=pcpRows(CM).find(([r])=>String(r[3]).toLowerCase()===sp.toLowerCase());CM.spc=has?has[0][3]:"";
+ modal("Enrollment rules · "+st,`<div id="enrBody"></div>`,[{t:"Close"}]);document.querySelector("#modal .mbox").style.width="min(1150px,96vw)";enrPaint()};
+/* ---- Info: ★ becomes ⇪ TIN list ---- */
+setInterval(()=>{try{if(!DB||!ME||VIEW!=="info")return;const b=document.querySelector('.amr[data-act="pinPop"]');if(b){b.dataset.act="tinSave";b.textContent="⇪ TIN";b.title="Save this Group in the TIN list (Master/TIN_List.txt)"}}catch(e){}},1200);
+FEAT.push(["txtdb","TXT database · one file per list (Admin › Files)"]);
 </script>
 
 </body></html>
