@@ -2979,7 +2979,7 @@ function cspItems(states){const root=fpOf("csp");return states.flatMap(st=>[
  [root+"/"+st+"/LOB.txt",()=>tsvOut([CLH].concat(DB.csp.lob.filter(r=>r[0]===st).map(r=>CLH.map((_,i)=>r[i+1]||"")))),t=>{const a=tsvIn(t).slice(1);DB.csp.lob=DB.csp.lob.filter(r=>r[0]!==st).concat(a.map(r=>[st].concat(CLH.map((_,i)=>r[i]||""))))}],
  [root+"/"+st+"/Enrollment.txt",()=>tsvOut([CEH].concat(DB.csp.enr.filter(r=>r[0]===st).map(r=>CEH.map((_,i)=>r[i+1]||"")))),t=>{const a=tsvIn(t).slice(1);DB.csp.enr=DB.csp.enr.filter(r=>r[0]!==st).concat(a.map(r=>[st].concat(CEH.map((_,i)=>r[i]||""))))}],
  [root+"/"+st+"/Loading_Info.txt",()=>{const r=DB.csp.info.find(x=>x[0]===st)||[];return[r[1],r[2],r[3]].filter(x=>String(x||"").trim()).join("\n\n")},t=>{infoSet(st,String(t).replace(/^﻿/,"").replace(/\r/g,""),true)}]].map(x=>x.concat([canSave,"csp"])))}
-const cspLocal=()=>[...new Set(DB.csp.lob.map(r=>r[0]).concat(DB.csp.enr.map(r=>r[0]),DB.csp.info.map(r=>r[0])))].filter(s=>/^[A-Z]{2}$/.test(s));
+const cspLocal=()=>[...new Set(DB.csp.lob.map(r=>r[0]).concat(DB.csp.enr.map(r=>r[0]),DB.csp.info.map(r=>r[0]),Object.keys(DB.csp.grid||{})))].filter(s=>/^[A-Z]{2}$/.test(s));
 let DST={t:0,v:[]};
 async function dirStates(){if(Date.now()-DST.t<30000)return DST.v;let v=[];try{let h=DIR;for(const p of fpOf("csp").split("/"))h=await h.getDirectoryHandle(p);for await(const [n,x] of h.entries())if(x.kind==="directory"&&/^[A-Z]{2}$/.test(n))v.push(n)}catch(e){}DST={t:Date.now(),v};return v}
 async function regItems(only){const out=[];for(const F of FREG){const id=F[0];if(only&&!only.includes(id))continue;
@@ -2990,12 +2990,12 @@ async function fStat(path){try{return await(await fHnd(path,false)).getFile()}ca
 let SYB=false;
 /* one pass: a newer file wins (it was edited in Excel / Notepad / by a teammate), else changed data is written */
 async function regPass(full,only,force){if(SYB||!DIR||!await dirOK(false))return{r:0,w:0};SYB=true;let r=0,w=0;const M=DB.meta.fr=DB.meta.fr||{};
- try{for(const [path,get,set,cw] of await regItems(only)){const rec=M[path]||{};let txt=null;try{txt=get()}catch(e){continue}const h=hash(txt);
+ try{for(const [path,get,set,cw,rid] of await regItems(only)){const rec=M[path]||{};let txt=null;try{txt=get()}catch(e){continue}const h=hash(txt);
   if(!full&&!force&&h===rec.h)continue;
   const f=await fStat(path);
   if(f&&(force==="read"||(force!=="write"&&f.lastModified>(rec.mt||0)+1500))){const t=await f.text();const fh=hash(t);if(fh!==rec.fh||force==="read"){try{set(t)}catch(e){toast("Could not read "+path,"bad");continue}let nt="";try{nt=get()}catch(e){}M[path]={h:hash(nt),mt:f.lastModified,fh};r++;continue}M[path]=Object.assign(rec,{mt:f.lastModified});}
   if(!cw()||(h===rec.h&&f&&force!=="write"))continue;
-  if(!f&&!String(txt).trim().replace(/^[^\n]*\n?/,"").trim()&&force!=="write")continue;
+  if(!f&&!String(txt).trim().replace(/^[^\n]*\n?/,"").trim()&&force!=="write"&&!(typeof ALWAYS!=="undefined"&&ALWAYS.includes(rid)))continue;
   await fWrite(DIR,path,txt);const nf=await fStat(path);M[path]={h,mt:nf?nf.lastModified:Date.now(),fh:h,w:Date.now()};w++}}
  catch(e){console.warn(e)}finally{SYB=false}
  if(r){persist();try{if(VIEW!=="info"&&RENDER[VIEW])RENDER[VIEW]()}catch(e){}}if(r||w)persist();return{r,w}}
@@ -3120,6 +3120,281 @@ ACT.enrRules=()=>{const st=gf("ST");if(!st)return toast("Pick ST first","bad");C
 /* ---- Info: ★ becomes ⇪ TIN list ---- */
 setInterval(()=>{try{if(!DB||!ME||VIEW!=="info")return;const b=document.querySelector('.amr[data-act="pinPop"]');if(b){b.dataset.act="tinSave";b.textContent="⇪ TIN";b.title="Save this Group in the TIN list (Master/TIN_List.txt)"}}catch(e){}},1200);
 FEAT.push(["txtdb","TXT database · one file per list (Admin › Files)"]);
+</script>
+
+<style>
+/* ---- build 14: CSP state grid like the state Excel ---- */
+#v-csp .c3bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:6;background:var(--bg);padding:6px 0 8px;border-bottom:1px solid var(--line);margin-bottom:8px}
+#v-csp .c3bar .sel,#v-csp .c3bar .inp{height:32px}
+#cState{font-weight:800;font-size:14px;min-width:150px}
+.c3drop{border:1.5px dashed color-mix(in srgb,#F05A28 50%,transparent);border-radius:9px;padding:0 10px;height:32px;display:flex;align-items:center;gap:6px;font-size:12px;color:#C9471C;font-weight:700;cursor:pointer;background:color-mix(in srgb,#F05A28 5%,transparent)}
+.c3drop.hot{background:color-mix(in srgb,#1FA874 16%,transparent);border-color:#1FA874;color:#0f6e48}
+.c3meta{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 8px}.c3meta b{color:var(--ink);font-size:18px}
+.c3chips{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 8px;align-items:center}.c3chips:empty{display:none}
+.c3chips button{border:1px dashed var(--line);background:var(--soft2);border-radius:20px;padding:2px 10px;font-size:11.5px;cursor:pointer;color:var(--muted)}
+.c3chips button:hover{border-color:#2B6BEA;color:#2B6BEA}
+#c3W{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.c3s{width:100%;min-width:280px;max-width:100%;min-height:60px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;flex-direction:column;resize:both;overflow:hidden;box-sizing:border-box}
+.c3s.dim{opacity:.45}.c3s.drag{outline:2px dashed #2B6BEA;outline-offset:2px}
+.c3h{display:flex;align-items:center;gap:6px;padding:6px 10px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,color-mix(in srgb,#2B6BEA 7%,var(--panel)),var(--panel));border-radius:12px 12px 0 0;cursor:grab;user-select:none;flex:0 0 auto}
+.c3h .gp{color:var(--muted);font-size:13px}.c3h .no{font-size:10.5px;font-weight:800;color:#fff;background:#2B6BEA;border-radius:6px;padding:1px 6px}
+.c3h .tt{font-weight:800;font-size:13px;outline:0;min-width:40px}.c3h .tt:focus{background:var(--soft2);border-radius:4px;padding:0 4px;cursor:text}
+.c3h .ct{font-size:11px;color:var(--muted)}.c3h .sp{flex:1}
+.c3h button{border:1px solid var(--line);background:var(--panel);border-radius:7px;height:22px;min-width:22px;padding:0 6px;font-size:11.5px;cursor:pointer;color:var(--ink)}
+.c3h button:hover{border-color:#2B6BEA}.c3h button.dn{color:#C62828}.c3h button.bulk{background:#FDECEC;border-color:#E57373;color:#B71C1C;font-weight:700}
+.c3b{padding:8px 10px;overflow:auto;flex:1 1 auto}
+.c3lob{display:flex;gap:6px;align-items:center;margin-bottom:6px;font-size:12px}.c3lob input{flex:1;max-width:340px}
+.c3ta{width:100%;box-sizing:border-box;font-size:12.8px;line-height:1.5;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--panel);color:var(--ink);resize:vertical;font-family:inherit;margin-bottom:6px}
+.c3t{border-collapse:collapse;font-size:12.5px;width:max-content;min-width:100%}
+.c3t th,.c3t td{border:1px solid var(--line);padding:3px 7px;vertical-align:top;text-align:left}
+.c3t th{background:var(--soft2);font-size:11px;font-weight:800;position:sticky;top:0;z-index:1}
+.c3t td[contenteditable]:focus,.c3t th[contenteditable]:focus{outline:2px solid #2B6BEA;outline-offset:-2px;background:color-mix(in srgb,#2B6BEA 6%,var(--panel))}
+.c3t td.ck,.c3t th.ck{white-space:nowrap;width:1%;padding:2px 4px;text-align:left}
+.c3t td.rn{color:var(--muted);font-size:10.5px;width:1%;text-align:right}
+.c3t input[type=checkbox]{width:13px!important;height:13px!important;margin:0 3px 0 0!important;vertical-align:middle}
+.c3x{border:0;background:transparent;color:#C62828;cursor:pointer;font-size:11px;padding:0 2px;vertical-align:middle;opacity:.55}.c3x:hover{opacity:1}
+.c3t tr.on td{background:color-mix(in srgb,#2B6BEA 13%,transparent)}
+.c3t tr.hit td{background:color-mix(in srgb,#FFB300 20%,transparent)}.c3t tr.me td{background:color-mix(in srgb,#1FA874 16%,transparent)}
+.c3empty{font-size:12px;color:var(--muted);padding:30px;text-align:center;border:1px dashed var(--line);border-radius:12px;width:100%}
+/* TIN ✔ */
+.tinok{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;border:1px solid var(--line);background:var(--soft2);color:var(--muted);font-size:11px;font-weight:900;cursor:pointer;padding:0;line-height:18px;z-index:2}
+.tinok.ok{background:#1FA874;border-color:#1FA874;color:#fff;box-shadow:0 0 0 3px rgba(31,168,116,.18)}
+.tinok.no{background:#FDECEC;border-color:#E57373;color:#C62828}
+.tmbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.tmst{font-weight:800;font-size:12px;padding:3px 10px;border-radius:20px}.tmst.ok{background:#E3F8EF;color:#0f6e48}.tmst.no{background:#FDECEC;color:#B71C1C}
+</style>
+<script>
+/* ===== build 14: CSP state grid read like the state Excel · Excel-like rows · topic layout · TIN ✔ · 50 SOPs · export all ===== */
+const STN={AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",DC:"District of Columbia",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming",PR:"Puerto Rico"};
+const ALLST=[...new Set(STATES.concat(Object.keys(STN)))].sort();
+const GRD=()=>DB.csp.grid||(DB.csp.grid={});
+const C3L=()=>DB.settings.c3L||(DB.settings.c3L={});
+const ALWAYS=FREG.map(f=>f[0]).filter(x=>x!=="csp").concat(["plinks"]);
+/* ---------- state from a name / code ---------- */
+function stFrom(s){s=String(s||"").trim();if(!s)return"";const u=s.toUpperCase();
+ const nm=Object.entries(STN).sort((a,b)=>b[1].length-a[1].length).find(([,n])=>new RegExp("\\b"+n+"\\b","i").test(s));if(nm)return nm[0];
+ const m=(u.match(/(?:^|[^A-Z])([A-Z]{2})(?=[^A-Z]|$)/g)||[]).map(x=>x.replace(/[^A-Z]/g,"")).find(x=>STN[x]);return m||""}
+const c3Slug=t=>String(t||"").toLowerCase().replace(/^\s*[a-z]\s*[.)]\s+/,"").replace(/\blobs?\s*[#:]?\s*\d[\d\s,&\/and-]*$/,"").replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,48)||"topic";
+const lobList=t=>{const m=String(t||"").match(/\blobs?\b\s*[#:]?\s*(\d[\d\s,&\/and-]*)/i);return m?m[1].replace(/\band\b|&/gi,",").split(/[\s,\/]+/).filter(x=>/^\d+$/.test(x)).join(", "):""};
+const isSecHead=r=>{const ne=r.filter(Boolean);if(!ne.length||ne.length>2)return false;const v=ne[0];if(v.length>140)return false;
+ if(/^[A-Z]\s*[.)]\s+\S/.test(v))return true;return ne.length===1&&v.length>=4&&v.length<=70&&/[A-Z]{3}/.test(v)&&!/[a-z]/.test(v)};
+const isEnrHead=low=>low.some(x=>/provider\s*specialt|^specialt/.test(x))&&low.some(x=>/enrol+ment\s*limit|age\s*limit|accept\s*(new|gender|exist)/.test(x));
+const isLobHead=low=>low.some(x=>/^lob$/.test(x))&&low.some(x=>/lob\s*desc|nwpr|agag/.test(x));
+const shortLimit=v=>/^[\d,.\s]+$/.test(v)||/^(unlimited|no\s*limit|none|n\/?a|closed|open|varies|\d[\d,]*\s*(per|members?|patients?).{0,20})$/i.test(v)||v.length<=14;
+/* ---------- the parser (one sheet per state · merged cells come blank) ---------- */
+function c3Parse(sheets,fname,stHint){const out={};
+ sheets.forEach(([sn,aoa])=>{const R=(aoa||[]).map(r=>(r||[]).map(x=>String(x==null?"":x).replace(/\r/g,"").trim()));
+  let st=stFrom(sn);const G={title:"",review:"",owner:"",src:fname+(sheets.length>1?" › "+sn:""),secs:[]};const keys={};let cur=null,pend="";
+  const sec=(t,type)=>{let k=type==="lob"?"lob_list":c3Slug(t);if(keys[k]){keys[k]++;k+="_"+keys[k]}else keys[k]=1;cur={k,t,type,lob:"",notes:"",text:"",head:[],rows:[]};G.secs.push(cur);return cur};
+  const add=(s,l)=>{s.text=s.text?s.text+"\n"+l:l};
+  for(let i=0;i<R.length;i++){const r=R[i],ne=r.map((v,j)=>[v,j]).filter(x=>x[0]);if(!ne.length)continue;const low=r.map(x=>x.toLowerCase()),J=low.join(" | "),v0=ne[0][0];
+   if(/date of last review/.test(J)){G.review=ne.map(x=>x[0]).filter(x=>!/date of last review/i.test(x)).join(" ").replace(/^[:\s-]+/,"")||G.review;continue}
+   if(/grid owner/.test(J)){G.owner=ne.map(x=>x[0]).filter(x=>!/grid owner/i.test(x)).join(" ").replace(/^[:\s-]+/,"")||G.owner;continue}
+   if(!G.secs.length&&!G.title&&ne.length===1&&v0.length<=50&&(!isSecHead(r)||(v0.length<=25&&stFrom(v0)))){G.title=v0;if(!st)st=stFrom(v0);continue}
+   if(ne.length===1&&/^enrol+ment rules?\b/i.test(v0)&&!isEnrHead(low)){pend=v0;continue}
+   if(isLobHead(low)){const c0=ne[0][1],c1=ne[ne.length-1][1],pv=cur,s=sec("LOB list","lob");s.head=r.slice(c0,c1+1);
+    for(i++;i<R.length;i++){const x=R[i];if(!x.some(Boolean)){if(s.rows.length)break;continue}if(isSecHead(x)||isEnrHead(x.map(y=>y.toLowerCase())))break;s.rows.push(x.slice(c0,c1+1))}
+    s.rows.forEach(x=>{const m=String(x[0]||"").match(/_([A-Z]{2})$/);if(m&&!st&&STN[m[1]])st=m[1]});cur=pv&&pv.type==="sec"?pv:null;i--;continue}
+   if(isEnrHead(low)){const ci=re=>low.findIndex(x=>re.test(x));const C=[ci(/enrol+ment\s*limit|^limit/),ci(/provider\s*specialt|^specialt/),ci(/age/),ci(/gender/),ci(/auto/),ci(/new/),ci(/exist/)];
+    const first=Math.min(...C.filter(x=>x>=0));let tl=r.slice(0,first).filter(Boolean).join(" ")||pend||"Enrollment Rules";pend="";
+    const s=sec(tl,"enr");s.lob=lobList(tl);const cols=C.filter(x=>x>=0);s.head=cols.map(j=>r[j]);const li=C[0],si=C[1];let lim="",lastA="",lastB="";const nB=[];
+    for(i++;i<R.length;i++){const x=R[i];if(!x.some(Boolean))continue;const xl=x.map(y=>y.toLowerCase());if(isSecHead(x)||isEnrHead(xl)||isLobHead(xl))break;
+     if(x.filter(Boolean).length===1&&/^enrol+ment rules?\b/i.test(x.find(Boolean)))break;
+     const a=x.slice(0,first).filter(Boolean).join(" ");if(a&&a!==lastA){s.notes=s.notes?s.notes+"\n"+a:a;lastA=a}
+     const b=li>=0?x[li]:"";if(b&&b!==lastB){if(shortLimit(b))lim=b;else nB.push(b);lastB=b}
+     const sp=si>=0?x[si]:"",flags=cols.filter(j=>j!==li&&j!==si).some(j=>x[j]);
+     if(sp&&(flags||sp.length<=90))s.rows.push(cols.map(j=>j===li?(x[j]&&shortLimit(x[j])?x[j]:lim):x[j]||""));else if(sp)s.notes=s.notes?s.notes+"\n"+sp:sp}
+    if(nB.length)s.notes=(s.notes?s.notes+"\n":"")+"Enrollment limit: "+nB.join("\n");i--;continue}
+   if(isSecHead(r)){sec(v0,"sec");if(ne[1])add(cur,ne[1][0]);continue}
+   if(!cur)sec("General information","sec");
+   const c0=ne[0][1],c1=ne[ne.length-1][1];
+   if(ne.length>=3||(cur.head.length&&ne.length>=2)){if(!cur.head.length){cur.head=r.slice(c0,c1+1);cur._c=c0}else{const s0=cur._c==null?c0:cur._c,row=r.slice(s0,Math.max(s0+cur.head.length,c1+1));while(cur.head.length<row.length)cur.head.push("");cur.rows.push(row)}}
+   else add(cur,ne.map(x=>x[0]).join(" — "))}
+  G.secs=G.secs.filter(s=>s.text||s.notes||s.rows.length||s.head.length);G.secs.forEach(s=>{delete s._c;s.rows=s.rows.map(x=>s.head.map((_,j)=>x[j]||""))});
+  st=st||stFrom(fname.replace(/\.[a-z]+$/i,""))||stHint||"";if(!st||!G.secs.length)return;
+  if(out[st]){out[st].secs.push(...G.secs)}else out[st]=G});
+ return out}
+/* ---------- layout (same place every dump) ---------- */
+function c3Place(G){const L=C3L();let prev=null;G.secs.forEach((s,i)=>{if(!L[s.k]){const p=prev&&L[prev]?L[prev].o:-1;Object.values(L).forEach(x=>{if(x.o>p)x.o++});L[s.k]={o:p+1}}prev=s.k})}
+const c3Ord=G=>G.secs.map((s,i)=>[s,i]).sort((a,b)=>((C3L()[a[0].k]||{}).o??999+a[1])-((C3L()[b[0].k]||{}).o??999+b[1])).map(x=>x[0]);
+/* ---------- grid → LOB / PCP rules / loading info (used by Info, Jarvis, rapid fire) ---------- */
+function c3Derive(st){const G=GRD()[st];if(!G)return;const ix=(H,re)=>H.findIndex(h=>re.test(String(h).toLowerCase()));
+ const lob=[],enr=[],info=[];G.secs.forEach(s=>{const H=s.head||[];
+  if(s.type==="lob"){const c=[ix(H,/^lob$/),ix(H,/desc/),ix(H,/nwpr/),ix(H,/agag/),ix(H,/market|ipa/),ix(H,/eff|earliest/),ix(H,/term/)];s.rows.forEach(r=>{if(c[0]>=0&&r[c[0]])lob.push([st].concat(c.map(j=>j>=0?r[j]||"":"")))})}
+  else if(s.type==="enr"){const c=[ix(H,/limit/),ix(H,/special/),ix(H,/age/),ix(H,/gender/),ix(H,/auto/),ix(H,/new/),ix(H,/exist/)];s.rows.forEach(r=>{if(c[1]>=0&&r[c[1]])enr.push([st,s.lob||"ALL"].concat(c.map(j=>j>=0?r[j]||"":"")))});
+   info.push("## "+s.t+(s.lob?" (LOB "+s.lob+")":"")+"\n"+(s.notes||""))}
+  else info.push("## "+s.t+"\n"+[s.text||"",H.length?[H].concat(s.rows).map(r=>r.join(" | ")).join("\n"):""].filter(Boolean).join("\n"))});
+ DB.csp.lob=DB.csp.lob.filter(r=>r[0]!==st).concat(lob);DB.csp.enr=DB.csp.enr.filter(r=>r[0]!==st).concat(enr);infoSet(st,info.join("\n\n"),true)}
+/* PCP rules: a block can hold many LOBs ("320, 322, 323") */
+pcpRows=function(X){return DB.csp.enr.map((r,i)=>[r,i]).filter(([r])=>r[0]===X.st&&(!X.lob||/^all$/i.test(r[1]||"")||String(r[1]).split(/[\s,]+/).includes(String(X.lob))))};
+/* SOP CSP-ST edited → text topics follow */
+{const _s=ACT.sopSave;ACT.sopSave=function(){_s.apply(this,arguments);try{const s=DB.sops.find(x=>x.id===SOPID),m=s&&String(s.code).match(/^CSP-([A-Z]{2})$/),G=m&&GRD()[m[1]];if(!G)return;
+ String(s.body||"").split(/^## /m).slice(1).forEach(b=>{const t=b.split("\n")[0].replace(/\s*\(LOB [^)]*\)\s*$/,"").trim(),body=b.split("\n").slice(1).join("\n").trim(),x=G.secs.find(q=>q.t===t);if(!x)return;if(x.type==="enr")x.notes=body;else if(!x.head.length)x.text=body});touch("CSP grid "+m[1]+" from SOP")}catch(e){}}}
+/* ---------- Grid.txt (the main CSP file per state) ---------- */
+function gridOut(st){const G=GRD()[st]||c3FromOld(st);if(!G)return"";const L=[["#GRID",G.title||"",G.review||"",G.owner||"",G.src||""]];
+ G.secs.forEach(s=>{L.push(["@@",s.k,s.t,s.type,s.lob||"",s.notes||"",s.text||""]);if(s.head.length){L.push(["#H"].concat(s.head));s.rows.forEach(r=>L.push(["#R"].concat(r)))}});return tsvOut(L)}
+function gridIn(st,t){const a=tsvIn(t);if(!a.length||a[0][0]!=="#GRID")return;const G={title:a[0][1]||"",review:a[0][2]||"",owner:a[0][3]||"",src:a[0][4]||"",secs:[]};let c=null;
+ a.slice(1).forEach(r=>{if(r[0]==="@@"){c={k:r[1]||"topic",t:r[2]||"",type:r[3]||"sec",lob:r[4]||"",notes:r[5]||"",text:r[6]||"",head:[],rows:[]};G.secs.push(c)}else if(c&&r[0]==="#H")c.head=r.slice(1);else if(c&&r[0]==="#R"){const x=r.slice(1);while(x.length<c.head.length)x.push("");c.rows.push(x)}});
+ GRD()[st]=G;c3Place(G);c3Derive(st)}
+{const _ci=cspItems;cspItems=function(states){const root=fpOf("csp"),o=[];states.forEach(st=>{o.push([root+"/"+st+"/Grid.txt",()=>gridOut(st),t=>gridIn(st,t),canSave,"csp"]);
+ _ci([st]).forEach(it=>{if(GRD()[st])it[2]=()=>{};o.push(it)})});return o}}
+/* ---------- extra per-user file: 🪐 my links ---------- */
+FREG.push(["plinks","🪐 My links (Admin, one per user)","Links/My_Links_{MSID}.txt"]);
+{const _g=regGetSet;regGetSet=function(id){if(id==="plinks")return[()=>tsvOut([["Name","URL","Open inside"]].concat(PLK().map(l=>[l.n,l.u,l.i?"Yes":""]))),t=>{PLKS(tsvIn(t).slice(1).filter(r=>r[1]).map(r=>({n:r[0]||r[1],u:r[1],i:/^y/i.test(r[2]||"")})))},admin];return _g(id)}}
+/* ---------- CSP page ---------- */
+const C3={sel:{},last:{},undo:[]};
+(function(){const v=$("#v-csp");if(!v)return;v.innerHTML=`<div class="c3bar"><select class="sel" id="cState" title="State"></select><button class="tbn t1" data-act="dumpCsp"><i>⇣</i>PASTE STATE DATA</button>
+ <label class="c3drop" id="c2Drop" title="Drop the state Excel here (one sheet per state) or click to pick">⇣ Drop / pick state Excel<input type="file" id="c2Files" multiple accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.txt,.tsv" hidden></label>
+ <select class="sel" id="c3Lob" title="LOB filter"></select><input class="inp" id="c3Spc" placeholder="🔍 specialty / any text" style="width:190px">
+ <span class="sp"></span><button class="btn sm" data-act="c3Undo" title="Undo last delete / erase">↶ Undo</button><button class="btn sm" data-act="c3Xl" title="This state as Excel">⇩ Excel</button><button class="btn sm" data-act="c3Txt" title="This state as Grid.txt">⇩ TXT</button><button class="btn sm" data-act="c3All" title="Expand / collapse every topic">⇕</button><button class="svb" data-act="regSave" data-v="csp" title="💾 Save to States/&lt;ST&gt;/Grid.txt now">💾</button></div>
+ <div class="c3meta" id="c3Meta"></div><div class="c3chips" id="c3Chips"></div><div id="c3W"></div><div id="cBoxes" style="display:none"></div>`})();
+function c3FromOld(st){const lob=DB.csp.lob.filter(r=>r[0]===st),enr=DB.csp.enr.filter(r=>r[0]===st),info=(DB.csp.info.find(r=>r[0]===st)||[])[1]||"";if(!lob.length&&!enr.length&&!info.trim())return null;
+ const G={title:STN[st]||st,review:"",owner:"",src:"older data (before build 14)",secs:[]};if(info.trim())G.secs.push({k:"loading_information",t:"A. Loading Information",type:"sec",lob:"",notes:"",text:info.replace(/^## /gm,""),head:[],rows:[]});
+ if(lob.length)G.secs.push({k:"lob_list",t:"LOB list",type:"lob",lob:"",notes:"",text:"",head:["LOB","LOB Description","NWPR","AGAG","Market Number/IPA","Earliest Eff","Term Date"],rows:lob.map(r=>r.slice(1,8))});
+ const by={};enr.forEach(r=>{(by[r[1]||"ALL"]=by[r[1]||"ALL"]||[]).push(r)});const ks={};Object.entries(by).forEach(([l,R],i)=>{let k="enrollment_rules"+(i?"_"+(i+1):"");G.secs.push({k,t:"Enrollment Rules - LOB "+l,type:"enr",lob:/^all$/i.test(l)?"":l,notes:"",text:"",head:["Enrollment Limit","Provider Specialty","Age Limit of Patients","Accept Gender","Auto Assign","Accept New Patients","Accept Existing"],rows:R.map(r=>r.slice(2,9))})});
+ GRD()[st]=G;c3Place(G);return G}
+const c3G=()=>GRD()[C2.st]||c3FromOld(C2.st);
+function c3Tbl(s,si){const S=C3.sel[s.k]||new Set(),q=String($("#c3Spc").value||"").trim().toLowerCase(),me=String(gf("SPC Name")||"").trim().toLowerCase(),spI=s.head.findIndex(h=>/special/i.test(h));
+ return `<table class="c3t"><thead><tr><th class="ck"><input type="checkbox" class="nosw" data-c3all="${si}" ${s.rows.length&&S.size===s.rows.length?"checked":""} title="Select all"></th><th class="rn">#</th>${s.head.map((h,j)=>`<th contenteditable="true" data-c3h="${j}">${esc(h)}</th>`).join("")}</tr></thead><tbody>${s.rows.map((r,i)=>{const hit=q&&r.join(" ").toLowerCase().includes(q),mm=me&&spI>=0&&String(r[spI]).toLowerCase()===me;
+  return `<tr data-r="${i}" class="${S.has(i)?"on":""} ${hit?"hit":""} ${mm?"me":""}"><td class="ck"><input type="checkbox" class="nosw" data-c3r="${i}" ${S.has(i)?"checked":""}><button class="c3x" data-c3x="${i}" title="Delete this row">✕</button></td><td class="rn">${i+1}</td>${s.head.map((_,j)=>`<td contenteditable="true" data-c="${j}">${esc(r[j]||"")}</td>`).join("")}</tr>`}).join("")}</tbody></table>`}
+function c3Sec(s,si,n){const L=C3L()[s.k]||{},S=C3.sel[s.k]||new Set(),tbl=s.head.length>0,lobF=$("#c3Lob").value,dim=lobF&&s.type==="enr"&&s.lob&&!s.lob.split(/[\s,]+/).includes(lobF);
+ const sz=(L.w?`width:${L.w}px;`:"")+(L.h?`height:${L.h}px;`:"");const ta=(f,v,ph)=>`<textarea class="c3ta" data-c3f="${f}" rows="${Math.min(L.h?40:22,Math.max(2,String(v||"").split("\n").length+String(v||"").length/160|0))}" placeholder="${ph}">${esc(v||"")}</textarea>`;
+ return `<div class="c3s ${dim?"dim":""}" data-k="${esc(s.k)}" data-si="${si}" style="${sz}"><div class="c3h" draggable="true"><span class="gp">⠿</span><span class="no">${n}</span><span class="tt" contenteditable="true" data-c3t="1" spellcheck="false">${esc(s.t)}</span>${s.lob?`<span class="ct">· LOB ${esc(s.lob)}</span>`:""}${tbl?`<span class="ct">· ${s.rows.length} rows</span>`:""}<span class="sp"></span>
+ ${S.size?`<button class="bulk" data-c3op="del">🗑 Delete ${S.size}</button><button class="bulk" data-c3op="erase" title="Clear the cells, keep the rows">⌫ Erase ${S.size}</button>`:""}${tbl?`<button data-c3op="add" title="Add a row">＋ Row</button>`:`<button data-c3op="mk" title="Add a table to this topic">＋ Table</button>`}
+ <button data-c3op="up" title="Move up">▲</button><button data-c3op="down" title="Move down">▼</button><button data-c3op="fit" title="Back to full width / auto height">⤢</button><button data-c3op="hide" title="Hide this topic (every state)">👁</button><button class="dn" data-c3op="kill" title="Delete this topic">✕</button></div>
+ <div class="c3b">${s.type==="enr"?`<div class="c3lob"><b>LOB</b><input class="inp mono" data-c3f="lob" value="${esc(s.lob)}" placeholder="320, 322, 323"><span class="small muted">rules below apply to these LOBs</span></div>${ta("notes",s.notes,"PCP set-up / notes for this block")}`:(s.text||!tbl?ta("text",s.text,"Type the information for this topic"):"")}${tbl?c3Tbl(s,si):""}</div></div>`}
+RENDER.csp=function(){const st=C2.st,G=c3G(),has=new Set(cspLocal());
+ $("#cState").innerHTML=ALLST.map(s=>`<option value="${s}" ${s===st?"selected":""}>${has.has(s)?"● ":"○ "}${s} · ${esc(STN[s]||s)}</option>`).join("");
+ const lobs=DB.csp.lob.filter(r=>r[0]===st),lf=$("#c3Lob").value;$("#c3Lob").innerHTML=`<option value="">All LOBs</option>`+lobs.map(r=>`<option value="${esc(r[1])}" ${r[1]===lf?"selected":""}>${esc(r[1])} · ${esc(String(r[2]||"").slice(0,40))}</option>`).join("");
+ if(!G){$("#c3Meta").innerHTML=`<b>${esc(STN[st]||st)}</b>`;$("#c3Chips").innerHTML="";$("#c3W").innerHTML=`<div class="c3empty"><b>No state grid for ${esc(st)} yet.</b><br>Drop the state Excel (one sheet per state, all sheets at once is fine) on this page, or PASTE STATE DATA.<br>${has.size} state(s) loaded: ${[...has].join(", ")||"none"}</div>`;return}
+ const L=C3L(),O=c3Ord(G),vis=O.filter(s=>!(L[s.k]||{}).hide&&!(L[s.k]||{}).del),hid=O.filter(s=>(L[s.k]||{}).hide&&!(L[s.k]||{}).del),del=Object.entries(L).filter(([,x])=>x.del);
+ $("#c3Meta").innerHTML=`<b>${esc(G.title||STN[st]||st)}</b><span>Date of last review: <b style="font-size:12px">${esc(G.review||"-")}</b></span><span>Grid owner: <b style="font-size:12px">${esc(G.owner||"-")}</b></span><span>${vis.length} topics · ${G.secs.reduce((a,s)=>a+s.rows.length,0)} rows</span><span class="muted">from ${esc(G.src||"-")} · ${esc(fpOf("csp"))}/${esc(st)}/Grid.txt</span>`;
+ $("#c3Chips").innerHTML=(hid.length?`<span class="small muted">Hidden:</span>`+hid.map(s=>`<button data-c3show="${esc(s.k)}" title="Show again">👁 ${esc(s.t)}</button>`).join(""):"")+(del.length?`<span class="small muted" style="margin-left:8px">Deleted topics:</span>`+del.map(([k])=>`<button data-c3undel="${esc(k)}" title="Bring back">↺ ${esc(k.replace(/_/g," "))}</button>`).join(""):"");
+ $("#c3W").innerHTML=vis.map((s,n)=>c3Sec(s,G.secs.indexOf(s),n+1)).join("")||`<div class="c3empty">All topics are hidden · click a chip above</div>`};
+cspState=function(){C2.st=$("#cState").value;LS.set("cspState",C2.st);C3.sel={};$("#c3Lob").value="";RENDER.csp()};
+$("#cState").onchange=cspState;$("#c3Lob").onchange=()=>RENDER.csp();
+{let t;$("#c3Spc").oninput=()=>{clearTimeout(t);t=setTimeout(()=>RENDER.csp(),250)}}
+/* save helpers */
+let C3T=0;const c3Save=(why,st)=>{st=st||C2.st;clearTimeout(C3T);C3T=setTimeout(()=>{c3Derive(st);touch(why||"CSP grid "+st)},350)};
+const secOf=el=>{const b=el.closest(".c3s");return b?[c3G().secs[+b.dataset.si],b]:[null,null]};
+const c3Push=(s,what)=>{C3.undo.push({st:C2.st,k:s.k,rows:clone(s.rows),what});if(C3.undo.length>30)C3.undo.shift()};
+ACT.c3Undo=()=>{const u=C3.undo.pop();if(!u)return toast("Nothing to undo","bad");const G=GRD()[u.st],s=G&&G.secs.find(x=>x.k===u.k);if(!s)return;s.rows=u.rows;C3.sel[s.k]=new Set();c3Save("Undo "+u.what,u.st);RENDER.csp();toast("↶ "+u.what+" undone","ok")};
+document.addEventListener("click",e=>{if(VIEW!=="csp")return;const t=e.target;
+ const sh=t.closest("[data-c3show]");if(sh){delete C3L()[sh.dataset.c3show].hide;touch("Topic shown");return RENDER.csp()}
+ const ud=t.closest("[data-c3undel]");if(ud){delete C3L()[ud.dataset.c3undel].del;touch("Topic back");return RENDER.csp()}
+ const x=t.closest("[data-c3x]");if(x){const[s]=secOf(x);if(!s)return;c3Push(s,"Delete row");s.rows.splice(+x.dataset.c3x,1);C3.sel[s.k]=new Set();c3Save("CSP row deleted");return RENDER.csp()}
+ const o=t.closest("[data-c3op]");if(!o)return;const[s,box]=secOf(o);if(!s)return;const op=o.dataset.c3op,L=C3L(),me=L[s.k]=L[s.k]||{o:99},S=C3.sel[s.k]||new Set();
+ if(op==="del"){c3Push(s,"Delete "+S.size+" rows");s.rows=s.rows.filter((_,i)=>!S.has(i));C3.sel[s.k]=new Set();c3Save("CSP rows deleted")}
+ else if(op==="erase"){c3Push(s,"Erase "+S.size+" rows");S.forEach(i=>{s.rows[i]=s.head.map(()=>"")});C3.sel[s.k]=new Set();c3Save("CSP rows erased")}
+ else if(op==="add"){s.rows.push(s.head.map(()=>""));c3Save("CSP row added");RENDER.csp();const td=document.querySelector(`.c3s[data-k="${CSS.escape(s.k)}"] tbody tr:last-child td[data-c]`);if(td)td.focus();return}
+ else if(op==="mk"){s.head=["Column 1","Column 2","Column 3"];s.rows=[["","",""]];c3Save("Table added")}
+ else if(op==="up"||op==="down"){const O=c3Ord(c3G()).filter(q=>!(L[q.k]||{}).hide&&!(L[q.k]||{}).del),i=O.indexOf(s),j=op==="up"?i-1:i+1;if(j<0||j>=O.length)return;const a=L[O[j].k]=L[O[j].k]||{o:99},t1=me.o;me.o=a.o;a.o=t1;if(me.o===a.o)me.o+=op==="up"?-0.5:0.5;c3Norm();touch("Topic moved")}
+ else if(op==="fit"){delete me.w;delete me.h;touch("Topic size reset")}
+ else if(op==="hide"){me.hide=1;touch("Topic hidden");toast("Hidden · click the chip on top to show it again","ok")}
+ else if(op==="kill"){return modal("Delete topic · "+s.t,`<div>What should go?</div>`,[{t:"Cancel"},{t:"Only from "+C2.st,fn:()=>{const G=c3G();c3Push(s,"Delete topic");G.secs.splice(G.secs.indexOf(s),1);c3Save("Topic deleted "+s.t);RENDER.csp()}},{t:"From every state (next dumps too)",c:"pri",fn:()=>{me.del=1;touch("Topic deleted everywhere "+s.k);RENDER.csp()}}])}
+ RENDER.csp()});
+function c3Norm(){const L=C3L();Object.entries(L).sort((a,b)=>a[1].o-b[1].o).forEach(([k],i)=>L[k].o=i)}
+/* row ticks · shift = range */
+document.addEventListener("change",e=>{const t=e.target;if(!t.closest||!t.closest("#c3W"))return;const[s]=secOf(t);if(!s)return;const S=C3.sel[s.k]=C3.sel[s.k]||new Set();
+ if(t.dataset.c3all!==undefined){if(t.checked)s.rows.forEach((_,i)=>S.add(i));else S.clear();return RENDER.csp()}
+ if(t.dataset.c3r!==undefined){const i=+t.dataset.c3r;if(e.shiftKey||C3.shift){const a=C3.last[s.k]??i;for(let k=Math.min(a,i);k<=Math.max(a,i);k++)t.checked?S.add(k):S.delete(k)}else t.checked?S.add(i):S.delete(i);C3.last[s.k]=i;return RENDER.csp()}
+ if(t.dataset.c3f){s[t.dataset.c3f]=t.value.trim&&t.dataset.c3f==="lob"?t.value.trim():t.value;c3Save("CSP "+s.t);if(t.dataset.c3f==="lob")RENDER.csp()}});
+document.addEventListener("keydown",e=>{C3.shift=e.shiftKey},true);document.addEventListener("keyup",e=>{C3.shift=e.shiftKey},true);document.addEventListener("mousedown",e=>{C3.shift=e.shiftKey},true);
+document.addEventListener("input",e=>{const t=e.target;if(t.dataset&&t.dataset.c3f&&t.dataset.c3f!=="lob"&&t.closest("#c3W")){const[s]=secOf(t);if(s){s[t.dataset.c3f]=t.value;c3Save()}}});
+/* cell / header / title edit (Excel-like) */
+document.addEventListener("focusout",e=>{const t=e.target;if(!t.closest||!t.closest("#c3W"))return;const[s]=secOf(t);if(!s)return;const v=t.innerText.replace(/\n$/,"").trim();
+ if(t.dataset.c!==undefined){const i=+t.closest("tr").dataset.r,j=+t.dataset.c;if((s.rows[i]||[])[j]!==v){s.rows[i][j]=v;c3Save("CSP cell")}}
+ else if(t.dataset.c3h!==undefined){const j=+t.dataset.c3h;if(s.head[j]!==v){s.head[j]=v;c3Save("CSP header")}}
+ else if(t.dataset.c3t){if(v&&v!==s.t){s.t=v;c3Save("Topic renamed")}}});
+document.addEventListener("keydown",e=>{const t=e.target;if(VIEW!=="csp")return;
+ if(t.dataset&&(t.dataset.c!==undefined||t.dataset.c3t)&&e.key==="Enter"&&!e.shiftKey){e.preventDefault();if(t.dataset.c3t)return t.blur();const tr=t.closest("tr").nextElementSibling,n=tr&&tr.querySelector(`td[data-c="${t.dataset.c}"]`);t.blur();if(n)n.focus()}
+ if(t.dataset&&t.dataset.c!==undefined&&e.key==="Escape")t.blur();
+ if(e.key==="Delete"&&!/INPUT|TEXTAREA/.test(t.tagName)&&!t.isContentEditable){const G=c3G();if(!G)return;let n=0;G.secs.forEach(s=>{const S=C3.sel[s.k];if(S&&S.size){c3Push(s,"Erase");S.forEach(i=>{s.rows[i]=s.head.map(()=>"")});n+=S.size;C3.sel[s.k]=new Set()}});if(n){c3Save("CSP rows erased");RENDER.csp();toast("⌫ "+n+" row(s) erased · ↶ Undo is on top","ok")}}});
+/* paste a block from Excel into a cell → fills right / down */
+document.addEventListener("paste",e=>{const t=e.target;if(!t.dataset||t.dataset.c===undefined||!t.closest("#c3W"))return;const txt=(e.clipboardData||window.clipboardData).getData("text");if(!/[\t\n]/.test(txt.replace(/\n$/,"")))return;e.preventDefault();
+ const[s]=secOf(t),i0=+t.closest("tr").dataset.r,j0=+t.dataset.c,A=txt.replace(/\r/g,"").replace(/\n$/,"").split("\n").map(l=>l.split("\t"));c3Push(s,"Paste");
+ A.forEach((r,a)=>{while(s.rows.length<=i0+a)s.rows.push(s.head.map(()=>""));r.forEach((v,b)=>{const j=j0+b;if(j>=s.head.length){s.head.push("");s.rows.forEach(x=>x.push(""))}s.rows[i0+a][j]=v.trim()})});c3Save("CSP paste");RENDER.csp();toast("Pasted "+A.length+" row(s)","ok")});
+/* drag the header to move · drag the corner to size (saved per topic) */
+{let dk=null;document.addEventListener("dragstart",e=>{const h=e.target.closest&&e.target.closest(".c3h");if(!h)return;dk=h.parentElement.dataset.k;e.dataTransfer.effectAllowed="move";try{e.dataTransfer.setData("text/c3",dk)}catch(x){}});
+ document.addEventListener("dragover",e=>{if(!dk)return;const b=e.target.closest&&e.target.closest(".c3s");if(b){e.preventDefault();document.querySelectorAll(".c3s.drag").forEach(x=>x!==b&&x.classList.remove("drag"));b.classList.add("drag")}});
+ document.addEventListener("drop",e=>{if(!dk)return;const b=e.target.closest&&e.target.closest(".c3s");e.preventDefault();e.stopPropagation();document.querySelectorAll(".c3s.drag").forEach(x=>x.classList.remove("drag"));if(b&&b.dataset.k!==dk){const L=C3L(),r=b.getBoundingClientRect(),after=e.clientY>r.top+r.height/2;(L[dk]=L[dk]||{}).o=(L[b.dataset.k]||{o:0}).o+(after?0.5:-0.5);c3Norm();touch("Topic moved");RENDER.csp()}dk=null},true);
+ document.addEventListener("dragend",()=>{dk=null;document.querySelectorAll(".c3s.drag").forEach(x=>x.classList.remove("drag"))})}
+document.addEventListener("mouseup",()=>{if(VIEW!=="csp")return;let ch=0;document.querySelectorAll("#c3W .c3s").forEach(b=>{if(!b.style.width&&!b.style.height)return;const L=C3L(),m=L[b.dataset.k]=L[b.dataset.k]||{o:99},w=parseInt(b.style.width)||0,h=parseInt(b.style.height)||0,pw=b.parentElement.clientWidth;
+ const nw=w&&w<pw-4?w:0;if((m.w||0)!==nw||(m.h||0)!==h){if(nw)m.w=nw;else delete m.w;if(h)m.h=h;else delete m.h;ch=1}});if(ch)touch("Topic size")});
+ACT.c3All=()=>{const L=C3L(),G=c3G();if(!G)return;const any=G.secs.some(s=>(L[s.k]||{}).h);G.secs.forEach(s=>{const m=L[s.k]=L[s.k]||{o:99};if(any)delete m.h;else m.h=140});touch();RENDER.csp()};
+/* ---------- load files / paste ---------- */
+async function readSheets(f){const nm=f.name.toLowerCase();if(/\.(xlsx|xlsm|xlsb|xls)$/.test(nm)){const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});return wb.SheetNames.filter(n=>!(wb.Workbook&&wb.Workbook.Sheets&&(wb.Workbook.Sheets.find(s=>s.name===n)||{}).Hidden)).map(n=>[n,XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:false,defval:"",blankrows:true})])}
+ const t=(await f.text()).replace(/\r/g,"");if(/^#GRID\t/.test(t)){return{grid:t}}return[[f.name,t.split("\n").map(l=>l.split("\t"))]]}
+function c3Take(P,mode){const done=[];Object.entries(P).forEach(([st,G])=>{const D=GRD();if(mode==="add"&&D[st]){const ks=new Set(D[st].secs.map(s=>s.k));G.secs.forEach(s=>{let k=s.k,n=2;while(ks.has(k))k=s.k+"_"+n++;s.k=k;ks.add(k)});D[st].secs.push(...G.secs)}else D[st]=G;c3Place(D[st]);c3Derive(st);
+ done.push(st+" · "+G.secs.length+" topics · "+G.secs.filter(s=>s.type==="enr").length+" enrollment blocks · "+G.secs.reduce((a,s)=>a+s.rows.length,0)+" rows")});return done}
+c2Files=async function(files){let done=[];for(const f of files){try{const sh=await readSheets(f);if(sh.grid){const st=stFrom(f.name)||C2.st;gridIn(st,sh.grid);done.push(st+" · Grid.txt");continue}
+  const P=c3Parse(sh,f.name,sh.length===1?C2.st:"");if(!Object.keys(P).length){toast(f.name+": nothing found","bad");continue}done.push(...c3Take(P))}catch(e){console.error(e);toast("Could not read "+f.name+" · "+e.message,"bad")}}
+ if(done.length){touch("State files loaded · "+done.join(", "));{const ss=done.map(x=>x.slice(0,2));C2.st=ss.includes(C2.st)?C2.st:ss[0]}LS.set("cspState",C2.st);C3.sel={};RENDER.csp();toast("Loaded · "+done.join(" | "),"ok");try{if(DIR)regPass(true,["csp"],"write")}catch(e){}}};
+ACT.dumpCsp=()=>{const st=C2.st||gf("ST")||"AZ";modal("PASTE STATE DATA",`<div class="row" style="gap:8px;margin-bottom:8px"><b class="small">State</b><select class="sel" id="dpSt">${ALLST.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}</select><b class="small">How</b><select class="sel" id="dpM"><option value="rep">Replace this state's grid</option><option value="add">Add as new topics</option></select></div>
+ <div class="small muted" style="margin-bottom:6px">Select the whole state sheet in Excel (Ctrl+A, Ctrl+C) and paste here. Headings like "A. Loading Information", the LOB table and every "Enrollment Rules … LOB 320, 322" block are found by themselves.</div><textarea class="area mono" id="dpT" rows="16" placeholder="Paste here"></textarea>`,[{t:"Cancel"},{t:"Load",c:"pri",fn:()=>{const t=$("#dpT").value.replace(/\r/g,"");if(!t.trim()){toast("Paste first","bad");return false}const s=$("#dpSt").value,P=c3Parse([[s,t.split("\n").map(l=>l.split("\t"))]],"paste",s),k=Object.keys(P);if(k.length&&k[0]!==s){P[s]=P[k[0]];delete P[k[0]]}
+  const d=c3Take(P,$("#dpM").value);if(!d.length){toast("Nothing found in the paste","bad");return false}C2.st=s;LS.set("cspState",s);touch("Pasted state data "+s);RENDER.csp();toast("Loaded · "+d.join(" | "),"ok")}}]);document.querySelector("#modal .mbox").style.width="min(900px,96vw)"};
+ACT.c3Txt=()=>{const st=C2.st;if(!c3G())return toast("No grid for "+st,"bad");dlFile("CSP_"+st+"_Grid.txt",gridOut(st))};
+ACT.c3Xl=()=>{const st=C2.st,G=c3G();if(!G)return toast("No grid for "+st,"bad");const A=[[G.title||STN[st]||st],["Date of Last Review and Sign-off",G.review||""],["Requirements Grid Owner",G.owner||""],[]];
+ c3Ord(G).filter(s=>!(C3L()[s.k]||{}).del).forEach(s=>{A.push([s.t+(s.lob?"  ·  LOB "+s.lob:"")]);if(s.notes)A.push([s.notes]);if(s.text)A.push([s.text]);if(s.head.length){A.push(s.head.slice());s.rows.forEach(r=>A.push(r.slice()))}A.push([])});
+ const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(A);ws["!cols"]=[{wch:60},{wch:18},{wch:40},{wch:14},{wch:14},{wch:12},{wch:12},{wch:12}];XLSX.utils.book_append_sheet(wb,ws,st);XLSX.writeFile(wb,"CSP_"+st+"_State_Grid.xlsx")};
+/* ---------- TIN ✔ (green = TIN is in the TIN list) ---------- */
+const tinCol=()=>{const i=DB.tins.head.indexOf("TIN");return i<0?0:i};
+findTins=function(t){const d=String(t||"").replace(/\D/g,"");if(d.length<9)return[];const c=tinCol(),out=[];DB.tins.rows.forEach((r,i)=>{if(String(r[c]||"").replace(/\D/g,"")===d)out.push(mrow(DB.tins,i))});return out};
+function tinBadges(){document.querySelectorAll('input[data-f="TIN"]').forEach(inp=>{if(!inp.closest("#fTop,#fInd,#fGrp"))return;let b=inp.parentElement.querySelector(".tinok");
+ if(!b){if(!inp.parentElement.classList.contains("tinw")){const w=document.createElement("span");w.className="tinw";w.style.cssText="position:relative;display:block;min-width:0";inp.before(w);w.appendChild(inp)}inp.style.paddingRight="28px";inp.insertAdjacentHTML("afterend",`<button type="button" class="tinok" data-act="tinMgr" title="TIN list">✔</button>`);b=inp.parentElement.querySelector(".tinok")}
+ const d=String(inp.value||"").replace(/\D/g,""),n=d.length>=9?findTins(d).length:-1;b.className="tinok "+(n>0?"ok":n===0?"no":"");b.textContent=n>0?"✔":n===0?"＋":"✔";b.title=n>0?n+" row(s) in the TIN list · click to see / edit":n===0?"Not in the TIN list · click to add":"Type the 9 digit TIN"})}
+document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.f==="TIN")tinBadges()});
+setInterval(()=>{try{if(DB&&ME&&VIEW==="info"&&!document.hidden)tinBadges()}catch(e){}},1500);
+{const _ts=ACT.tinSave;ACT.tinSave=function(){const r=_ts.apply(this,arguments);tinBadges();if($("#tmW"))tmDraw();return r}}
+const TM={q:"",sel:new Set(),undo:null};
+function tmDraw(){const T=DB.tins,q=TM.q.trim().toLowerCase(),qd=q.replace(/\D/g,""),c=tinCol();const R=T.rows.map((r,i)=>[r,i]).filter(([r])=>!q||(qd.length>=9?String(r[c]||"").replace(/\D/g,"")===qd:r.join(" ").toLowerCase().includes(q)));
+ const has=qd.length>=9&&R.length;$("#tmSt").className="tmst "+(qd.length>=9?(has?"ok":"no"):"");$("#tmSt").textContent=qd.length>=9?(has?"✔ TIN "+qd+" is in the list · "+R.length+" row(s)":"✕ TIN "+qd+" is not in the list"):T.rows.length+" TIN row(s) in total";
+ $("#tmDel").style.display=$("#tmEr").style.display=TM.sel.size?"":"none";$("#tmDel").textContent="🗑 Delete "+TM.sel.size;$("#tmEr").textContent="⌫ Erase "+TM.sel.size;
+ const L=R.slice(0,400),inInfo=VIEW==="info";
+ $("#tmW").innerHTML=`<table class="c3t"><thead><tr><th class="ck"><input type="checkbox" class="nosw" id="tmAll" ${L.length&&L.every(([,i])=>TM.sel.has(i))?"checked":""}></th><th class="rn">#</th>${inInfo?"<th></th>":""}${T.head.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${L.map(([r,i])=>`<tr data-ti="${i}" class="${TM.sel.has(i)?"on":""}"><td class="ck"><input type="checkbox" class="nosw" data-tmr="${i}" ${TM.sel.has(i)?"checked":""}><button class="c3x" data-tmx="${i}" title="Delete">✕</button></td><td class="rn">${i+1}</td>${inInfo?`<td><button class="btn sm" data-tmf="${i}" title="Fill Group from this row">⇨ Fill</button></td>`:""}${T.head.map((_,j)=>`<td contenteditable="true" data-tc="${j}">${esc(r[j]||"")}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${T.head.length+3}" class="small muted">No row${q?" for "+esc(q):""} · ＋ Add</td></tr>`}</tbody></table>${R.length>400?`<div class="small muted">Showing 400 of ${R.length} · type to narrow</div>`:""}`}
+function tinMgr(q){TM.q=q||"";TM.sel=new Set();modal("🧾 TIN list · "+fpOf("tins"),`<div class="tmbar"><input class="inp mono" id="tmQ" placeholder="TIN / group name / any text" value="${esc(TM.q)}" style="width:240px"><span class="tmst" id="tmSt"></span><span class="sp" style="flex:1"></span>
+ ${VIEW==="info"?`<button class="btn sm pri" id="tmAddG" title="Save the Group fields of Info as a TIN row">⇪ Add from Group</button>`:""}<button class="btn sm" id="tmAdd">＋ Blank row</button><button class="btn sm" id="tmDel" style="display:none;color:#B71C1C"></button><button class="btn sm" id="tmEr" style="display:none"></button><button class="btn sm" id="tmUn">↶ Undo</button><button class="btn sm" id="tmTx">⇩ TXT</button><button class="btn sm" id="tmSv">💾 Save file</button></div><div class="tw" id="tmW" style="max-height:62vh;overflow:auto"></div>
+ <div class="small muted" style="margin-top:6px">Click a cell to edit (like Excel) · tick rows (Shift = range) then Delete / Erase · ✕ deletes one row · paste from Excel into a cell fills down.</div>`,[{t:"Close"}]);document.querySelector("#modal .mbox").style.width="min(1300px,97vw)";tmDraw();
+ const T=DB.tins,save=w=>{touch(w||"TIN list");tinBadges()},snap=()=>{TM.undo=clone(T.rows)};
+ $("#tmQ").oninput=e=>{TM.q=e.target.value;tmDraw()};
+ if($("#tmAddG"))$("#tmAddG").onclick=()=>{ACT.tinSave();TM.q=String(gf("TIN")||"");$("#tmQ").value=TM.q;tmDraw()};
+ $("#tmAdd").onclick=()=>{const r=T.head.map(()=>"");const d=TM.q.replace(/\D/g,"");if(d.length>=9)r[tinCol()]=d;const si=T.head.indexOf("State");if(si>=0)r[si]=gf("ST")||"";T.rows.push(r);save("TIN row added");tmDraw();const td=document.querySelector(`#tmW tr[data-ti="${T.rows.length-1}"] td[data-tc]`);if(td)td.focus()};
+ $("#tmDel").onclick=()=>{snap();T.rows=T.rows.filter((_,i)=>!TM.sel.has(i));DB.tins.rows=T.rows;TM.sel.clear();save("TIN rows deleted");tmDraw()};
+ $("#tmEr").onclick=()=>{snap();TM.sel.forEach(i=>T.rows[i]=T.head.map(()=>""));TM.sel.clear();save("TIN rows erased");tmDraw()};
+ $("#tmUn").onclick=()=>{if(!TM.undo)return toast("Nothing to undo","bad");T.rows=TM.undo;DB.tins.rows=T.rows;TM.undo=null;save("TIN undo");tmDraw()};
+ $("#tmTx").onclick=()=>dlFile("TIN_List.txt",tsvOut([T.head].concat(T.rows)));
+ $("#tmSv").onclick=()=>ACT.regSave({dataset:{v:"tins"}});
+ const W=$("#tmW");let last=null;
+ W.onchange=e=>{const t=e.target;if(t.id==="tmAll"){const vis=[...W.querySelectorAll("tr[data-ti]")].map(x=>+x.dataset.ti);vis.forEach(i=>t.checked?TM.sel.add(i):TM.sel.delete(i));return tmDraw()}if(t.dataset.tmr!==undefined){const i=+t.dataset.tmr;if(C3.shift&&last!=null){const vis=[...W.querySelectorAll("tr[data-ti]")].map(x=>+x.dataset.ti),a=vis.indexOf(last),b=vis.indexOf(i);vis.slice(Math.min(a,b),Math.max(a,b)+1).forEach(k=>t.checked?TM.sel.add(k):TM.sel.delete(k))}else t.checked?TM.sel.add(i):TM.sel.delete(i);last=i;tmDraw()}};
+ W.onclick=e=>{const x=e.target.closest("[data-tmx]");if(x){snap();T.rows.splice(+x.dataset.tmx,1);TM.sel.clear();save("TIN row deleted");return tmDraw()}const f=e.target.closest("[data-tmf]");if(f){TINHIT=[mrow(T,+f.dataset.tmf)];fillGroupFromTin(0);closeModal()}};
+ W.addEventListener("focusout",e=>{const t=e.target;if(t.dataset.tc===undefined)return;const i=+t.closest("tr").dataset.ti,j=+t.dataset.tc,v=t.innerText.trim();if(T.rows[i]&&T.rows[i][j]!==v){T.rows[i][j]=v;save("TIN cell")}});
+ W.addEventListener("keydown",e=>{const t=e.target;if(t.dataset.tc!==undefined&&e.key==="Enter"){e.preventDefault();const n=t.closest("tr").nextElementSibling;t.blur();const c=n&&n.querySelector(`td[data-tc="${t.dataset.tc}"]`);if(c)c.focus()}});
+ W.addEventListener("paste",e=>{const t=e.target;if(t.dataset.tc===undefined)return;const txt=e.clipboardData.getData("text");if(!/[\t\n]/.test(txt.replace(/\n$/,"")))return;e.preventDefault();snap();const i0=+t.closest("tr").dataset.ti,j0=+t.dataset.tc;
+  txt.replace(/\r/g,"").replace(/\n$/,"").split("\n").forEach((l,a)=>{while(T.rows.length<=i0+a)T.rows.push(T.head.map(()=>""));l.split("\t").forEach((v,b)=>{if(j0+b<T.head.length)T.rows[i0+a][j0+b]=v.trim()})});save("TIN paste");tmDraw()})}
+ACT.tinMgr=()=>tinMgr(VIEW==="info"?String(gf("TIN")||"").replace(/\D/g,""):"");
+/* Admin › Files gets the TIN list + export everything */
+{const _f=filesHTML;filesHTML=function(){return `<div class="card"><h3>Everything at once <span class="sp"></span></h3><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn sm pri" data-act="expAll" data-m="folder" title="Write every TXT into the data folder (also empty lists)">💾 Write ALL files to the data folder</button><button class="btn sm" data-act="expAll" data-m="zip">⇩ ALL as TXT (zip)</button><button class="btn sm" data-act="expAll" data-m="xlsx">⇩ ALL as one Excel (sheet per file)</button><button class="btn sm" data-act="tinMgr">🧾 TIN list ✔</button></div><div class="small muted" style="margin-top:6px">Every list gets its own file · your own Tracker, Notes and 🪐 links go in files with your MSID · each CSP state gets States/&lt;ST&gt;/Grid.txt (main) + LOB / Enrollment / Loading_Info copies.</div></div>`+_f().replace("Loading_Info.txt","Loading_Info.txt · <b>Grid.txt</b> = the full state grid")}}
+async function allFiles(){const o=[];for(const [path,get] of await regItems()){let t="";try{t=get()}catch(e){}o.push([path,String(t==null?"":t)])}return o}
+function crcT(){if(crcT.t)return crcT.t;const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return crcT.t=t}
+function zipMake(F){const T=crcT(),en=new TextEncoder(),P=[],C=[];let off=0;
+ F.forEach(([name,txt])=>{const nm=en.encode(name),d=en.encode(txt);let x=~0;for(let i=0;i<d.length;i++)x=T[(x^d[i])&255]^(x>>>8);const crc=(~x)>>>0;
+  const h=new DataView(new ArrayBuffer(30));[[0,0x04034b50,4],[4,20,2],[6,0x0800,2],[8,0,2],[10,0,2],[12,0x21,2],[14,crc,4],[18,d.length,4],[22,d.length,4],[26,nm.length,2],[28,0,2]].forEach(([o,v,s])=>s===4?h.setUint32(o,v,true):h.setUint16(o,v,true));P.push(new Uint8Array(h.buffer),nm,d);
+  const c=new DataView(new ArrayBuffer(46));[[0,0x02014b50,4],[4,20,2],[6,20,2],[8,0x0800,2],[10,0,2],[12,0,2],[14,0x21,2],[16,crc,4],[20,d.length,4],[24,d.length,4],[28,nm.length,2],[30,0,2],[32,0,2],[34,0,2],[36,0,2],[38,0,4],[42,off,4]].forEach(([o,v,s])=>s===4?c.setUint32(o,v,true):c.setUint16(o,v,true));C.push(new Uint8Array(c.buffer),nm);off+=30+nm.length+d.length});
+ const cs=C.reduce((a,b)=>a+b.length,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,F.length,true);e.setUint16(10,F.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);return new Blob([...P,...C,new Uint8Array(e.buffer)],{type:"application/zip"})}
+ACT.expAll=async b=>{const m=(b&&b.dataset.m)||"zip",stamp=new Date().toISOString().slice(0,10);
+ if(m==="folder"){if(!DIR||!await dirOK(true))return toast("Connect the data folder first (⚡ Sync)","bad");const x=await regPass(true,null,"write");if($("#ad-files")&&ADTAB==="files")$("#ad-files").innerHTML=filesHTML();return toast("💾 Wrote "+x.w+" file(s) into "+DIR.name,"ok")}
+ const F=await allFiles();if(m==="zip"){download("Superload_Data_"+stamp+".zip",zipMake(F.map(([p,t])=>["Superload_Data/"+p,t])));return toast("⇩ "+F.length+" TXT files in the zip","ok")}
+ const wb=XLSX.utils.book_new(),used=new Set(),idx=[["#","Sheet","File"]];F.forEach(([p,t],i)=>{let n=p.replace(/\.(txt|json)$/i,"").replace(/^States\//,"CSP ").replace(/[\\\/?*\[\]:]/g," ").slice(-28).trim();let k=n,j=2;while(used.has(k.toLowerCase()))k=n.slice(0,25)+" "+j++;used.add(k.toLowerCase());
+  const A=/\.json$/i.test(p)?t.split("\n").map(l=>[l]):tsvIn(t);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(A.length?A.map(r=>r.map(v=>String(v).slice(0,32000))):[[""]]),k);idx.push([i+1,k,p])});
+ const ws=XLSX.utils.aoa_to_sheet(idx);XLSX.utils.book_append_sheet(wb,ws,"INDEX");wb.SheetNames.unshift(wb.SheetNames.pop());XLSX.writeFile(wb,"Superload_Data_"+stamp+".xlsx");toast("⇩ One Excel · "+F.length+" sheets","ok")};
+/* ---------- 50 dummy SOPs (SOP/SOP_Library.txt) ---------- */
+function seedSops(){if(DB.settings.sop50)return;const T=["Load","Term","Update","Demo","Address","CSP","MNR","Credentialing","Group","Directory"],A=["New practitioner load","Practitioner term","Demographic update","Address change","Phone / fax update","TIN change","Group add","Group term","Specialty add","Specialty change","NPI update","Medicaid ID load","Medicare M&R load","C&S LOB add","E&I contract load","PCP set-up","PCP panel close","Hospital affiliation","Board certification","Language update","Office hours","Directory suppress","Directory display","Taxonomy update","Credentialing hold","Re-credentialing","DEA update","License renewal","Malpractice update","W9 / tax form","Pay-to address","Remit address","Billing NPI","Rendering NPI","Facility load","Ancillary load","Behavioral health load","Telehealth location","Urgent care load","FQHC / RHC load","Dual (DSNP) load","Border state load","Age limit change","Gender limit change","Enrollment limit change","Accept new patients","Auto assign","Cap code","Market / IPA change","Audit rework"],sts=["All","AZ","TX","NY","FL","CA","OH","PA","NJ","GA"];
+ let n=0;A.forEach((t,i)=>{const code="SOP-"+String(i+1).padStart(3,"0");if(DB.sops.some(s=>s.code===code))return;const ty=T[i%T.length];
+  DB.sops.push({id:"S"+Date.now().toString(36)+i,code,title:t,type:ty,version:"1.0",owner:"Admin",state:sts[i%sts.length],eff:today(),review:"",keywords:"dummy "+ty+" "+t,link:"",notes:"Dummy SOP · replace with the real one",
+   body:`PURPOSE\n${t} – dummy text, replace with the real SOP.\n\nSCOPE\n${ty} requests${sts[i%sts.length]!=="All"?" for "+sts[i%sts.length]:" for all states"}.\n\nPROCEDURE\n1. Open the request and check TIN / NPI.\n2. Check the CSP state grid and SOP notes.\n3. Fill Info › Individual / Group.\n4. Transfer to the Practitioner Excel and audit.\n\nCHECKLIST\n- TIN in the TIN list ✔\n- LOB and specialty match the state grid\n- Tracker row added`,files:[]});n++});
+ DB.settings.sop50=1;if(n){touch("50 dummy SOPs");persist()}}
+{const iv=setInterval(()=>{try{if(DB&&ME&&DB.sops){seedSops();clearInterval(iv)}}catch(e){}},1500)}
+FEAT.push(["csp14","CSP grid like the state Excel (topics · Excel-like rows)"]);
 </script>
 
 </body></html>
