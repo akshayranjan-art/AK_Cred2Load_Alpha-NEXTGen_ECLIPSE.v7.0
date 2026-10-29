@@ -2475,7 +2475,7 @@ function fixDate(v){let r,m,d,y;if(r=v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](
 document.addEventListener("change",e=>{if(!fx("fmt"))return;const el=e.target,m=el.id&&el.id.match(/^f_(top|ind|grp)_(.+)$/);if(!m)return;const sec=m[1],n=m[2],key=Object.keys(DB.info[sec]||{}).find(k=>norm(k)===n),v=String(el.value||"").trim();if(!key||!v)return;
  setTimeout(()=>{const d=v.replace(/\D/g,"");
   if(n==="npi"){if(d.length!==10||!npiOK(d))toast("NPI looks wrong · "+d.length+" digits"+(d.length===10?", check digit fails":""),"bad");else if(d!==v){setF(sec,key,d);touch()}}
-  else if(n==="tin"){let t=d;if(t.length===tLen()-1)t="0"+t;if(t.length!==tLen())toast("TIN needs "+tLen()+" digits · you have "+d.length,"bad");else if(t!==v){setF(sec,key,t);touch()}}
+  else if(n==="tin"){if(d.length!==9&&d.length!==10)toast("TIN needs 9 or 10 digits","bad");else if(d!==v){setF(sec,key,d);touch()}}
   else if(/^(effectdate|601date|205252)$/.test(n)){const f=fixDate(v);if(f===null)toast("Date not understood · use MM"+dSep()+"DD"+dSep()+"YYYY","bad");else if(f!==v){setF(sec,key,f);touch()}}},0)});
 let PINST="";
 function pinShow(force){if(!force&&!fx("pinpop"))return;const st=gf("ST");if(!st||!STATES.includes(st))return force&&toast("Pick a state first","bad");const L=DB.rules.filter(r=>r.state===st&&r.pin);if(!L.length&&!force)return;let p=$("#pinpop");if(!p){p=document.createElement("div");p.id="pinpop";p.className="pinpop";document.body.appendChild(p)}
