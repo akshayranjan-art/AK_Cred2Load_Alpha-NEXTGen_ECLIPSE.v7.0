@@ -899,7 +899,7 @@ const ED_SEED={CS:{name:"CSP Medicaid Live 3D Editor",head:["LOB","Ag ID's","NAM
  EI:{name:"Commercial EI Editor",head:["Product Info","Master Name","Master ID","Fee Sched","Penalty table","Note"],n:24,rows:[]},
  MR:{name:"Medicare M&R Editor",head:["Mkt Num","M&R Fee","Cos Div","Cos Panel","Cos Net","Pkg Num","Contract Master","Master","UHCID"],n:16,rows:[]}};
 const CTY_SEED={head:["State","County"],rows:[["WA","King"],["WA","Pierce"],["WA","Cowlitz"],["WA","Snohomish"],["WA","Spokane"],["TX","Dallas"],["TX","Harris"],["TX","Travis"],["TX","Bexar"],["TX","Tarrant"],["AZ","Maricopa"],["AZ","Pima"],["FL","Hillsborough"],["FL","Miami-Dade"],["FL","Orange"],["NY","Albany"],["NY","Kings"],["CO","Denver"],["WA","Washington"],["OR","Washington"],["AR","Washington"]]};
-const LOB_SEED=(()=>{const d=[["401","Medicaid Managed Care"],["402","CHIP"],["403","Long Term Services"],["404","Dual Eligible"]],rows=[];[["WA","Washington"],["WA","King"],["OR","Washington"]].forEach(([st,c])=>d.forEach(([l,t])=>rows.push([st,c,l,t,"CAP-"+l,"01/01/2026","12/31/2026","","",""])));rows.push(["AR","Washington","403","Long Term Services","CAP-403","01/01/2026","12/31/2026","","",""]);return{head:["State","County","LOB","LOB Description","CAP code","CAP/LOB eff. Dt","LOB Term Dt","ID // Link","Ag ID's","NAME"],rows}})();
+const LOB_SEED=(()=>{const d=[["401","Medicaid Managed Care"],["402","CHIP"],["403","Long Term Services"],["404","Dual Eligible"]],rows=[];[["WA","Washington"],["WA","King"],["OR","Washington"]].forEach(([st,c])=>d.forEach(([l,t])=>rows.push([st,c,l,t,"CAP-"+l,"01/01/2026","12/31/2026","","",""])));rows.push(["AR","Washington","403","Long Term Services","CAP-403","01/01/2026","12/31/2026","","",""]);return{head:["PLSV COUNTY","LOB State","PLSV STATE","CSP Prefix","*NOTES"],rows}})();
 const A1025_SEED={head:["Mkt Num","M&R FS","ID","M&R Fee","Cos Div","Cos Panel","Cos Net","Pkg Num","Contract Master","Master","UHCID"],rows:[["46600","WA 7597","79358492","7597","D01","P100","N200","PK-1","CM-9001","M-46600","UHC-001"],["46600","WA 7597","79358492","7597","D02","P101","N201","PK-2","CM-9002","M-46600","UHC-002"]]};
 const EXCL_SEED={head:["List","TIN"],rows:[["MNR","47-6146182"],["MNR","15-4139304"]]};
 const TRK_COLS="GD,ST,Assign Date,Start Date,Complete Date,Complete,M-PIN,TIN,Phy. Name,NPI,IND NAME,Effect. date,Spc Code,SPC Name,ADDRESS,PTI MPIN,Mkt Num.,Tag,Note";
@@ -1172,10 +1172,56 @@ const howKey=q=>Object.keys(HOW).find(k=>q.toLowerCase().includes(k.toLowerCase(
 function buildChips(){const g=(t,a)=>a.length?`<span class="cg">${t} · ${a.length}</span>`+a.map(c=>`<button type="button">${esc(c)}</button>`).join(""):"";
  $("#asChips").innerHTML=g("How to",Object.keys(HOW))+g("State rules",DB.rules.map(r=>r.state+" "+r.topic))+g("SOPs",DB.sops.map(x=>"SOP "+x.code+" "+x.title))+g("CSP",[...new Set(DB.csp.lob.map(r=>r[0]))].map(st=>st+" CSP enrollment limit"))+g("MNR",["MNR excluded","MNR not excluded"])+g("Agreements",DB.agreements.map(a=>a.title))}
 const SPF=["Spc Code","SPC Name","Cos Prov","Degree","Cred DS","URN IND"];
-function findTins(t){const d=String(t||"").replace(/\D/g,"");if(d.length<9)return[];const out=[];DB.tins.rows.forEach((r,i)=>{if(String(r[0]||"").replace(/\D/g,"")===d)out.push(mrow(DB.tins,i))});return out}
+function findTins(t){
+    const d=String(t||"").replace(/\D/g,"");
+    if(d.length<9) return [];
+
+    const tinCol = DB.tins.head.indexOf("TIN");
+    if(tinCol < 0) return [];
+
+    const out=[];
+    DB.tins.rows.forEach((r,i)=>{
+        if(String(r[tinCol]||"").replace(/\D/g,"")===d)
+            out.push(mrow(DB.tins,i));
+    });
+    return out;
+}
 let TINHIT=[],TINSEL=-1;
-function showTin(){const b=$("#tinBox"),o=$("#tinOut");if(!TINHIT||!TINHIT.length||!DB.settings.showTin){b.style.display="none";return}b.style.display="";$("#tinCount").textContent="TIN match · "+TINHIT.length+" found";
- o.innerHTML=TINHIT.map((t,i)=>`<div class="tinrow ${i===TINSEL?"sel":""}" data-i="${i}" title="Tick to fill Group"><label class="tinck"><input type="checkbox" data-tinck="${i}" ${i===TINSEL?"checked":""}></label>${[["State",t.State],["Date",t.Date],[t.Type||"Type",t["ORG Type"]],["PTI MPIN",t["PTI MPIN"]],["Market",t["Mkt Num."]],["Evercare",t.Evercare],["Emptoris ID",t["EMP Id"]],["Group",t["Grp Nm"]]].map(([k,v])=>`<div><small>${esc(k)}</small>${esc(v||"-")}</div>`).join("")}</div>`).join("")}
+function showTin(){
+    const b=$("#tinBox"),o=$("#tinOut");
+
+    if(!TINHIT || !TINHIT.length || !DB.settings.showTin){
+        b.style.display="none";
+        return;
+    }
+
+    b.style.display="";
+    $("#tinCount").textContent="TIN match · "+TINHIT.length+" found";
+
+    o.innerHTML=TINHIT.map((t,i)=>`
+        <div class="tinrow ${i===TINSEL?"sel":""}" data-i="${i}" title="Tick to fill Group">
+            <label class="tinck">
+                <input type="checkbox" data-tinck="${i}" ${i===TINSEL?"checked":""}>
+            </label>
+
+            ${[
+                ["STATE",t["STATE"]],
+                ["DATE",t["DATE"]],
+                ["FQHC",t["FQHC"]],
+                ["PTI MPIN",t["PTI MPIN"]],
+                ["MARKET",t["MARKET"]],
+                ["EVECARE",t["EVECARE"]],
+                ["Emptoris ID",t["Emptoris ID"]],
+                ["GROUP NAME",t["GROUP NAME"]]
+            ].map(([k,v])=>`
+                <div>
+                    <small>${esc(k)}</small>
+                    ${esc(v||"-")}
+                </div>
+            `).join("")}
+        </div>
+    `).join("");
+}
 const pad4=x=>String(x||"").replace(/\D/g,"").padStart(4,"0");
 function setPS(){const c=String(DB.info.ind["Cos Prov"]||"").trim();const pcp=splitL(DB.settings.pcpCos).map(pad4);setF("ind","P/S",c?(pcp.includes(pad4(c))?"P":"S"):"")}
 function specFill(field,val){const v=String(val||"").trim().toLowerCase();const I=DB.info;
@@ -1193,8 +1239,55 @@ function exclCheck(){const d=String(gf("TIN")).replace(/\D/g,""),I=DB.info,MAP=[
 function autoFill(t){const f=t.dataset.f;if(f==="Cos Prov")setPS();if(f==="TIN")exclCheck();if(f==="County"||f==="ST"){renderLob();const fl=DB.info.flags||{};if(fl.County)lobAddAllFn(false);if(f==="ST"&&fl.J1400)j1400Fill(false)}if((f==="Mkt Num."||f==="M&R FS"||f==="EMP Id")&&(DB.info.flags||{})["MNR A1025"])mnrFill(false);if(f==="Del/Non Del")delLogic(t.value);
  if((f==="Spc Code"||f==="SPC Name")&&DB.settings.specAuto)specFill(f,t.value);
  if(f==="TIN"&&DB.settings.tinAuto){TINHIT=findTins(t.value);TINSEL=-1;showTin();tinPop(t)}}
-function fillGroupFromTin(i){const t=TINHIT[i];if(!t)return;TINSEL=i;GRP_F.forEach(k=>{if(t[k]!==undefined&&t[k]!=="")setF("grp",k,t[k])});if(t.State)setF("top","ST",t.State);
- $$("#fGrp input[data-cb]").forEach(x=>{x.checked=!!DB.info.grp[x.dataset.f]});touch("Group filled from TIN "+t.TIN);showTin();renderLob();{const fl=DB.info.flags||{};if(fl.J1400)j1400Fill(false);if(fl.County)lobAddAllFn(false);if(fl["MNR A1025"])mnrFill(false)}toast("Group filled","ok")}
+function fillGroupFromTin(i){
+    const t = TINHIT[i];
+    if(!t) return;
+
+    TINSEL = i;
+
+const MAP = {
+    "Grp Nm":"GROUP NAME",
+    "EMP Id":"Emptoris ID",
+    "Mkt Num.":"MARKET",
+    "Mkt Name":"MKT NAME",
+    "Evercare":"EVECARE",
+    "PTI MPIN":"PTI MPIN",
+    "Type":"FQHC",
+    "T.Filing":"T FILL",
+    "P.Table":"P TAB",
+    "EI":"EI",
+    "M":"MNR",
+    "C":"C&S",
+    "EI - FS":"EI FS",
+    "M&R FS":"MNR FS",
+    "ORG Type":"Type",
+    "Group Notes":"CLM/ACR"
+};
+
+    GRP_F.forEach(k=>{
+        const v = t[MAP[k] || k];
+        if(v !== undefined && v !== "")
+            setF("grp", k, v);
+    });
+
+    if(t["STATE"])
+        setF("top","ST",t["STATE"]);
+
+    $$("#fGrp input[data-cb]").forEach(x=>{
+        x.checked = !!DB.info.grp[x.dataset.f];
+    });
+
+    touch("Group filled from TIN " + (t["TIN"] || ""));
+    showTin();
+    renderLob();
+
+    const fl = DB.info.flags || {};
+    if(fl.J1400) j1400Fill(false);
+    if(fl.County) lobAddAllFn(false);
+    if(fl["MNR A1025"]) mnrFill(false);
+
+    toast("Group filled","ok");
+}
 document.addEventListener("dblclick",e=>{const r=e.target.closest(".tinrow");if(r&&DB.settings.tinDbl)fillGroupFromTin(+r.dataset.i);const lr=e.target.closest(".lobr");if(lr)addLob(lr.dataset.st,lr.dataset.lob)});
 ["#fTop","#fInd","#fGrp"].forEach(s=>{$(s).addEventListener("input",e=>{const t=e.target;if(!t.dataset.f)return;DB.info[t.dataset.sec][t.dataset.f]=t.value;t.classList.remove("miss");t.classList.toggle("filled",!!t.value);touch();autoFill(t)});
  $(s).addEventListener("change",e=>{const t=e.target;if(t.dataset.ok){const k=t.dataset.ok+"_ok";DB.info[k]=DB.info[k]||{};DB.info[k][t.dataset.f]=t.checked;touch();RENDER.info()}else if(t.dataset.cb){DB.info[t.dataset.sec][t.dataset.f]=t.checked?"Yes":"";touch()}else if(t.tagName==="SELECT"){DB.info[t.dataset.sec][t.dataset.f]=t.value;t.classList.toggle("filled",!!t.value);touch()}})});
