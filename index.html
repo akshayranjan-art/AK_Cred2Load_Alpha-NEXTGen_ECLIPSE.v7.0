@@ -644,7 +644,7 @@ tr[data-tag=urgent] td{background:#FDE3E7!important}tr[data-tag=hold] td{backgro
       <span class="pill c2" id="conn2" data-act="connectAll" title="Connect All · data folder + Practitioner folder"><i></i><span>DATA – · PRAC –</span></span>
       <span class="pill xo" id="xlOut" title="Last cells sent to Practitioner.xlsx"><i></i><span>→ Excel · –</span></span>
       <span class="pill" id="connPill"><i></i><span>Cache only</span></span>
-      <button class="btn sm" id="btnPr" title="Practitioner link · manual only">🔗 Practitioner</button><label class="syncsw" title="Superload folder · auto sync ON / OFF"><input type="checkbox" id="slAuto" checked><b>AUTO</b></label><label class="syncsw" title="Sync ON / OFF"><input type="checkbox" id="syncOn" checked><b>SYNC</b></label><button class="btn gold" id="btnSync" title="Connect the data folder, pull new data, push your changes">⚡ Sync</button>
+      <button class="btn sm" id="btnPr" title="Practitioner link · manual only">🔗 Practitioner</button><label class="syncsw" title="Superload folder · auto sync ON / OFF"><input type="checkbox" id="slAuto" checked><b>AUTO</b></label><label class="syncsw" title="Sync ON / OFF"><input type="checkbox" id="syncOn" checked><b>SYNC</b></label><button class="laylk" id="layLock" type="button" title="Layout lock"><i class="led"></i><span>LAYOUT</span><em>LOCKED</em></button><button class="btn gold" id="btnSync" title="Connect the data folder, pull new data, push your changes">⚡ Sync</button>
       <button class="btn tb" data-go="boards" title="My Boards">▦ Boards</button>
       <button class="btn tb" id="btnAdminTop" data-go="admin" title="Admin">⚙ Admin</button>
     </div>
@@ -3264,6 +3264,29 @@ FEAT.push(["txtdb","TXT database · one file per list (Admin › Files)"]);
 #cbPop{max-height:min(62vh,400px)!important;overscroll-behavior:contain;scrollbar-width:thin}
 .cbi{padding:7px 10px!important}.cbi.act{background:var(--soft);box-shadow:inset 3px 0 0 var(--rose,#C2577A)}
 .ipb button[data-ip="lock"].on{background:#FFE9B8}
+
+/* ===== v2.0: one master lock · Excel database · rules list ===== */
+#tinBox{display:none!important}
+#rBoxes{display:none!important}
+.ipb [data-ip="lock"],.bxt .lk{display:none!important}
+.laylock .ipb,.laylock .bxt,.laylock .bxbar,.laylock .splk{display:none!important}
+.laylock .spl{visibility:hidden;pointer-events:none}
+.laylock .card,.laylock .bxBoard>*{resize:none!important}
+.laylk{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:linear-gradient(180deg,#fff,#E9ECFA);box-shadow:0 6px 14px -8px rgba(40,30,110,.5);cursor:pointer;font-weight:800;font-size:11px;letter-spacing:.08em;color:#2B2250;font-family:inherit}
+.laylk .led{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E0435F;box-shadow:0 0 7px 1px rgba(224,67,95,.85)}
+.laylk.on .led{background:#2BE07A;box-shadow:0 0 8px 2px rgba(43,224,122,.85)}
+.laylk em{font-style:normal;color:#D8374F}.laylk.on em{color:#14A862}
+.rlay{display:grid;grid-template-columns:minmax(210px,320px) minmax(0,1fr);gap:14px;align-items:stretch}
+@media(max-width:820px){.rlay{grid-template-columns:1fr}}
+.rleft,.rright{display:flex;flex-direction:column;gap:8px;min-width:0}
+.rlh{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--muted)}
+#rTopic.rlist{width:100%;min-height:330px;padding:6px;border-radius:14px;border:1px solid #3B1D63;background:linear-gradient(180deg,#4A1B6D,#3A1458);color:#fff;font-weight:600;font-size:13px;outline:0}
+#rTopic.rlist option{padding:8px 12px;border-radius:8px;margin-bottom:2px}
+#rTopic.rlist option:checked{background:linear-gradient(90deg,#2F7BFF,#5A9BFF)!important;color:#fff}
+.rbtns{display:flex;flex-direction:column;gap:6px}
+.rb{border:1px solid var(--line);background:linear-gradient(180deg,#fff,#EEF0FB);border-radius:10px;padding:9px 12px;font-weight:800;font-size:12px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;box-shadow:inset 0 1px 0 #fff,0 6px 12px -10px rgba(60,40,140,.7);font-family:inherit;color:#2B2250}
+.rb:hover{transform:translateY(-1px)}.rb.danger{color:#B3243C}
+.rright #rText{flex:1;min-height:330px;font-size:13.5px;line-height:1.6}
 </style>
 <script>
 /* ===== build 14: CSP state grid read like the state Excel · Excel-like rows · topic layout · TIN ✔ · 50 SOPs · export all ===== */
@@ -3600,6 +3623,82 @@ $("#rBoxes").onclick=e=>{const b=e.target.closest("[data-rt]");if(!b)return;cons
 {const _r=RENDER.rules;RENDER.rules=function(){_r.apply(this,arguments);rBoxFill()}}
 /* the pages that are gone */
 RENDER.ext=RENDER.sop=RENDER.home=()=>{};["v-sop","v-ext","v-home"].forEach(id=>{const n=document.getElementById(id);if(n)n.remove()});
+
+/* ===== v2.0 JS ===== */
+/* ---- one master layout lock ---- */
+const layLocked=()=>LS.get("lay","1")!=="0";
+function layPaint(){const l=layLocked();document.body.classList.toggle("laylock",l);const b=$("#layLock");if(b){b.classList.toggle("on",!l);b.querySelector("em").textContent=l?"LOCKED":"EDIT";b.title=l?"Layout is locked · click to unlock and resize / move boxes":"Layout is unlocked · click to lock everything"}}
+function laySet(lock){if(!lock&&DB.settings.layUnlock===false&&!(ME&&ME.role==="Admin"))return toast("Only Admin can unlock the layout","bad");LS.set("lay",lock?"1":"0");
+ if(!lock){try{Object.values(BXS()).forEach(o=>{if(o&&o.k)delete o.k});["splLock","splLockA","splLockG"].forEach(k=>LS.set(k,"0"));$$(".bxt").forEach(x=>x.remove());applySpl();bxScan()}catch(e){}}
+ layPaint();toast(lock?"Layout locked · nothing moves until you unlock":"Layout unlocked · resize and move, then lock again","ok")}
+$("#layLock").onclick=()=>laySet(!layLocked());
+document.addEventListener("click",e=>{if(layLocked()&&e.target.closest("button[data-bx],button[data-ip],button[data-bxadd],button[data-bxshow],button[data-bxreset]")){e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener("pointerdown",e=>{if(layLocked()&&e.target.closest(".spl")){e.stopPropagation();e.preventDefault()}},true);
+layPaint();
+{const _ra=RENDER.admin;RENDER.admin=function(){_ra.apply(this,arguments);if(ADTAB==="feat"){const g=document.querySelector("#ad-feat .admgrid");if(g&&!g.querySelector("#layCard"))g.insertAdjacentHTML("beforeend",`<div class="card" id="layCard"><h3>Layout lock</h3><div class="stack" style="gap:8px"><label class="row"><input type="checkbox" data-lay2 ${DB.settings.layUnlock===false?"":"checked"}> Every user may unlock the layout</label><div class="small muted">One lock for the whole app (top bar). Locked = nothing can be resized or moved and the edit buttons are hidden.</div></div></div>`)}}}
+document.addEventListener("change",e=>{if(e.target.dataset&&e.target.dataset.lay2!==undefined){DB.settings.layUnlock=e.target.checked;touch("Layout unlock rule")}});
+/* ---- TIN strip stays off, county list needs no ST ---- */
+COMBO["County"]=function(){const K=lobCol(),st=String(gf("ST")||"").toUpperCase(),seen=new Set(),mine=[],other=[];
+ const add=(c,s)=>{c=String(c||"").trim();if(!c)return;const k=c.toLowerCase()+"|"+s;if(seen.has(k))return;seen.add(k);((!st||s===st)?mine:other).push([c,s])};
+ if(K.c>=0)DB.lobs.rows.forEach(r=>add(r[K.c],K.ps>=0?String(r[K.ps]||"").trim().toUpperCase():""));
+ DB.counties.rows.forEach(r=>add(r[1],String(r[0]||"").toUpperCase()));
+ const so=(a,b)=>a[0].localeCompare(b[0]);mine.sort(so);other.sort(so);return mine.concat(other)};
+{const _rl=renderLob;renderLob=function(){_rl.apply(this,arguments);const el=$("#lobPanel");if(el&&!String(gf("County")).trim())el.innerHTML='<h3>County LOB list</h3><div class="small muted">Pick a county. Every LOB line of that county shows here with all its columns. ST is optional: it only highlights the rows of your state. Tap + or double-click and only the LOB code goes to Medicaid C&amp;S.</div>'}}
+/* ---- State Rules: topic list on the side, result on the right ---- */
+(function(){const ta=$("#rText"),sel=$("#rTopic");if(!ta||!sel||sel.dataset.v2)return;sel.dataset.v2="1";
+ const card=ta.closest(".card"),row=sel.parentElement,saveRow=ta.nextElementSibling,del=row.querySelector('[data-act="ruleDel"]');
+ card.querySelectorAll('h3 [data-act="ruleAdd"],h3 [data-act="ruleCopy"]').forEach(x=>x.remove());
+ const lay=document.createElement("div"),left=document.createElement("div"),right=document.createElement("div");lay.className="rlay";left.className="rleft";right.className="rright";
+ left.innerHTML='<div class="rlh">TOPICS</div>';sel.size=14;sel.removeAttribute("style");sel.classList.add("rlist");left.appendChild(sel);
+ const bx=document.createElement("div");bx.className="rbtns";bx.innerHTML='<button class="rb need-edit" data-act="ruleAdd">+ Add topic</button><button class="rb need-edit" data-act="ruleRen">Rename topic</button><button class="rb need-edit" data-act="ruleCopy">Copy to states</button>';
+ if(del){del.className="rb need-delete danger";del.textContent="Delete topic";bx.appendChild(del)}left.appendChild(bx);
+ right.innerHTML='<div class="rlh">RESULT</div>';right.appendChild(ta);if(saveRow)right.appendChild(saveRow);lay.appendChild(left);lay.appendChild(right);row.replaceWith(lay)})();
+showState=function(){const rs=DB.rules.filter(r=>r.state===RSTATE);$("#rState").textContent=RSTATE+" · "+rs.length+" topics";const cur=$("#rTopic").value;
+ $("#rTopic").innerHTML=rs.map(r=>`<option ${r.topic===cur?"selected":""}>${esc(r.topic)}</option>`).join("")||"<option value=''>No topics yet</option>";
+ if(rs.length&&!rs.some(r=>r.topic===cur))$("#rTopic").selectedIndex=0;showRule()};
+ACT.ruleRen=()=>{const t=$("#rTopic").value,r=DB.rules.find(x=>x.state===RSTATE&&x.topic===t);if(!r)return toast("Pick a topic first","bad");
+ modal("Rename topic",`<input class="inp" id="rnT" value="${esc(r.topic)}">`,[{t:"Cancel"},{t:"Rename",c:"pri",fn:()=>{const n=$("#rnT").value.trim();if(!n)return false;if(DB.rules.some(x=>x!==r&&x.state===RSTATE&&x.topic===n)){toast("That topic already exists","bad");return false}r.topic=n;touch("Rule topic renamed: "+t+" → "+n);showState();$("#rTopic").value=n;showRule()}}])};
+/* ---- Excel database: every list in .xlsx, grouped as you like (no TXT) ---- */
+const XA=[["users","Users & PCs","Users.xlsx",["Users"],1],["tmap","Transfer Map","Transfer_Map.xlsx",["Transfer Map"],1],["rules","State Rules","State_Rules.xlsx",["State Rules"]],["csp","CSP","CSP.xlsx",["CSP LOB","CSP Enrollment","CSP Info"]],["links","Links (50)","Links.xlsx",["Links"]],["master","Master data","Master_Data.xlsx",["Specialty","TIN Master","County","County LOB"]],["mnr","MNR","MNR.xlsx",["MNR","MNR A1025","TIN Exclusion"]],["sops","SOP Library","SOP_Library.xlsx",["SOP Library"]],["agr","Agreements","Agreements.xlsx",["Agreements"]],["amardi","Amardi","Amardi.xlsx",["Amardi"]],["pti","PTI MPIN","PTI_MPIN.xlsx",["PTI MPIN"]],["tracker","Tracker","Tracker.xlsx",["Tracker"]],["templates","Templates","Templates.xlsx",["Templates"]],["lists","Dropdown lists","Dropdown_Lists.xlsx",["Dropdown Lists"]]];
+const xCfg=()=>(DB.settings.xfile=DB.settings.xfile||{});
+const xNorm=v=>{let f=String(v).trim().replace(/[\\/:*?"<>|]/g,"_");if(!/\.xlsx$/i.test(f))f+=".xlsx";return f};
+const xFile=a=>xNorm((xCfg()[a[0]]||{}).file||a[2]);
+const xOn=a=>(xCfg()[a[0]]||{}).on!==false;
+function xGroups(){const m=new Map();XA.forEach(a=>{if(!xOn(a)||(a[4]&&!permOf(ME,"admin")))return;const f=xFile(a),k=f.toLowerCase();if(!m.has(k))m.set(k,{file:f,sheets:[],ids:[],labels:[]});const g=m.get(k);a[3].forEach(n=>{if(!g.sheets.includes(n))g.sheets.push(n)});g.ids.push(a[0]);g.labels.push(a[1])});return[...m.values()]}
+let XLB=false;
+async function xlPass(read,only,prog){if(XLB||!window.XLSX||!await dirOK(false))return{r:0,w:0,e:0};XLB=true;let r=0,w=0,e=0;
+ try{const G=xGroups().filter(g=>!only||g.ids.some(i=>only.includes(i)));let n=0;
+  for(const g of G){n++;if(prog)prog(n,G.length);
+   try{if(read&&await readSection(g,false))r++;else if((permOf(ME,"save")||permOf(ME,"sync"))&&await writeSection(g,false))w++}catch(x){e++;console.warn(x)}
+   await new Promise(res=>setTimeout(res,0))}}finally{XLB=false}
+ if(r||w)persist();if(r){try{RENDER[VIEW]&&RENDER[VIEW]()}catch(x){}}return{r,w,e}}
+sectionSync=async function(read){return xlPass(!!read)};
+regPass=async function(){return{r:0,w:0}};
+oneClickSync=async function(){if(!syncOK())return toast("Sync is OFF · switch SYNC on at the top","bad");if(!DIR){if(!await connect())return}
+ try{if((await DIR.queryPermission({mode:"readwrite"}))!=="granted"&&(await DIR.requestPermission({mode:"readwrite"}))!=="granted")return toast("Folder permission was not given","bad")}catch(e){return}
+ const b=$("#btnSync");if(b)b.disabled=true;
+ try{const x=await xlPass(true,null,(i,n)=>{if(b)b.textContent="⚡ "+i+"/"+n});DB.meta.lastSync=Date.now();DB.meta.dirty=false;await persist();log("Sync · "+x.r+" Excel read · "+x.w+" saved");toast("Synced · "+x.r+" Excel file(s) read · "+x.w+" saved"+(x.e?" · "+x.e+" problem(s)":""),x.e?"bad":"ok")}
+ catch(e){toast("Sync stopped: "+e.message,"bad")}
+ if(b){b.disabled=false;b.textContent="⚡ Sync"}try{refreshConn()}catch(e){}if(VIEW==="admin")RENDER.admin()};
+syncAll=oneClickSync;$("#btnSync").onclick=oneClickSync;ACT.sync=oneClickSync;
+setInterval(()=>{try{if(DB&&ME&&DIR&&!document.hidden&&LS.get("slAuto","1")!=="0"&&syncOK())xlPass(true)}catch(e){}},90000);
+ACT.regSave=async(b)=>{const v=(b&&b.dataset.v)||VIEW,ids=({mnr:["mnr"],csp:["csp"],sop:["sops"],rules:["rules"],ext:["tracker"],amardi:["amardi"],agr:["agr"]})[v]||[];if(!DIR||!await dirOK(true))return toast("Connect the data folder first (⚡ Sync)","bad");
+ const G=xGroups().filter(g=>g.ids.some(i=>ids.includes(i)));for(const g of G){try{await writeSection(g,true)}catch(e){}}persist();toast("💾 Saved · "+G.map(g=>g.file).join(", "),"ok");if(b)b.classList.add("ok")};
+function xlUI(){const F=DB.meta.files||{},T=t=>t?new Date(t).toLocaleString([],{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"–",A=permOf(ME,"admin");
+ return `<div class="card" id="xlCard"><h3>Excel database · where every list is saved <span class="sp"></span><button class="btn sm pri" data-act="sync">⚡ Sync all</button></h3><div class="small muted" style="margin-bottom:8px">Everything is saved as Excel (.xlsx), no TXT. Give two areas the <b>same file name</b> to keep them together in one Excel (each stays on its own sheet). Different names = separate Excel files. ${DIR?"Folder: <b>"+esc(DIR.name)+"</b>":"No folder yet: press ⚡ Sync once and pick the folder."}</div>
+ <div class="row" style="gap:8px;margin-bottom:8px"><button class="btn sm" data-xl="sep">One Excel per area</button><button class="btn sm" data-xl="one">All in one Excel</button></div>
+ <div class="tw"><table class="g"><thead><tr><th>On</th><th>Area</th><th>Excel file</th><th>Sheets</th><th>Last saved</th><th>Last read</th><th></th></tr></thead><tbody>${XA.filter(a=>!a[4]||A).map(a=>{const f=xFile(a),r=F[f]||{};return `<tr><td class="ro"><input type="checkbox" data-xon="${a[0]}" ${xOn(a)?"checked":""} ${A?"":"disabled"}></td><td class="ro"><b>${esc(a[1])}</b></td><td><input data-xf="${a[0]}" value="${esc(f)}" ${A?"":"readonly"}></td><td class="ro small">${esc(a[3].join(", "))}</td><td class="ro small">${T(r.w)}</td><td class="ro small">${T(r.r)}</td><td class="ro"><button class="btn sm" data-xs="w" data-f="${esc(f)}">Save</button> <button class="btn sm" data-xs="r" data-f="${esc(f)}">Load</button> <button class="btn sm" data-xs="d" data-f="${esc(f)}">Download</button></td></tr>`}).join("")}</tbody></table></div></div>`}
+function xlRefresh(){const a=$("#secFiles"),b=$("#ad-files");if(a)a.innerHTML=xlUI();if(b&&ADTAB==="files")b.innerHTML=xlUI()}
+renderSecFiles=function(){const el=$("#secFiles");if(el)el.innerHTML=xlUI()};filesHTML=function(){return xlUI()};
+document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!permOf(ME,"admin"))return;const C=xCfg();
+ if(t.dataset.xf!==undefined){const a=XA.find(x=>x[0]===t.dataset.xf),v=t.value.trim(),C0=(C[a[0]]=C[a[0]]||{});if(!v||xNorm(v).toLowerCase()===xNorm(a[2]).toLowerCase())delete C0.file;else C0.file=xNorm(v);touch("Excel file "+a[1]+" → "+xFile(a));toast("Saved · "+a[1]+" → "+xFile(a),"ok");xlRefresh()}
+ if(t.dataset.xon!==undefined){(C[t.dataset.xon]=C[t.dataset.xon]||{}).on=t.checked;touch();xlRefresh()}});
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-xl],[data-xs]");if(!b)return;
+ if(b.dataset.xl){if(!permOf(ME,"admin"))return;const C=xCfg();XA.forEach(a=>{if(b.dataset.xl==="one")(C[a[0]]=C[a[0]]||{}).file="Superload_All.xlsx";else if(C[a[0]])delete C[a[0]].file});touch("Excel grouping: "+(b.dataset.xl==="one"?"all in one":"one per area"));toast(b.dataset.xl==="one"?"All areas go to Superload_All.xlsx":"One Excel per area","ok");return xlRefresh()}
+ const g=xGroups().find(x=>x.file.toLowerCase()===String(b.dataset.f).toLowerCase());if(!g)return toast("Turn the area ON first","bad");
+ if(b.dataset.xs==="d"){XLSX.writeFile(buildWorkbook(g.sheets),g.file);return}
+ if(!await dirOK(true))return toast("Connect the data folder first (⚡ Sync)","bad");
+ try{if(b.dataset.xs==="w"){await writeSection(g,true);toast(g.file+" saved","ok")}else{const ok=await readSection(g,true);toast(ok?g.file+" loaded":g.file+" not found in the folder",ok?"ok":"bad");if(ok&&RENDER[VIEW])RENDER[VIEW]()}persist();xlRefresh()}catch(err){toast("Could not use "+g.file+": "+err.message,"bad")}});
 </script>
 
 </body></html>
