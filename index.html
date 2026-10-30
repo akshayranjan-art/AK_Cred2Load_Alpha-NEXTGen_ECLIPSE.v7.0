@@ -588,6 +588,10 @@ tr[data-tag=urgent] td{background:#FDE3E7!important}tr[data-tag=hold] td{backgro
 #stFavs{display:inline-flex;gap:4px;flex-wrap:wrap}.sdot{width:9px;height:9px;border-radius:50%;background:#1FA874;box-shadow:0 0 7px #1FD08A}.sdot.off{background:#E0435F;box-shadow:0 0 7px #E0435F}
 #stbar button{border:1px solid var(--line);background:var(--soft2);border-radius:999px;font-size:11px;padding:2px 8px;cursor:pointer;color:var(--ink)}#stbar #stZ{width:90px}
 .amsv{font-size:9px;opacity:.85;margin-left:6px;white-space:nowrap}.amr2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 8px;border:1px solid var(--line);border-radius:10px;margin:4px 0;background:var(--panel)}.amr2 b{font-size:12px}.amr2 small{font-size:10px;color:var(--muted);flex:1;min-width:120px}.amr2 button{border:1px solid var(--line);background:var(--soft2);border-radius:999px;font-size:11px;padding:2px 8px;cursor:pointer;color:var(--ink);margin-left:3px}.amh{margin:10px 0 4px;font-size:11px;letter-spacing:.1em;color:var(--plum)}
+.nsy{margin-left:auto;font-style:normal;opacity:.55;cursor:pointer;padding:0 6px;border-radius:8px}.nsy:hover{opacity:1;background:var(--soft2)}#nav a{display:flex;align-items:center}
+.agi{padding:7px 9px;border:1px solid var(--line);border-left:4px solid var(--plum);border-radius:10px;margin-bottom:5px;cursor:pointer;font-size:12.5px;background:var(--soft2)}.agi.on{background:color-mix(in srgb,var(--plum) 16%,var(--panel));box-shadow:0 0 0 2px var(--plum)}.agi small{display:block;color:var(--muted);font-size:10px}#agDrop.over textarea{outline:3px dashed var(--plum)}
+.rboxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:10px}.rbx{border:1px solid var(--line);border-left:4px solid var(--plum);border-radius:10px;padding:8px;cursor:pointer;background:var(--soft2)}.rbx b{font-size:12px;display:block;margin-bottom:3px}.rbx p{margin:0;font-size:12px;max-height:110px;overflow:auto;white-space:pre-wrap}
+.lkgrid{display:flex!important;flex-direction:column;gap:6px}.lkgrid .lk{display:grid!important;grid-template-columns:minmax(120px,1.2fr) minmax(0,3fr) auto;align-items:center;gap:10px;width:100%}
 </style>
 </head><body>
 
@@ -640,7 +644,7 @@ tr[data-tag=urgent] td{background:#FDE3E7!important}tr[data-tag=hold] td{backgro
       <span class="pill c2" id="conn2" data-act="connectAll" title="Connect All · data folder + Practitioner folder"><i></i><span>DATA – · PRAC –</span></span>
       <span class="pill xo" id="xlOut" title="Last cells sent to Practitioner.xlsx"><i></i><span>→ Excel · –</span></span>
       <span class="pill" id="connPill"><i></i><span>Cache only</span></span>
-      <label class="syncsw" title="Sync ON / OFF"><input type="checkbox" id="syncOn" checked><b>SYNC</b></label><button class="btn gold" id="btnSync" title="Connect the data folder, pull new data, push your changes">⚡ Sync</button>
+      <button class="btn sm" id="btnPr" title="Practitioner link · manual only">🔗 Practitioner</button><label class="syncsw" title="Superload folder · auto sync ON / OFF"><input type="checkbox" id="slAuto" checked><b>AUTO</b></label><label class="syncsw" title="Sync ON / OFF"><input type="checkbox" id="syncOn" checked><b>SYNC</b></label><button class="btn gold" id="btnSync" title="Connect the data folder, pull new data, push your changes">⚡ Sync</button>
       <button class="btn tb" data-go="boards" title="My Boards">▦ Boards</button>
       <button class="btn tb" id="btnAdminTop" data-go="admin" title="Admin">⚙ Admin</button>
     </div>
@@ -671,11 +675,11 @@ tr[data-tag=urgent] td{background:#FDE3E7!important}tr[data-tag=hold] td{backgro
       <section class="view" id="v-info">
         <div class="bar">
           <div class="topbtns">
-            <button class="tbn t1" data-act="masterTransfer" title="Every field to Practitioner · NDB · COSMOS · CSP · Maintenance"><i>⇄</i>MASTER TRANSFER</button>
-            <button class="tbn t2" data-act="masterSave" title="Save · tracker row · data folder"><i>⬆</i>MASTER SAVE</button>
+            
+            
             <button class="tbn t3" data-act="masterErase" title="Clear HTML + the same Excel cells · a copy is kept"><i>✕</i>MASTER ERASE</button>
             <button class="tbn t4" data-act="recall" title="Bring back what was erased"><i>↺</i>RECALL</button>
-            <button class="tbn t5" data-act="audit" title="Show what is still empty"><i>✓</i>AUDIT ALL</button>
+            
             <button class="tbn t6" data-act="tplOpen" title="Ind. + Load templates"><i>▤</i>TEMPLATE</button>
           </div>
           <span class="sp"></span><span class="small muted">Empty = pink, filled = green.</span>
@@ -717,13 +721,13 @@ tr[data-tag=urgent] td{background:#FDE3E7!important}tr[data-tag=hold] td{backgro
 
       <!-- STATE RULES -->
       <section class="view" id="v-rules">
-        <div class="split" style="grid-template-columns:minmax(0,520px) minmax(0,1fr)">
+        <div class="split" style="grid-template-columns:minmax(0,300px) minmax(0,1fr)">
           <div class="card"><h3>States <span class="sp"></span><span class="small muted">rose = has rules</span></h3><div class="map" id="rMap"></div></div>
           <div class="card">
             <h3><span id="rState">Pick a state</span><span class="sp"></span><button class="btn sm need-edit" data-act="ruleAdd">+ Topic</button><button class="btn sm need-edit" data-act="ruleCopy">Copy to states</button></h3>
             <div class="row" style="margin-bottom:8px"><select class="sel" id="rTopic" style="flex:1"></select><button class="btn sm need-delete danger" data-act="ruleDel">Delete</button></div>
             <textarea class="area" id="rText" rows="9" placeholder="Rule text"></textarea>
-            <div class="row" style="margin-top:8px"><button class="btn pri sm need-edit" data-act="ruleSave">Save rule</button><span class="small muted" id="rInfo"></span></div>
+            <div class="row" style="margin-top:8px"><button class="btn pri sm need-edit" data-act="ruleSave">Save rule</button><span class="small muted" id="rInfo"></span></div><div class="rboxes" id="rBoxes"></div>
           </div>
         </div>
       </section>
@@ -756,14 +760,12 @@ tr[data-tag=urgent] td{background:#FDE3E7!important}tr[data-tag=hold] td{backgro
       </section>
 
       <!-- AGREEMENT -->
-      <section class="view" id="v-agr">
-        <div class="split" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
-          <div class="card"><h3>Paste agreement text <span class="sp"></span><select class="sel" id="aPick"></select></h3>
-            <textarea class="area" id="aText" rows="18" placeholder="Paste Word / PDF text here"></textarea>
-            <div class="row" style="margin-top:8px"><button class="btn pri sm" data-act="agrRun">Extract</button><button class="btn sm need-edit" data-act="agrSave">Save to library</button></div></div>
-          <div class="card"><h3>Extracted (Appendix 2 and paper type on top)</h3><div id="aOut" class="stack"></div></div>
-        </div>
-      </section>
+      <section class="view" id="v-agr"><div hidden><select id="aPick"></select><textarea id="aText"></textarea><div id="aOut"></div></div><div class="split" style="grid-template-columns:270px minmax(0,1fr)">
+ <div class="card"><h3>Topics <span class="sp"></span><button class="btn sm pri" id="agAdd">＋</button><button class="btn sm red" id="agClr">Clear</button></h3>
+  <input class="txt" id="agQ" placeholder="Find topic or word…" style="width:100%;margin-bottom:6px"><div id="agList" style="max-height:calc(100vh - 260px);overflow:auto"></div></div>
+ <div class="card"><h3><input class="txt" id="agT" placeholder="Topic name" style="flex:1"><button class="btn sm" id="agCp">Copy</button><button class="btn sm red" id="agDel">Delete</button></h3>
+  <div id="agDrop"><textarea class="area" id="agB" rows="24" placeholder="Drop the agreement here (.txt / .csv / .xlsx) or paste the text. Use &amp; throw: nothing is saved."></textarea></div>
+  <div class="row" style="margin-top:8px"><button class="btn pri sm" id="agSplit">Split pasted text into topics</button><span class="small muted" id="agInfo">Nothing is saved or synced.</span></div></div></div></section>
 
       <!-- AMARDI -->
       <section class="view" id="v-amardi">
@@ -877,6 +879,7 @@ tr[data-tag=urgent] td{background:#FDE3E7!important}tr[data-tag=hold] td{backgro
 
 <script>
 "use strict";
+{const _si=window.setInterval;window.setInterval=function(f,t){const a=[].slice.call(arguments,2),live=f&&f.name==="livePoll";return _si(function(){if(document.hidden)return;f.apply(this,a)},live?t:Math.max(t||0,2500))}}
 /* ============ CONSTANTS ============ */
 const APP={name:"Superload",brand:"Alpha NextGen Eclipse",version:"1.1.7"};
 const MASTER_HASH="5f7c1fc136a293bf4b0c8b5d0ceec8371cde2f2180145a2d3431f9bb9b1d70fd"; // salted SHA-256, plain text is not stored
@@ -911,9 +914,8 @@ const FEAT_DEF={pcpCos:"0001, 0004, 0012",j1400a:"LOB",j1400b:"Market/IPA",j1400
 const ROLES=["Admin","Manager","SME","Employee"];
 const DEF_ROLES={Admin:{edit:1,save:1,import:1,export:1,delete:1,headers:1,admin:1},Manager:{edit:1,save:1,import:1,export:1,delete:1,headers:1,admin:0},SME:{edit:1,save:1,import:1,export:1,delete:0,headers:0,admin:0},Employee:{edit:0,save:0,import:0,export:1,delete:0,headers:0,admin:0}};
 const NAV=[
- ["WORK",[["info","Info & Commercial","M4 5h16v14H4zM4 10h16M9 10v9"],["ext","Tracker","M4 6h16M4 12h16M4 18h10"]]],
- ["KNOWLEDGE",[["rules","State Rules","M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"],["sop","SOP Library","M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"],["agr","Agreement","M7 3h10v18H7zM10 7h4M10 11h4M10 15h2"],["mnr","MNR","M12 3l8 4v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7z"],["csp","CSP","M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.8 6.5 20 8 13.4 3 9l6.4-.7z"]]],
- ["CONTROL",[["home","Command Deck","M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"]]]
+ ["WORK",[["info","Info & Commercial","M4 5h16v14H4zM4 10h16M9 10v9"]]],
+ ["KNOWLEDGE",[["rules","State Rules","M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"],["agr","Agreement","M7 3h10v18H7zM10 7h4M10 11h4M10 15h2"],["mnr","MNR","M12 3l8 4v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7z"],["csp","CSP","M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.8 6.5 20 8 13.4 3 9l6.4-.7z"]]],
 ];
 const SUBS={home:"Overview of your work · counts · activity",info:"Individual · Group · C&S / E&I / M&R lines",ext:"Every saved GD · one click to Excel",boards:"3 boards with live sections",pcon:"25 PCON tables from the Excel Bridge",rules:"Rules by state and topic",sop:"Each SOP with its own Word and Excel file",agr:"Topic extractor for agreements",amardi:"Demographic dump with header search",mnr:"MNR exclusion check",csp:"State grid · LOB · PCP enrollment",links:"Systems, folders, references",boards:"3 boards with live sections",sync:"Folder · Excel · JSON · cache",admin:"Users · access · data & sync · Excel link · lists · log"};
 
@@ -1000,7 +1002,7 @@ function buildNav(){let h="";NAV.forEach(([g,items])=>{const vis=items.filter(i=
 $("#nav").addEventListener("click",e=>{const a=e.target.closest("a[data-v]");if(a)go(a.dataset.v)});
 function applyPerms(){$$(".need-edit").forEach(b=>b.disabled=!can("edit"));$$(".need-delete").forEach(b=>b.disabled=!can("delete"))}
 const RENDER={};
-function go(v){if(v==="links"){ACT.linkPanel();return}if(v==="admin"&&!can("admin"))v="home";if(!$("#v-"+v))v="home";VIEW=v;LS.set("view",v);
+function go(v){if(v==="links"){ACT.linkPanel();return}if(v==="admin"&&!can("admin"))v="info";if(!$("#v-"+v))v="info";VIEW=v;LS.set("view",v);
  $$("section.view").forEach(s=>s.classList.toggle("on",s.id==="v-"+v));$$("#nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));
  const lab=NAV.flatMap(x=>x[1]).find(x=>x[0]===v);$("#vTitle").textContent=lab?lab[1]:(TITLES[v]||"Home");$("#vSub").textContent=SUBS[v]||"";
  (RENDER[v]||(()=>{}))();$("#content").scrollTop=0}
@@ -1872,12 +1874,8 @@ function applySheets2(list,auto){const rest=[];let n=0;list.forEach(s=>{const tg
 const SECTIONS=[
  {id:"users",file:"Users.xlsx",sheets:["Users"],admin:1,label:"Users & PCs"},
  {id:"rules",file:"State_Rules.xlsx",sheets:["State Rules"],label:"State Rules"},
- {id:"sops",file:"SOP_Library.xlsx",sheets:["SOP Library"],label:"SOP Library"},
  {id:"csp",file:"CSP.xlsx",sheets:["CSP LOB","CSP Enrollment","CSP Info"],label:"CSP"},
- {id:"mnr",file:"MNR.xlsx",sheets:["MNR","TIN Exclusion","MNR A1025"],label:"MNR"},
  {id:"links",file:"Links.xlsx",sheets:["Links"],label:"Links (50)"},
- {id:"agr",file:"Agreements.xlsx",sheets:["Agreements"],label:"Agreements"},
- {id:"amardi",file:"Amardi.xlsx",sheets:["Amardi"],label:"Amardi"},
  {id:"master",file:"Master_Data.xlsx",sheets:["Specialty","TIN Master","County","County LOB"],label:"Master data"},
  {id:"tracker",file:"Tracker.xlsx",sheets:["Tracker"],label:"Tracker"},
  {id:"templates",file:"Templates.xlsx",sheets:["Templates"],label:"Templates"},
@@ -2626,7 +2624,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-wa]");if(!
 FEAT.push(["statbar","Status bar · last sync, offline badge, shortcuts, text size"]);
 let UIZ=+(localStorage.getItem("sl_uiz")||1)||1,PEND=+(localStorage.getItem("sl_pend")||0)||0;
 {const _t=touch;touch=function(){PEND++;try{localStorage.setItem("sl_pend",PEND)}catch(e){}return _t.apply(this,arguments)}}
-const FAVALL=[["go:info","Info"],["go:ext","Tracker"],["go:rules","State Rules"],["go:sop","SOP"],["go:mnr","MNR"],["go:csp","CSP"],["act:amStudio","Amd"],["act:pinPop","★ State topics"],["act:trkXlsx","Tracker Excel"],["act:sync","Sync now"]];
+const FAVALL=[["go:info","Info"],["go:rules","State Rules"],["go:mnr","MNR"],["go:csp","CSP"],["act:amStudio","Amd"],["act:pinPop","★ State topics"],["act:trkXlsx","Tracker Excel"],["act:sync","Sync now"]];
 const favGet=()=>{try{return JSON.parse(localStorage.getItem("sl_favs"))||["go:info","go:ext","act:amStudio"]}catch(e){return["go:info","go:ext","act:amStudio"]}};
 (function(){const b=document.createElement("div");b.id="stbar";b.innerHTML='<span id="stFavs"></span><i class="sdot" id="stDot"></i><button id="stTxt" data-sb="sync" title="Tap to sync"></button><button data-sb="fav" title="Pick 5 shortcuts">★</button><button data-sb="aa" title="Text size">Aa</button><input type="range" id="stZ" min="80" max="130" step="5" style="display:none">';document.body.appendChild(b);$("#stZ").value=Math.round(UIZ*100)})();
 const ago=t=>{if(!t)return"never";const m=Math.round((Date.now()-t)/60000);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago"};
@@ -3075,7 +3073,7 @@ function cspItems(states){const root=fpOf("csp");return states.flatMap(st=>[
 const cspLocal=()=>[...new Set(DB.csp.lob.map(r=>r[0]).concat(DB.csp.enr.map(r=>r[0]),DB.csp.info.map(r=>r[0]),Object.keys(DB.csp.grid||{})))].filter(s=>/^[A-Z]{2}$/.test(s));
 let DST={t:0,v:[]};
 async function dirStates(){if(Date.now()-DST.t<30000)return DST.v;let v=[];try{let h=DIR;for(const p of fpOf("csp").split("/"))h=await h.getDirectoryHandle(p);for await(const [n,x] of h.entries())if(x.kind==="directory"&&/^[A-Z]{2}$/.test(n))v.push(n)}catch(e){}DST={t:Date.now(),v};return v}
-async function regItems(only){const out=[];for(const F of FREG){const id=F[0];if(only&&!only.includes(id))continue;
+async function regItems(only){const out=[];for(const F of FREG){const id=F[0];if((only&&!only.includes(id))||id!=="csp")continue;
   if(id==="csp"){const s=[...new Set(cspLocal().concat(await dirStates()))];out.push(...cspItems(s));continue}
   const g=regGetSet(id);if(g)out.push([fpOf(id),g[0],g[1],g[2],id])}return out}
 async function fHnd(path,create){const p=path.split("/");let h=DIR;for(let i=0;i<p.length-1;i++)h=await h.getDirectoryHandle(p[i],{create});return h.getFileHandle(p[p.length-1],{create})}
@@ -3502,7 +3500,7 @@ function seedSops(){if(DB.settings.sop50)return;const T=["Load","Term","Update",
   DB.sops.push({id:"S"+Date.now().toString(36)+i,code,title:t,type:ty,version:"1.0",owner:"Admin",state:sts[i%sts.length],eff:today(),review:"",keywords:"dummy "+ty+" "+t,link:"",notes:"Dummy SOP · replace with the real one",
    body:`PURPOSE\n${t} – dummy text, replace with the real SOP.\n\nSCOPE\n${ty} requests${sts[i%sts.length]!=="All"?" for "+sts[i%sts.length]:" for all states"}.\n\nPROCEDURE\n1. Open the request and check TIN / NPI.\n2. Check the CSP state grid and SOP notes.\n3. Fill Info › Individual / Group.\n4. Transfer to the Practitioner Excel and audit.\n\nCHECKLIST\n- TIN in the TIN list ✔\n- LOB and specialty match the state grid\n- Tracker row added`,files:[]});n++});
  DB.settings.sop50=1;if(n){touch("50 dummy SOPs");persist()}}
-{const iv=setInterval(()=>{try{if(DB&&ME&&DB.sops){seedSops();clearInterval(iv)}}catch(e){}},1500)}
+
 FEAT.push(["csp14","CSP grid like the state Excel (topics · Excel-like rows)"]);
 
 /* ===== v1.6 JS ===== */
@@ -3562,6 +3560,46 @@ document.addEventListener("keydown",e=>{if(cbPop.style.display!=="block"||!cbEl)
    const p=(who==="A"?A():G()).getBoundingClientRect(),x0=e.clientX,w0=p.width;const mv=ev=>setW(who,w0+(ev.clientX-x0));const up=()=>{n.removeEventListener("pointermove",mv);n.removeEventListener("pointerup",up)};n.addEventListener("pointermove",mv);n.addEventListener("pointerup",up)});
   n.addEventListener("dblclick",()=>{if(lockOf(who))return;LS.set(who==="A"?"wI":"wG","");applySpl()})});
  applySpl()})();
+
+/* ===== build 23: lighter app · use & throw MNR / Agreement · per-page sync · Practitioner and Superload buttons ===== */
+{const _bn=buildNav;buildNav=function(){_bn();const ok={info:1,rules:1,csp:1};$$("#nav a").forEach(a=>{if(ok[a.dataset.v]&&!a.querySelector(".nsy"))a.insertAdjacentHTML("beforeend",'<i class="nsy" data-sy="'+a.dataset.v+'" title="Sync this page now">⟳</i>')})}}
+document.addEventListener("click",e=>{const i=e.target.closest(".nsy");if(i){e.stopPropagation();e.preventDefault();syncPage(i.dataset.sy)}},true);
+async function syncPage(v){if(!syncOK())return toast("Sync is OFF","bad");try{if(!DIR&&!await connect())return;if(!await dirOK(true))return toast("Folder permission was not given","bad");
+ const ids={rules:["rules"],csp:["csp"],info:["master","templates","lists","tracker"]}[v]||[];let r=0,w=0;for(const id of ids){const x=SECTIONS.find(z=>z.id===id);if(!x)continue;try{if(await readSection(x,false))r++;if(await writeSection(x,true))w++}catch(e){}}
+ if(v==="info"){try{await writeCells(true)}catch(e){}}persist();RENDER[VIEW]&&RENDER[VIEW]();toast("Synced "+v+" · "+r+" read · "+w+" saved","ok")}catch(e){toast("Sync failed","bad")}}
+function autoSec(){clearTimeout(SECT);if(LS.get("slAuto","1")==="0"||!syncOK())return;SECT=setTimeout(()=>{if(DIR)sectionSync(false).catch(()=>{})},6000)}
+$("#btnPr").onclick=async()=>{if(!syncOK())return toast("Sync is OFF","bad");try{if(!DIR&&!await connect())return;if(!await dirOK(true))return;const ok=await writeCells(true);if(typeof livePoll==="function")livePoll();toast(ok?"Practitioner updated":"Practitioner already up to date","ok")}catch(e){toast("Practitioner sync failed","bad")}};
+$("#slAuto").checked=LS.get("slAuto","1")!=="0";$("#slAuto").onchange=e=>{LS.set("slAuto",e.target.checked?"1":"0");toast(e.target.checked?"Superload auto-sync ON":"Superload auto-sync OFF",e.target.checked?"ok":"bad")};
+/* MNR: dump and show only (use & throw) */
+$$('#mnTabs [data-t="excl"],#mnTabs [data-t="hist"],[data-act="dumpExcl"]').forEach(x=>x.remove());
+{const _m=RENDER.mnr;RENDER.mnr=function(){if(MTAB==="excl"||MTAB==="hist")MTAB="res";return _m.apply(this,arguments)}}
+let USETH=false;setInterval(()=>{try{if(USETH||!DB||!ME)return;USETH=true;DB.excl.rows=[];DB.mnrHist=[];DB.mnr=[];DB.a1025.rows=[];rules5()}catch(e){}},3000);
+/* Agreement: drop / paste, split, list, use & throw */
+const AG={t:[],i:-1};
+function agParse(txt){const head=l=>{const x=l.trim();return x.length>2&&x.length<90&&(/^(article|section|appendix|exhibit|schedule|attachment|addendum|part|chapter)\b/i.test(x)||(/^\d+(\.\d+)*[.)]\s+\S/.test(x)&&x.length<70)||(x===x.toUpperCase()&&/[A-Z]{3}/.test(x)&&!/[.;,]$/.test(x)))};
+ const T=[];let c={t:"Start",b:[]};txt.replace(/\r/g,"").split("\n").forEach(l=>{if(head(l)){if(c.b.join("").trim()||c.t!=="Start")T.push(c);c={t:l.trim(),b:[]}}else c.b.push(l)});if(c.b.join("").trim()||c.t!=="Start")T.push(c);return T.map(x=>({t:x.t,b:x.b.join("\n").trim()}))}
+function agPaint(){const q=$("#agQ").value.trim().toLowerCase(),L=$("#agList");L.innerHTML=AG.t.map((x,i)=>[x,i]).filter(([x])=>!q||(x.t+" "+x.b).toLowerCase().includes(q)).map(([x,i])=>`<div class="agi ${i===AG.i?"on":""}" data-agi="${i}">${esc(x.t)}<small>${x.b.length} chars</small></div>`).join("")||'<div class="small muted">No topics yet. Drop a file or paste text, then press Split.</div>';
+ const x=AG.t[AG.i];$("#agT").value=x?x.t:"";if(x)$("#agB").value=x.b}
+$("#agList").onclick=e=>{const d=e.target.closest("[data-agi]");if(d){AG.i=+d.dataset.agi;agPaint()}};
+$("#agQ").oninput=agPaint;$("#agT").oninput=e=>{if(AG.t[AG.i]){AG.t[AG.i].t=e.target.value;const on=$("#agList .on");if(on)on.firstChild.nodeValue=e.target.value}};
+$("#agB").oninput=e=>{if(AG.t[AG.i])AG.t[AG.i].b=e.target.value};
+$("#agAdd").onclick=()=>{AG.t.push({t:"New topic",b:""});AG.i=AG.t.length-1;agPaint();$("#agT").focus()};
+$("#agDel").onclick=()=>{if(AG.i<0)return;AG.t.splice(AG.i,1);AG.i=Math.min(AG.i,AG.t.length-1);if(AG.i<0)$("#agB").value="";agPaint()};
+$("#agClr").onclick=()=>ask("Clear agreement","Everything on this page is thrown away.","Clear",()=>{AG.t=[];AG.i=-1;$("#agB").value="";agPaint()});
+$("#agCp").onclick=()=>{const x=AG.t[AG.i];navigator.clipboard&&x&&navigator.clipboard.writeText(x.t+"\n"+x.b).then(()=>toast("Copied","ok"))};
+$("#agSplit").onclick=()=>{const t=$("#agB").value;if(!t.trim())return toast("Paste or drop the agreement first","bad");const T=agParse(t);if(T.length<2)return toast("No headings found · add topics with ＋","bad");AG.t=T;AG.i=0;agPaint();toast(T.length+" topics","ok")};
+async function fileText(f){if(/\.xlsx?$/i.test(f.name)){const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});return wb.SheetNames.map(n=>XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:false,defval:""}).map(r=>r.join("\t")).join("\n")).join("\n")}return await f.text()}
+const agD=$("#agDrop");agD.ondragover=e=>{e.preventDefault();agD.classList.add("over")};agD.ondragleave=()=>agD.classList.remove("over");
+agD.ondrop=async e=>{e.preventDefault();agD.classList.remove("over");const f=e.dataTransfer.files[0];if(!f)return;$("#agB").value=await fileText(f);AG.i=-1;$("#agSplit").click()};
+agPaint();
+/* State Rules: 5 topics a state, reading boxes */
+const RTOP5={"Effective Date":"Effective date is the later of the contract signed date and the credentialing approval date. Back-dating beyond 30 days needs SME approval and a note in Comment.","Termination":"Open-ended loads use 12/31/9999. Provider-initiated terms need 60-day written notice unless for cause.","Credentialing":"Load only after credentialing is complete. The credentialing complete date is the earliest allowed effective date.","Medicaid ID":"State Medicaid ID is mandatory for C&S loads. If pending, park the case and record the reason in Comment.","Escalation":"If the agreement and the request do not match, park the case, add a note and mail the SME. Never load on assumption."};
+function rules5(){if(!DB||!DB.rules||DB.meta.r5)return;DB.meta.r5=1;DB.rules=DB.rules.filter(r=>r.by!=="standard"||RTOP5[r.topic]||r.ed||r.pin);STATES.forEach(st=>Object.keys(RTOP5).forEach(t=>{if(!DB.rules.some(r=>r.state===st&&r.topic.toLowerCase()===t.toLowerCase()))DB.rules.push({state:st,topic:t,text:"["+st+"] "+RTOP5[t],by:"standard"})}));touch("Standard rules · 5 topics a state")}
+function rBoxFill(){const el=$("#rBoxes");if(!el||!DB||!DB.rules)return;el.innerHTML=DB.rules.filter(r=>r.state===RSTATE).map(r=>`<div class="rbx" data-rt="${esc(r.topic)}"><b>${r.pin?"★ ":""}${esc(r.topic)}</b><p>${esc(r.text)}</p></div>`).join("")}
+$("#rBoxes").onclick=e=>{const b=e.target.closest("[data-rt]");if(!b)return;const t=$("#rTopic");t.value=b.dataset.rt;t.dispatchEvent(new Event("change"))};
+{const _r=RENDER.rules;RENDER.rules=function(){_r.apply(this,arguments);rBoxFill()}}
+/* the pages that are gone */
+RENDER.ext=RENDER.sop=RENDER.home=()=>{};["v-sop","v-ext","v-home"].forEach(id=>{const n=document.getElementById(id);if(n)n.remove()});
 </script>
 
 </body></html>
