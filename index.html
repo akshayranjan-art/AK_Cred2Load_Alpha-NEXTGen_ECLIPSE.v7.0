@@ -1128,7 +1128,7 @@ function renderTrkPrev(){const el=$("#trkPrev");if(!el)return;const T=DB.tracker
  const cols=["GD","M-PIN","TIN","NPI","IND NAME","PTI MPIN"].filter(c=>T.head.includes(c)),ix=cols.map(c=>T.head.indexOf(c));
  el.innerHTML=`<h3>Tracker <span class="chip">${all.length} rows</span><span class="sp"></span><button class="btn sm" data-act="trkGo">Open Tracker</button><button class="btn sm grn" data-act="trkXlsx">Save to Excel</button></h3>`+
  (last.length?`<div class="tw"><table class="g"><thead><tr><th>#</th>${cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${last.map(([r,i])=>`<tr class="${i===TRKNEW?"flash":""}"><td>${i+1}</td>${ix.map(k=>`<td>${esc(r[k]||"")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`:`<div class="small muted">Press <b>Tracker</b> in Group Information to add this GD here. Next GD goes to the next row.</div>`)}
-const lobAll=()=>{const c=gf("County").trim().toLowerCase(),st=gf("ST");return DB.lobs.rows.map((r,i)=>mrow(DB.lobs,i)).filter(o=>c&&String(o.County).trim().toLowerCase()===c&&(!st||o.State===st))};
+let lobAll=()=>{const c=gf("County").trim().toLowerCase(),st=gf("ST");return DB.lobs.rows.map((r,i)=>mrow(DB.lobs,i)).filter(o=>c&&String(o.County).trim().toLowerCase()===c&&(!st||o.State===st))};
 function renderLob(){const el=$("#lobPanel");if(!el)return;const st=gf("ST"),c=gf("County");
  if(!c.trim()){el.innerHTML=`<h3>County LOB list</h3><div class="small muted">Pick ST and County. All LOBs of that county show here. Tap + (or double-click) and only the LOB code goes to Medicaid C&amp;S.</div>`;return}
  const L=lobAll(),have=new Set(DB.editors.CS.rows.map(r=>r&&r[0]));
@@ -3256,6 +3256,16 @@ FEAT.push(["txtdb","TXT database · one file per list (Admin › Files)"]);
 .tinok.no{background:#FDECEC;border-color:#E57373;color:#C62828}
 .tmbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
 .tmst{font-weight:800;font-size:12px;padding:3px 10px;border-radius:20px}.tmst.ok{background:#E3F8EF;color:#0f6e48}.tmst.no{background:#FDECEC;color:#B71C1C}
+
+/* ===== v1.6: county LOB detail, county list nav, independent locks ===== */
+#lobPanel .tw{max-height:340px;overflow:auto}
+#lobPanel thead th{position:sticky;top:0;z-index:1;background:var(--panel)}
+.lobr.hit td{background:color-mix(in srgb,#E8A33D 20%,transparent)}
+.lobr.hit td:first-child{box-shadow:inset 3px 0 0 #E8A33D}
+.lobleg{font-size:11px;color:var(--muted);margin:2px 0 8px}.lobleg i{display:inline-block;width:12px;height:12px;border-radius:4px;background:color-mix(in srgb,#E8A33D 45%,#fff);margin-right:5px;vertical-align:-2px}
+#cbPop{max-height:min(62vh,400px)!important;overscroll-behavior:contain;scrollbar-width:thin}
+.cbi{padding:7px 10px!important}.cbi.act{background:var(--soft);box-shadow:inset 3px 0 0 var(--rose,#C2577A)}
+.ipb button[data-ip="lock"].on{background:#FFE9B8}
 </style>
 <script>
 /* ===== build 14: CSP state grid read like the state Excel · Excel-like rows · topic layout · TIN ✔ · 50 SOPs · export all ===== */
@@ -3494,6 +3504,64 @@ function seedSops(){if(DB.settings.sop50)return;const T=["Load","Term","Update",
  DB.settings.sop50=1;if(n){touch("50 dummy SOPs");persist()}}
 {const iv=setInterval(()=>{try{if(DB&&ME&&DB.sops){seedSops();clearInterval(iv)}}catch(e){}},1500)}
 FEAT.push(["csp14","CSP grid like the state Excel (topics · Excel-like rows)"]);
+
+/* ===== v1.6 JS ===== */
+/* -- County LOB: reads the real Excel header (PLSV COUNTY, LOB State, PLSV STATE, LOB, CSP Prefix, *NOTES) -- */
+function lobCol(){const H=(DB.lobs.head||[]).map(h=>String(h||"").trim()),f=(...rx)=>{for(const r of rx){const i=H.findIndex(h=>r.test(h));if(i>=0)return i}return -1};
+ const ls=f(/^lob\s*state$/i),c=f(/^plsv\s*county$/i,/county/i),ps=f(/^plsv\s*state$/i,/^state$/i,/plsv.*state/i);
+ let lob=f(/^lob$/i);if(lob<0)lob=H.findIndex((h,i)=>i!==ls&&/^lob/i.test(h)&&!/state/i.test(h));return{H,c,ps,ls,lob}}
+function lobRowsFor(county){const K=lobCol(),c=String(county||"").trim().toLowerCase(),st=String(gf("ST")||"").toUpperCase();if(!c||K.c<0)return[];
+ const out=[];DB.lobs.rows.forEach((r,i)=>{if(String(r[K.c]||"").trim().toLowerCase()===c)out.push({i,r,hit:!!st&&K.ps>=0&&String(r[K.ps]||"").trim().toUpperCase()===st})});
+ out.sort((a,b)=>(b.hit-a.hit)||(a.i-b.i));return out}
+lobAll=function(){return lobRowsFor(gf("County"))};
+renderLob=function(){const el=$("#lobPanel");if(!el)return;const st=gf("ST"),c=gf("County"),K=lobCol();
+ if(!String(c).trim()){el.innerHTML=`<h3>County LOB list</h3><div class="small muted">Pick ST and County. Every LOB line of that county shows here with all its columns. The rows of your ST are highlighted. Tap + (or double-click) and only the LOB code goes to Medicaid C&amp;S.</div>`;return}
+ const L=lobAll(),hits=L.filter(x=>x.hit).length,have=new Set(DB.editors.CS.rows.map(r=>r&&String(r[0]||"")));
+ el.innerHTML=`<h3>County LOB · ${esc(String(c).toUpperCase())} <span class="chip">${L.length}</span>${st&&L.length?`<span class="chip" title="rows of ${esc(st)}">${hits} in ${esc(st)}</span>`:""}<span class="sp"></span>${L.length?`<button class="btn sm grn" data-act="lobAddAll">Add ${hits?esc(st)+" ":"all "}LOBs</button>`:""}</h3>`+
+ (L.length?`<div class="lobleg"><i></i>highlighted = same state as ST${st?" ("+esc(st)+")":""}</div><div class="tw"><table class="g"><thead><tr><th></th>${K.H.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${L.map(o=>{const lob=K.lob>=0?String(o.r[K.lob]||""):"";return `<tr class="lobr ${o.hit?"hit":""} ${have.has(lob)&&lob?"added":""}" data-lob="${esc(lob)}" data-st="i:${o.i}" title="Double-click: only the LOB goes to Medicaid C&S"><td><button class="btn sm" data-act="lobAdd" data-lob="${esc(lob)}" data-st="i:${o.i}">+</button></td>${K.H.map((h,j)=>`<td>${j===K.lob?`<b>${esc(o.r[j]||"")}</b>`:esc(o.r[j]==null?"":o.r[j])}</td>`).join("")}</tr>`}).join("")}</tbody></table></div>`:`<div class="small muted">No line for this county in the County LOB master. Add it in Admin → Master data → County LOB.</div>`)};
+addLob=function(a,b,quiet){const K=lobCol();let i=-1;if(typeof a==="string"&&a.startsWith("i:"))i=+a.slice(2);const r=DB.lobs.rows[i];if(!r)return false;
+ const lob=String(K.lob>=0?r[K.lob]||"":"").trim();if(!lob){if(!quiet)toast("This line has no LOB","bad");return false}
+ const g=DB.editors.CS;if(g.rows.some(x=>x&&String(x[0]||"")===lob)){if(!quiet)toast("LOB "+lob+" is already in Medicaid C&S","bad");return false}
+ const idx=nextCsRow();if(idx<0){if(!quiet)toast("Medicaid C&S is full","bad");return false}
+ while(g.rows.length<idx)g.rows.push([]);const row=g.head.map(()=>"");row[g.head.indexOf("LOB")]=lob;g.rows[idx]=row;touch("LOB "+lob+" to C&S");renderLob();if(GTAB==="CS")renderGrid();if(!quiet)toast("LOB "+lob+" added to Medicaid C&S row "+(idx+1),"ok");return true};
+lobAddAllFn=function(manual){const st=gf("ST"),L=lobAll(),hits=L.filter(x=>x.hit),use=hits.length?hits:(manual||!st?(manual?L:[]):[]);let n=0;use.forEach(o=>{if(addLob("i:"+o.i,null,true))n++});
+ if(n||manual)toast(n?n+" LOB(s) added to Medicaid C&S":"No new LOB to add",n?"ok":"bad")};
+COMBO["County"]=function(){const K=lobCol(),st=String(gf("ST")||"").toUpperCase(),seen=new Set(),out=[];
+ const add=(c,s)=>{c=String(c||"").trim();if(!c)return;const k=c.toLowerCase()+"|"+(s||"");if(seen.has(k))return;seen.add(k);out.push([c,s||""])};
+ if(K.c>=0)DB.lobs.rows.forEach(r=>{const s=K.ps>=0?String(r[K.ps]||"").trim().toUpperCase():"";if(!st||!s||s===st)add(r[K.c],s)});
+ DB.counties.rows.forEach(r=>{const s=String(r[0]||"").toUpperCase();if(!st||!s||s===st)add(r[1],s)});
+ out.sort((a,b)=>a[0].localeCompare(b[0]));return out};
+/* -- county / specialty list: fast mouse + keyboard -- */
+let cbAct=-1;
+{const _co=cbOpen;cbOpen=function(){_co.apply(this,arguments);cbAct=-1}}
+const cbItems=()=>[...cbPop.querySelectorAll(".cbi[data-v]")];
+function cbMark(n){const L=cbItems();if(!L.length)return;cbAct=Math.max(0,Math.min(L.length-1,n));L.forEach((x,i)=>x.classList.toggle("act",i===cbAct));L[cbAct].scrollIntoView({block:"nearest"})}
+function cbPickItem(it){if(!it||!cbEl)return;if(cbPick){cbPick(+it.dataset.i);cbClose();return}const el=cbEl;el.value=it.dataset.v;cbSkip=true;el.dispatchEvent(new Event("input",{bubbles:true}));cbSkip=false;cbClose()}
+cbPop.addEventListener("pointerdown",e=>{e.stopImmediatePropagation();cbPop._d={x:e.clientX,y:e.clientY}},true);
+cbPop.addEventListener("mousedown",e=>e.preventDefault());
+cbPop.addEventListener("pointerup",e=>{const d=cbPop._d;cbPop._d=null;if(!d||Math.abs(e.clientX-d.x)>8||Math.abs(e.clientY-d.y)>8)return;const it=e.target.closest(".cbi[data-v]");if(it)cbPickItem(it)});
+cbPop.addEventListener("pointermove",e=>{const it=e.target.closest(".cbi[data-v]");if(it){const L=cbItems(),k=L.indexOf(it);if(k!==cbAct){cbAct=k;L.forEach((x,i)=>x.classList.toggle("act",i===k))}}});
+document.addEventListener("keydown",e=>{if(cbPop.style.display!=="block"||!cbEl)return;const k=e.key,L=cbItems();
+ if(k==="ArrowDown"){e.preventDefault();cbMark(cbAct+1)}else if(k==="ArrowUp"){e.preventDefault();cbMark(cbAct<0?L.length-1:cbAct-1)}
+ else if(k==="PageDown"){e.preventDefault();cbMark(cbAct+8)}else if(k==="PageUp"){e.preventDefault();cbMark(cbAct-8)}
+ else if(k==="Enter"){if(cbAct>=0){e.preventDefault();cbPickItem(L[cbAct])}else if(L.length===1){e.preventDefault();cbPickItem(L[0])}}},true);
+/* -- Individual and Group: each has its own width and its own lock -- */
+(function(){const A=()=>document.querySelector('.indgrp>.card:first-child'),G=()=>document.querySelector('.indgrp>.card:last-child');
+ const lockOf=k=>LS.get("splLock"+k,"0")==="1",num=k=>+LS.get(k,"")||0;
+ applySpl=function(){const w=document.querySelector(".infoWrap"),g=document.querySelector(".indgrp");if(!w||!g)return;const I=num("wI"),Gw=num("wG");
+  I?g.style.setProperty("--iw",I+"px"):g.style.removeProperty("--iw");Gw?g.style.setProperty("--gw",Gw+"px"):g.style.removeProperty("--gw");
+  if(I&&Gw)w.style.setProperty("--lw",(I+Gw+6+8)+"px");else w.style.removeProperty("--lw");
+  $$(".ipb").forEach(x=>x.classList.toggle("locked",lockOf(x.dataset.k)));const a=$("#splA"),b=$("#splB");if(a)a.classList.toggle("locked",lockOf("A"));if(b)b.classList.toggle("locked",lockOf("G"))};
+ const measure=()=>{if(!num("wI"))LS.set("wI",Math.round(A().getBoundingClientRect().width));if(!num("wG"))LS.set("wG",Math.round(G().getBoundingClientRect().width))};
+ const setW=(k,v)=>{measure();LS.set(k==="A"?"wI":"wG",Math.round(Math.max(k==="A"?280:240,Math.min(900,v))));applySpl()};
+ css_gw();function css_gw(){const st=document.createElement("style");st.textContent="@container (min-width:560px){.indgrp{grid-template-columns:minmax(0,var(--iw,1.65fr)) 6px minmax(0,var(--gw,1fr))!important}}";document.head.appendChild(st)}
+ document.addEventListener("click",e=>{const b=e.target.closest("[data-ip]");if(!b||b.dataset.ip==="lock")return;e.stopPropagation();const k=b.closest(".ipb").dataset.k,nm=k==="A"?"Individual":"Group";
+  if(lockOf(k))return toast(nm+" is locked · unlock it first","bad");measure();const cur=num(k==="A"?"wI":"wG");setW(k,cur+(b.dataset.ip==="+"?1:-1)*40)},true);
+ ["A","B"].forEach(k=>{const h=$("#spl"+k);if(!h)return;const n=h.cloneNode(true);h.replaceWith(n);const who=k==="A"?"A":"G";
+  n.addEventListener("pointerdown",e=>{if(lockOf(who)){toast((who==="A"?"Individual":"Group")+" is locked","bad");return}e.preventDefault();try{n.setPointerCapture(e.pointerId)}catch(x){}measure();
+   const p=(who==="A"?A():G()).getBoundingClientRect(),x0=e.clientX,w0=p.width;const mv=ev=>setW(who,w0+(ev.clientX-x0));const up=()=>{n.removeEventListener("pointermove",mv);n.removeEventListener("pointerup",up)};n.addEventListener("pointermove",mv);n.addEventListener("pointerup",up)});
+  n.addEventListener("dblclick",()=>{if(lockOf(who))return;LS.set(who==="A"?"wI":"wG","");applySpl()})});
+ applySpl()})();
 </script>
 
 </body></html>
