@@ -139,7 +139,9 @@ textarea.area{width:100%;border-radius:10px;border:1px solid var(--line);backgro
 .kv span{font-weight:600;overflow-wrap:anywhere}
 .prose{white-space:pre-wrap;line-height:1.6;font-size:12.5px;max-height:460px;overflow:auto}
 mark{background:color-mix(in srgb,var(--gold) 35%,transparent);color:inherit;border-radius:3px;padding:0 1px}
-
+#gWrap table.g td input{
+    min-width:140px;
+}
 /* table / grid */
 .tw{overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel);max-height:calc(100vh - 250px)}
 table.g{border-collapse:separate;border-spacing:0;font-size:12px;min-width:100%}
@@ -261,17 +263,17 @@ table.g tr.click{cursor:pointer}
 .form .ff{grid-template-columns:92px minmax(0,1fr)!important}
 .form{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))!important}
 
-.infoWrap{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:12px;align-items:start}
-.leftcol{container-type:inline-size;display:flex;flex-direction:column;gap:12px;min-width:0}
+.infoWrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:2px;align-items:start}
+.leftcol{container-type:inline-size;display:flex;flex-direction:column;gap:6px;min-width:0}
 .rightcol{min-width:0}
 .indgrp{display:grid;grid-template-columns:1fr;gap:12px}
-@container (min-width:720px){.indgrp{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}}
-@media(max-width:1150px){.infoWrap{grid-template-columns:1fr}}
-.card.topstrip{display:flex;flex-direction:column;gap:8px;margin:0}
+@container (min-width:620px){.indgrp{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}}
+@media(max-width:850px){.infoWrap{grid-template-columns:1fr}}
+.card.topstrip{display:flex;flex-direction:column;gap:4px;margin:0}
 .leftcol .tinbox{margin:0}
 .tsrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
 .tsrow .tf{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
-.tsrow .tf .inp{height:26px;width:140px}
+.tsrow .tf .inp{height:22px;width:120px}
 .qb{height:26px;padding:0 12px;border-radius:6px;border:0;font-weight:800;font-size:11px;cursor:pointer;letter-spacing:.04em}
 .xgrid{display:grid;grid-template-columns:max-content minmax(0,1.5fr) max-content minmax(0,1fr);gap:6px 5px;align-items:center}
 .ggrid{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 5px;align-items:center}
@@ -497,7 +499,7 @@ a.btn{text-decoration:none}
 .splk{position:absolute;top:2px;left:50%;transform:translateX(-50%);width:16px;height:16px;border:0;border-radius:50%;background:var(--panel,#fff);box-shadow:0 1px 4px rgba(0,0,0,.35);font-size:9px;line-height:16px;padding:0;cursor:pointer;z-index:2}
 .splk::before{content:"🔓"}.spl.locked .splk::before{content:"🔒"}
 .indgrp .spl{display:none}
-@container (min-width:720px){.indgrp{grid-template-columns:minmax(0,var(--iw,1.65fr)) 10px minmax(0,1fr)!important}.indgrp .spl{display:block}}
+@container (min-width:520px){.indgrp{grid-template-columns:minmax(0,var(--iw,1.65fr)) 10px minmax(0,1fr)!important}.indgrp .spl{display:block}}
 @media(max-width:1150px){.infoWrap{grid-template-columns:1fr!important}.infoWrap>.spl{display:none}}
 .enw{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;overflow:hidden}
 .enw b{background:color-mix(in srgb,#4CAF72 30%,var(--panel));padding:8px 12px;font-size:13px}
@@ -545,7 +547,7 @@ input[type=checkbox]:not(.nosw):checked::before{left:21px;background:#1FA874;box
 .btn.pri{background:linear-gradient(135deg,#7B5CFF,#A56BFF)}.btn.gold{background:linear-gradient(135deg,#D9A93D,#F0CC74);color:#3b2a00}.btn.red{background:linear-gradient(135deg,#F0566F,#C93A57)}.btn.grn{background:linear-gradient(135deg,#1FA874,#4DD6A0)}
 .btn.pri:hover,.btn.gold:hover,.btn.red:hover,.btn.grn:hover{transform:translateY(-2px)}
 .indgrp{gap:4px!important}.splk{display:none!important}
-@container (min-width:720px){.indgrp{grid-template-columns:minmax(0,var(--iw,1.65fr)) 6px minmax(0,1fr)!important}}
+@container (min-width:620px){.indgrp{grid-template-columns:minmax(0,var(--iw,1.65fr)) 6px minmax(0,1fr)!important}}
 .ipb{display:inline-flex;gap:3px;margin-right:6px}.ipb button,.bxt button{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-size:11px;line-height:1;cursor:pointer;padding:0;color:var(--ink)}
 .ipb button[data-ip=lock]::before{content:"🔓"}.ipb.locked button[data-ip=lock]::before{content:"🔒"}
 .enwr td{background:color-mix(in srgb,#4CAF72 28%,var(--panel));padding:0 8px}.enwr .enwl{font-size:13px}.enwr select{width:100%;border:0;background:transparent;font-weight:700;height:30px}
@@ -898,7 +900,7 @@ delete LISTS.Evercare;delete LISTS["P/S"];delete LISTS["MNR Tin Exclusion"];
 const TOP_F=["Site","ST","GD","Phy. Name","Phycon TIN"];
 const SPEC_SEED={head:["Spc Code","SPC Name","Cos Prov","Degree","Cred DS","URN IND"],rows:[["008","Family Practice","0001","MD","MD",""],["011","Internal Medicine","0001","MD","MD",""],["016","Obstetrics/Gyn","0002","MD","MD",""],["037","Pediatrics","0001","MD","MD",""],["050","Nurse Practitioner","0001","NP","NP",""],["062","Psychology","0003","PhD","PhD",""],["065","Physical Therapy","0004","DPT","DPT",""],["338","Supervision specialty (sample)","0001","MD","MD",""],["339","Supervision specialty (sample)","0001","MD","MD",""],["340","Other specialty (sample)","0007","MD","MD",""]]};
 const TIN_SEED={head:["TIN","State","Date","Type","PTI MPIN","Grp Nm","ORG Type","EMP Id","T.Filing","P.Table","EI","M","C","EI - FS","M&R FS","Mkt Name","Mkt Num.","Evercare","Mkt&MNR","Group Notes"],rows:[["910896241","WA","07.23.2026","FQHC","3081166","COWLITZ FAMILY HEALTH","058-Federally Qualified Health Center","79358492","0090","00001","Yes","Yes","Yes","REGN 1874A / 8365","WA 7597","WASHINGTON STATE","NDB : 46600","Evecare: 71015","46600-7597","CLM - EMP ID - NAS not required - Master file found - & Capitation not found in Appendix or Phycon"]]};
-const ED_SEED={CS:{name:"CSP Medicaid Live 3D Editor",head:["LOB","Ag ID's","NAME","LOB Description","CAP code","CAP/LOB eff. Dt","LOB Term Dt","ID // Link"],n:17,rows:[]},
+const ED_SEED={CS:{name:"CSP Medicaid Live 3D Editor",head:["LOB","Ag ID's","NAME","LOB Description","CAP code","CAP/LOB eff. Dt","LOB Term Dt"],n:17,rows:[]},
  EI:{name:"Commercial EI Editor",head:["Product Info","Master Name","Master ID","Fee Sched","Penalty table","Note"],n:24,rows:[]},
  MR:{name:"Medicare M&R Editor",head:["Mkt Num","M&R Fee","Cos Div","Cos Panel","Cos Net","Pkg Num","Contract Master","Master","UHCID"],n:16,rows:[]}};
 const CTY_SEED={head:["State","County"],rows:[["WA","King"],["WA","Pierce"],["WA","Cowlitz"],["WA","Snohomish"],["WA","Spokane"],["TX","Dallas"],["TX","Harris"],["TX","Travis"],["TX","Bexar"],["TX","Tarrant"],["AZ","Maricopa"],["AZ","Pima"],["FL","Hillsborough"],["FL","Miami-Dade"],["FL","Orange"],["NY","Albany"],["NY","Kings"],["CO","Denver"],["WA","Washington"],["OR","Washington"],["AR","Washington"]]};
@@ -909,7 +911,7 @@ const TRK_COLS="GD,ST,Assign Date,Start Date,Complete Date,Complete,M-PIN,TIN,Ph
 const TPL_SEED=[{id:"PR",name:"Practitioner Name",on:true,cols:"Practitioner Name,Effective Date,M-PIN,TIN,NPI,Degree,Spc Code,SPC Name,ADDRESS,Ph.No"},
  {id:"NDB",name:"NDB",on:false,cols:"Practitioner Name,Effective Date,M-PIN,TIN,NPI,Mkt Name,Mkt Num.,PTI MPIN,Grp Nm,Del/Non Del,Spc Code,P/S"},
  {id:"COSMOS",name:"COSMOS",on:false,cols:"Practitioner Name,Effective Date,M-PIN,TIN,NPI,Cos Prov,Degree,Cred DS,Spc Code,Mkt&MNR,M&R FS,EI - FS"},
- {id:"CSP",name:"CSP",on:false,cols:"Practitioner Name,Effective Date,LOB,Ag ID's,NAME,LOB Description,CAP code,CAP/LOB eff. Dt,LOB Term Dt,ID // Link"}];
+ {id:"CSP",name:"CSP",on:false,cols:"Practitioner Name,Effective Date,LOB,Ag ID's,NAME,LOB Description,CAP code,CAP/LOB eff. Dt,LOB Term Dt"}];
 const FEAT_DEF={pcpCos:"0001, 0004, 0012",j1400a:"LOB",j1400b:"Market/IPA",j1400c:"LOB Description",providerPath:"",delList:"Del, HBP",nonList:"Non Del",nasPath:"",loginRequired:false,specAuto:true,tinAuto:true,tinDbl:true,showTin:true};
 const ROLES=["Admin","Manager","SME","Employee"];
 const DEF_ROLES={Admin:{edit:1,save:1,import:1,export:1,delete:1,headers:1,admin:1},Manager:{edit:1,save:1,import:1,export:1,delete:1,headers:1,admin:0},SME:{edit:1,save:1,import:1,export:1,delete:0,headers:0,admin:0},Employee:{edit:0,save:0,import:0,export:1,delete:0,headers:0,admin:0}};
@@ -3208,9 +3210,7 @@ ACT.c2Open=()=>{closeModal();go("csp")};
 ACT.enrRules=()=>{const st=gf("ST");if(!st)return toast("Pick ST first","bad");CM.st=st;const g=DB.editors.CS,li=g.head.indexOf("LOB"),mine=g.rows.map(r=>r&&r[li]).filter(Boolean);
  if(!CM.lob||CM._st!==st)CM.lob=mine[0]||"";CM._st=st;const sp=String(gf("SPC Name")||"");const has=pcpRows(CM).find(([r])=>String(r[3]).toLowerCase()===sp.toLowerCase());CM.spc=has?has[0][3]:"";
  modal("Enrollment rules · "+st,`<div id="enrBody"></div>`,[{t:"Close"}]);document.querySelector("#modal .mbox").style.width="min(1150px,96vw)";enrPaint()};
-/* ---- Info: ★ becomes ⇪ TIN list ---- */
-setInterval(()=>{try{if(!DB||!ME||VIEW!=="info")return;const b=document.querySelector('.amr[data-act="pinPop"]');if(b){b.dataset.act="tinSave";b.textContent="⇪ TIN";b.title="Save this Group in the TIN list (Master/TIN_List.txt)"}}catch(e){}},1200);
-FEAT.push(["txtdb","TXT database · one file per list (Admin › Files)"]);
+
 </script>
 
 <style>
