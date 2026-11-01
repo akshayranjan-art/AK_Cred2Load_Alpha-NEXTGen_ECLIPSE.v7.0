@@ -2443,6 +2443,8 @@ async function dirGet(d, path, create) {
   return h;
 }
 async function fileGet(path, create, root) {
+  // SERVER folder picked one level too deep ("Data"): Data\X.xlsx is then right here
+  if (!root && DIR && /^data$/i.test(DIR.name) && /^Data\//.test(path)) path = path.slice(5);
   try { const d = await dirGet(root || DIR, path, create); return await d.getFileHandle(path.split('/').pop(), {create}); } catch (e) { return null; }
 }
 async function permOK(h, ask) {
@@ -2475,7 +2477,10 @@ async function connect() {
   try {
     DIR = await window.showDirectoryPicker({id: 'superload', mode: 'readwrite'});
     Store.set('dir', DIR); LS.set('dirname', DIR.name);
-    await connPaint(); say('SERVER connected: "' + DIR.name + '"  -  switch ↻ ON (green) to sync', 'ok');
+    await connPaint();
+    if (/^(data|admin|tracker|backup|bridge)$/i.test(DIR.name)) popup('SERVER', 'You picked the folder "' + DIR.name + '".\nBest is ONE LEVEL UP: the Superload folder that has Data, Admin, Tracker inside.\n(Data still works for the lists - right-click SERVER to pick again.)', 'red');
+    else say('SERVER connected: "' + DIR.name + '"  -  the green ↻ next to it syncs by itself', 'ok');
+    if (AUTO.srv) { AUTO.last = 0; syncNow(true); }
   } catch (e) { if (e.name !== 'AbortError') say('Connect: ' + e.message, 'bad'); }
 }
 async function connPaint() {
@@ -2800,7 +2805,7 @@ function admSync(B) {
   abtn(bar, '\u{1F4C2} LOAD EXCEL FILE(S)', C.sky, () => $('#fileIn').click(), true);
   abtn(bar, '⬇ EXPORT ALL TO EXCEL', C.green, () => exportExcel(), true);
   abtn(bar, '\u{1F5D1} CLEAR DATA ON THIS PC', C.maroon, () => { if (!confirm('Remove every list kept in this browser?\n(The server folder and Excel are NOT touched.)')) return; DB = {}; DIRTY.clear(); SMETA = {}; saveDB(); afterData(); admPaint(); }, true);
-  ahelp(B, 'Folder: <b>' + esc(DIR ? DIR.name : 'not connected') + '</b>' + dot + 'last sync ' + esc(LS.get('lastsync', '-')) + dot + DIRTY.size + ' changed list(s) waiting' + dot + 'SYNC runs only when you click it. Same files as the Excel frame (Data\\*.xlsx), old file kept in Backup\\.');
+  ahelp(B, 'Folder: <b>' + esc(DIR ? DIR.name : 'not connected') + '</b>' + dot + 'last sync ' + esc(LS.get('lastsync', '-')) + dot + DIRTY.size + ' changed list(s) waiting' + dot + 'Green \u21BB next to SERVER (bottom) = syncs by itself (changes at once, folder every 60 s) - SYNC NOW here only if you want it at once. Same files as the Excel frame (Data\\*.xlsx), old file kept in Backup\\.');
   const w = el('div', 'atw', B); w.style.height = '430px';
   w.innerHTML = '<table class="dt"><thead><tr><th>List</th><th>File in the folder</th><th>Rows here</th><th>State</th></tr></thead><tbody>' +
     SYNC_ITEMS.map(([n, p]) => { const v = n === 'TIN LIST' ? tinLocal() : sheet(n), k = norm(n); return '<tr><td><b>' + esc(n) + '</b></td><td>' + esc(p.replace(/\//g, '\\')) + '</td><td>' + (v ? v.length - 1 : '-') + '</td><td>' + (DIRTY.has(k) ? '<span class="pill bad">changed - SYNC sends it</span>' : SMETA[k] ? '<span class="pill ok">same as folder</span>' : '<span class="muted">not synced yet</span>') + '</td></tr>'; }).join('') + '</tbody></table>';
