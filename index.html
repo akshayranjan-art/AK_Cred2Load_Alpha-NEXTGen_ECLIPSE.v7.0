@@ -286,6 +286,43 @@ table.edt td.rn.sel{background:#F07F1E;color:#fff}
 table.g tr.cty td{background:#E7FAEE}
 table.g tr.cty td.rn{background:#BDEFD0;color:#14633A}
 table.edt td.chg{background:#FFF6D6}
+/* ===== v5.2g ===== */
+.f.dd{padding-right:15px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0h8L4 5z' fill='%236B3FA0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center}
+  .f.dd.nar{padding:1px 8px 1px 2px;background-position:right 1px center;font-size:10.5px}
+#ddl{position:absolute;z-index:120;display:none;background:#fff;border:1px solid #9C7FC4;border-radius:6px;box-shadow:0 10px 26px rgba(30,10,60,.3);max-height:220px;overflow:auto;font:11.5px "Segoe UI",Arial;padding:3px 0}
+#ddl div{padding:4px 10px;cursor:pointer;white-space:nowrap}
+#ddl div:hover,#ddl div.on{background:linear-gradient(90deg,#F07F1E,#F5A04E);color:#fff}
+.pop.fit .pb{max-height:calc(100% - 26px);overflow:auto}
+#hint table.ht{border-collapse:collapse;white-space:nowrap;font-size:10.5px;margin-bottom:2px}
+#hint table.ht th{position:sticky;top:0;background:#3A2160;color:#FFE6C2;font-size:9.5px;padding:2px 7px;text-align:left;z-index:1}
+#hint table.ht td{padding:2px 7px;border-bottom:1px dotted #E2D8EC;color:#0B5D62;font-weight:600;cursor:pointer}
+#hint table.ht td.ok{color:#0E9F6E}
+#hint table.ht td.muted{color:#9A8DB0;font-weight:400}
+#hint table.ht tr:hover td{background:#FFF0DD}
+table.g td.gsel{background:#CFE0FF !important;box-shadow:inset 0 0 0 1px #6E9BFF}
+table.g td.gsel input{background:transparent !important}
+table.g td.rn{cursor:e-resize;user-select:none}
+.qkw{display:flex;gap:6px;align-items:center}
+.qk{position:relative;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font:900 10px "Segoe UI",Arial;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.45),rgba(255,255,255,0) 55%),var(--q);opacity:.55;box-shadow:0 0 0 1.5px rgba(255,255,255,.35)}
+.qk.has{opacity:1;box-shadow:0 0 0 2px #fff,0 0 10px var(--q)}
+.qk i{position:absolute;right:-6px;top:-5px;min-width:14px;height:13px;border-radius:7px;background:#FFE14D;color:#2E1A47;font:800 8.5px "Segoe UI";font-style:normal;display:flex;align-items:center;justify-content:center;padding:0 2px}
+.qk i:empty{display:none}
+.qks{border:1px solid #E2D8EC;border-radius:8px;padding:6px;margin-bottom:8px;background:#FCFAFE}
+.qkt{display:flex;gap:6px;align-items:center;margin-bottom:5px}.qkt b{flex:1;color:#2E1A47}
+.qkt .btn{height:20px;padding:0 10px;font-size:10px}
+.qkn{width:100%;height:42px;margin-top:5px;background:#FFFBE0;border:1px solid #E8D98A;border-radius:5px;font:11.5px "Segoe UI";padding:4px}
+.amdz{margin-top:6px;border:2px dashed #C9A227;border-radius:9px;padding:8px;text-align:center;cursor:pointer;background:#FFFBEA;display:flex;flex-direction:column;gap:2px}
+.amdz b{color:#8A6400;font-size:11.5px}.amdz span{font-size:10px;color:#8C7B55}
+.amdz.on{background:#E7F8EE;border-color:#16A34A}
+.amcols{display:grid;grid-template-columns:repeat(3,1fr);gap:3px 10px;max-height:300px;overflow:auto;border:1px solid #E2D8EC;border-radius:6px;padding:6px}
+.amcols label{display:flex;gap:5px;align-items:center;white-space:nowrap;overflow:hidden;font-size:11px}
+.hcl{max-height:360px;overflow:auto;border:1px solid #E2D8EC;border-radius:6px}
+.hcl div{display:flex;align-items:center;gap:6px;padding:3px 8px;border-bottom:1px dotted #eee}
+.hcl label{flex:1;display:flex;gap:6px;align-items:center}
+.hcl b{cursor:pointer;color:#6B3FA0;padding:0 4px}
+#lgrem{display:flex;gap:6px;align-items:center;justify-content:center;font-size:11px;color:#4A3D5C;margin:2px 0 8px}
+table.dt tr.hl td{background:#FFF3C4}
 </style>
 </head>
 <body>
@@ -325,7 +362,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
    (LOAD EXCEL reads them: TIN LIST / TIN_List, COUNTY LOB, CSP_LOB ...).
    Fixed layout 1400 x 780 px - nothing moves or scales by itself.
    ===================================================================== */
-const VER = '5.2f';
+const VER = '5.2g';
 const K = 1.25;                    // 1 pt of the Excel frame = 1.25 px
 const OWNER = 'ARANJA14';
 const I_PASS = '763388';
@@ -524,15 +561,18 @@ function say(msg, kind) { const l = $('#log'); if (l) l.textContent = msg; if (k
 function popup(title, msg, kind) { toast(title + '\n' + msg, kind === 'red' ? 'bad' : kind); say(title + ': ' + msg.split('\n')[0]); }
 function makePop(id, title, x, y, w, h) {
   const p = el('div', 'pop', APP); p.id = id; p.style.left = x + 'px'; p.style.top = y + 'px'; p.style.width = w + 'px'; if (h) p.style.height = h + 'px';
-  const hd = el('div', 'ph', p, title); const xx = el('div', 'px', p, '\u2715'); xx.onclick = () => p.style.display = 'none';
-  // drag
-  hd.onmousedown = e => {
+  const hd = el('div', 'ph', p, title); const xx = el('div', 'px', p, '\u2715'); xx.onclick = () => p.style.display = 'none'; xx.title = 'Close  (Esc)';
+  const b = el('div', 'pb', p); p.body = b; p.head = hd;
+  // drag: by the title bar, or by any empty part of the popup; it never leaves the screen
+  p.addEventListener('mousedown', e => {
+    if (!(e.target === hd || e.target === p || e.target === b)) return;
+    if (e.target !== hd && e.offsetX > e.target.clientWidth - 2) return;      // scrollbar
+    e.preventDefault(); p.style.zIndex = ++showPop.z;
     const sx = e.clientX - p.offsetLeft, sy = e.clientY - p.offsetTop;
-    const mv = ev => { p.style.left = (ev.clientX - sx) + 'px'; p.style.top = (ev.clientY - sy) + 'px'; };
+    const mv = ev => { p.style.left = (ev.clientX - sx) + 'px'; p.style.top = (ev.clientY - sy) + 'px'; popClamp(p); };
     const upf = () => { document.removeEventListener('mousemove', mv); document.removeEventListener('mouseup', upf); };
     document.addEventListener('mousemove', mv); document.addEventListener('mouseup', upf);
-  };
-  const b = el('div', 'pb', p); p.body = b; p.head = hd;
+  });
   return p;
 }
 function showPop(p) { p.style.display = 'block'; p.style.zIndex = ++showPop.z; }
@@ -562,7 +602,7 @@ function addF(par, lab, kind, x, y, w, h, lst, cap) {
     e = el('textarea', 'f', par); pos(e, x, y, w, h); f.inp = e;
   } else {
     e = el('input', 'f', par); pos(e, x, y, w, h); f.inp = e; e.spellcheck = false;
-    if (kind === 'C') { e.setAttribute('list', 'dl_' + FL.length); el('datalist', '', par).id = 'dl_' + FL.length; }
+    if (kind === 'C') { e.classList.add('dd'); e.autocomplete = 'off'; ddWire(e, f); }
     if (kind === 'D') e.placeholder = 'mm/dd/yyyy';
     if (lab === 'ST') e.maxLength = 2;
   }
@@ -580,12 +620,12 @@ function addF(par, lab, kind, x, y, w, h, lst, cap) {
   return f;
 }
 function fillDrop(f) {
-  const dl = f.e.list || document.getElementById(f.e.getAttribute('list')); if (!dl) return;
+  if (f.kind !== 'C') return;
   let items = (f.lst || '').split('|').filter(Boolean);
   const v = sheet('DROPDOWN LISTS');
   if (v) { const c = colOf(v, f.lab); if (c >= 0) { const a = []; for (let r = 1; r < v.length; r++) if (cell(v, r, c)) a.push(cell(v, r, c)); if (a.length) items = a; } }
   if (f.lab === 'Site') { const L = sheet('LINKS DATA'); if (L) { const g = col(L, 'Group'), n = col(L, 'Name'); for (let r = 1; r < L.length; r++) if (/site/i.test(cell(L, r, g))) items.push(cell(L, r, n)); } }
-  dl.innerHTML = items.map(x => '<option value="' + esc(x) + '">').join('');
+  f.items = items;
 }
 function FV(lab) { const f = FX[lab]; if (!f) return ''; return f.kind === 'K' ? (f.inp.checked ? 'Y' : '') : tr(f.inp.value); }
 function setFV(lab, v, auto, grp) {
@@ -879,12 +919,16 @@ function a1025Fill(manual) {
   const v = sheet('MNR A1025') || sheet('MNR_A1025') || sheet('A1025');
   if (!v) { if (manual) popup('MNR A1025', 'No MNR A1025 sheet in the loaded Excel.', 'red'); return; }
   let cK = col(v, 'Mkt Num'); if (cK < 0) cK = 0;
-  const key = mk + fs, grp = []; let n = 0;
+  const key = mk + fs, grp = []; let n = 0; const last = {};
   for (let r = 1; r < v.length; r++) {
     if (digits(cell(v, r, cK)) !== key) continue;
     if (n === 0) gridClear(2, grp);
     if (n >= G[2].rows) break;
-    G[2].cols.forEach((h, c) => { const sc = a1025Col(v, h); if (sc >= 0) setGV(2, n, c, cell(v, r, sc), grp); });
+    G[2].cols.forEach((h, c) => {
+      const sc = a1025Col(v, h); if (sc < 0) return; let val = cell(v, r, sc);
+      if (/^(MKT NUM|M&R FEE)$/.test(up(h))) { if (val && val === last[c]) val = ''; else if (val) last[c] = val; }   // same Mkt / Fee only once
+      setGV(2, n, c, val, grp);
+    });
     n++;
   }
   undoPush(grp);
@@ -911,8 +955,9 @@ function exclCheck() {
       if (nm.includes('hsd')) { setFV('HSD County', 'Y'); hit = true; msg += ' HSD'; }
     }
   }
-  if (hit) { exclAuto = true; say('TIN is in the exclusion list:' + msg, 'bad'); }
-  else if (exclAuto) { setFV('MNR Tin Exclusion', ''); setFV('Cap Code', ''); setFV('HSD County', ''); exclAuto = false; }
+  const txt = hit ? 'TIN found in ' + msg.trim().split(' ').join(' / ') + ' list' : '';
+  if (hit) { exclAuto = true; if (!FV('B') || FV('B') === exclCheck.txt) setFV('B', txt, true); exclCheck.txt = txt; say('TIN is in the exclusion list:' + msg, 'bad'); }
+  else if (exclAuto) { setFV('MNR Tin Exclusion', ''); setFV('Cap Code', ''); setFV('HSD County', ''); if (FV('B') === exclCheck.txt) setFV('B', ''); exclCheck.txt = ''; exclAuto = false; }
 }
 let specAuto = false;
 function specFill(fld) {
@@ -983,9 +1028,12 @@ function plusPaste(lab, txt) {
       if (!tr(s)) return;
       if (!ph) { const m = s.match(/\(\d{3}\)\s?\d{3}-\d{4}/); if (m) { ph = m[0]; s = s.replace(m[0], ''); } }
       if (!pa) { const m = s.match(/\d{9}-(\d{4})/); if (m) { pa = m[1]; s = s.replace(m[0], ''); } }
-      if (tr(s)) keep.push(tr(s));
+      // keep only the street / city part: first block of each line (codes like PLSV-S-NC, IDs, C N flags are dropped)
+      s = s.split(/\t|\s{2,}/).map(tr).filter(Boolean)[0] || '';
+      s = s.replace(/\b[A-Z]{3,6}-[A-Z]-[A-Z]{1,3}\b/g, '').replace(/\b\d?-?\d{7,}[A-Z]?(-\d+)?\b/g, '').replace(/\s+/g, ' ');
+      if (tr(s) && !/^\d+\.?$/.test(tr(s))) keep.push(tr(s));
     });
-    setFV('ADDRESS', keep.join('\n'), false, grp); if (ph) setFV('Ph.No', ph, true, grp); if (pa) setFV('P-Aid', pa, true, grp);
+    setFV('ADDRESS', keep.slice(0, 3).join(' '), false, grp); if (ph) setFV('Ph.No', ph, true, grp); if (pa) setFV('P-Aid', pa, true, grp);
     undoPush(grp); persist(); say('ADDRESS split' + (ph ? dot + 'Phone ' + ph : '') + (pa ? dot + 'P-Aid ' + pa : ''), 'ok');
     return true;
   }
@@ -2288,6 +2336,13 @@ function amBuild(S) {
   const r2 = el('div', '', c1.body); r2.style.cssText = 'display:flex;gap:6px;margin-top:4px';
   const bp = cbtn(r2, '⚡  PASTE DATA  (replaces old)', C.gold, amPaste, 'lite big'); bp.style.flex = '1';
   const bo = cbtn(r2, '\u{1F4C2} FILE', C.mari, amOpenFile, 'big'); bo.style.width = '78px';
+  const dz = el('div', 'amdz', c1.body, '<b>\u21E3 DUMP: drop the Excel file here</b><span>sheet "Data" is taken (else the first sheet) · old data replaced</span>'); AMX.dz = dz;
+  dz.onclick = amOpenFile;
+  [dz, S].forEach(z => {
+    z.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('on'); });
+    z.addEventListener('dragleave', e => { if (e.target === dz || e.target === z) dz.classList.remove('on'); });
+    z.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('on'); const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) amReadFile(f); });
+  });
   AMX.stat = el('div', 'tip', c1.body, '');
   lab(c1.body, 'Remove columns before saving  (e.g. B, D, Z  or  F:H)'); AMX.rem = el('input', 'sin', c1.body);
   AMX.hl = el('div', 'tip', c1.body, ''); AMX.hl.style.cssText += ';max-height:58px;overflow:auto';
@@ -2298,7 +2353,9 @@ function amBuild(S) {
   el('div', 'kk', g, 'And  (optional)'); el('div', '', g);
   AMX.c2s = selBox(g, ['(none)']); AMX.v2 = el('input', 'sin', g);
   [AMX.v1, AMX.v2].forEach(x => x.onkeydown = e => { if (e.key === 'Enter') amSearch(false); });
-  const sb = cbtn(c1.body, 'SEARCH', C.mari, () => amSearch(false), 'big'); sb.style.marginTop = '6px';
+  const r4 = el('div', '', c1.body); r4.style.cssText = 'display:flex;gap:6px;margin-top:6px';
+  const sb = cbtn(r4, 'SEARCH', C.mari, () => amSearch(false), 'big'); sb.style.flex = '1';
+  cbtn(r4, '\u2699 COLUMNS', C.aub2, amSetOpen, 'big').style.width = '110px';
   lab(c1.body, 'Quick search  (any column, press Enter)'); AMX.q = el('input', 'sin', c1.body);
   AMX.q.onkeydown = e => { if (e.key === 'Enter') amSearch(true); };
   const r3 = el('div', '', c1.body); r3.style.cssText = 'display:flex;gap:6px;margin-top:6px';
@@ -2349,11 +2406,14 @@ function amSave(grid) {
 async function amPaste() { const t = await clipRead('PASTE DATA'); if (!t || t.length < 3) return; amSave(textGrid(t)); }
 async function amOpenFile() {
   const f = (await pickFile('.xlsx,.xlsb,.xlsm,.xls,.csv,.txt'))[0]; if (!f) return;
+  amReadFile(f);
+}
+async function amReadFile(f) {
   try {
     if (/\.(txt|tsv)$/i.test(f.name)) return amSave(textGrid(await f.text()));
     const wb = XLSX.read(await f.arrayBuffer(), {type: 'array', cellDates: true});
-    const sn = wb.SheetNames.length > 1 ? (prompt('Which sheet?\n' + wb.SheetNames.join(', '), wb.SheetNames[0]) || wb.SheetNames[0]) : wb.SheetNames[0];
-    const ws = wb.Sheets[wb.SheetNames.find(s => up(s) === up(sn)) || wb.SheetNames[0]];
+    const sn = wb.SheetNames.find(s => up(s) === 'DATA') || wb.SheetNames[0];
+    const ws = wb.Sheets[sn];
     amSave(XLSX.utils.sheet_to_json(ws, {header: 1, raw: false, defval: '', blankrows: false, dateNF: 'mm/dd/yyyy'}));
   } catch (e) { popup('FILE', 'Could not read ' + f.name + ': ' + e.message, 'red'); }
 }
@@ -2373,7 +2433,12 @@ function amSearch(quick) {
     }
     if (hit) rows.push(v[r]);
   }
-  AMX.hdr = h; tblFill(AMX.T, h, rows);
+  // settings: sort + only the columns picked in COLUMNS (every time the same)
+  const cfg = amCfg(), si = h.findIndex(x => up(x) === up(cfg.sort));
+  if (si >= 0) rows.sort((a, b) => { const p = a[si], q = b[si], n1 = parseFloat(p), n2 = parseFloat(q); return (isNaN(n1) || isNaN(n2) ? String(p || '').localeCompare(String(q || '')) : n1 - n2) * (cfg.dir || 1); });
+  const keep = h.map((x, i) => i).filter(i => tr(h[i]) && !(cfg.hide || []).includes(up(h[i])));
+  AMX.full = rows; AMX.fullHdr = h;
+  AMX.hdr = keep.map(i => h[i]); tblFill(AMX.T, AMX.hdr, rows.map(r => keep.map(i => r[i])));
   AMX.c2.ti.textContent = '✦  RESULT  ·  ' + rows.length + ' of ' + (v.length - 1) + ' rows' +
     (quick ? (q ? "  ·  any column contains '" + AMX.q.value + "'" : '') : (v1 ? '  ·  ' + AMX.c1s.value + ' = ' + AMX.v1.value : '') + (c2 >= 0 && v2 ? '  ·  ' + AMX.c2s.value + ' = ' + AMX.v2.value : ''));
   say('Amardi search: ' + rows.length + ' row(s)');
@@ -2381,8 +2446,8 @@ function amSearch(quick) {
 function amCopy() { const w = AMX.T; if (!w.rows || !w.rows.length) return say('Nothing to copy', 'bad'); copyText([AMX.hdr.join('\t')].concat(w.rows.map(r => r.join('\t'))).join('\n')); say('Result copied (' + w.rows.length + ' rows) - paste in Excel', 'ok'); }
 function amSend() {
   const tr_ = $('tr.sel', AMX.T.t); if (!tr_) return popup('SEND TO FRAME', 'Click a result row first.', 'red');
-  const row = AMX.T.rows[+tr_.dataset.i], grp = []; let n = 0;
-  AMX.hdr.forEach((h, k) => DEMO_MAP.forEach(([a, f]) => {
+  const row = AMX.full[+tr_.dataset.i], grp = []; let n = 0;
+  AMX.fullHdr.forEach((h, k) => DEMO_MAP.forEach(([a, f]) => {
     const vv = tr(row[k]);
     if (hdrMatch(a, h) && vv && FX[f] && !FV(f)) { setFV(f, vv, true, grp); n++; }
   }));
@@ -2394,6 +2459,30 @@ function amClear() {
   const v = sheet(AMX.cur); if (v) backupOld('AMARDI CLEAR', AMX.cur, (v.length - 1) + ' rows');
   DB[norm(AMX.cur)] = {name: AMX.cur, rows: [[]]}; saveDB(AMX.cur); amInfo(); amSearch(true);
 }
+
+/* ---- Amardi settings: columns to show every time, default search column, sort ---- */
+function amCfg() { return Object.assign({hide: [], col: '', sort: '', dir: 1}, LS.get('amcfg_' + AMX.cur, {})); }
+function amSetOpen() {
+  const v = sheet(AMX.cur); if (!v || !v[0] || !v[0].some(x => tr(x))) return popup('COLUMNS', 'Dump the data first (drop the Excel file or PASTE DATA).', 'red');
+  let p = $('#popAMS'); if (!p) p = makePop('popAMS', '\u2699 AMARDI COLUMNS  -  what shows every time', 420, 110, 560);
+  const h = v[0].filter(x => tr(x)), c = amCfg(), op = (a, k) => a.map(x => '<option' + (up(x) === up(k) ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
+  p.body.innerHTML = '<div class="muted" style="margin-bottom:6px">Tick = the column shows in RESULT. Kept on this PC, used every time.</div>' +
+    '<div class="amcols">' + h.map(x => '<label><input type="checkbox" data-h="' + esc(up(x)) + '"' + (c.hide.includes(up(x)) ? '' : ' checked') + '> ' + esc(x) + '</label>').join('') + '</div>' +
+    '<div style="display:grid;grid-template-columns:110px 1fr;gap:5px;align-items:center;margin-top:8px">Search by (default)<select id="amsCol"><option value="">-</option>' + op(h, c.col) + '</select>' +
+    'Sort by<select id="amsSort"><option value="">none</option>' + op(h, c.sort) + '</select>Order<select id="amsDir"><option value="1">A \u2192 Z</option><option value="-1"' + (c.dir < 0 ? ' selected' : '') + '>Z \u2192 A</option></select></div>';
+  const r = el('div', '', p.body); r.style.cssText = 'display:flex;gap:6px;margin-top:8px';
+  cbtn(r, 'ALL', C.sky, () => $$('#popAMS [data-h]').forEach(x => x.checked = true), 'lite');
+  cbtn(r, 'NONE', C.sky, () => $$('#popAMS [data-h]').forEach(x => x.checked = false), 'lite');
+  cbtn(r, '\u2714 SAVE', C.mari, () => {
+    const n = {hide: $$('#popAMS [data-h]').filter(x => !x.checked).map(x => x.dataset.h), col: $('#amsCol').value, sort: $('#amsSort').value, dir: +$('#amsDir').value};
+    if (n.hide.length === h.length) return say('Keep at least one column', 'bad');
+    LS.set('amcfg_' + AMX.cur, n); if (n.col) AMX.c1s.value = n.col;
+    p.style.display = 'none'; amSearch(true); say('Amardi columns saved', 'ok');
+  });
+  showPop(p);
+}
+const _amInfo = amInfo;
+amInfo = function () { _amInfo(); const c = amCfg(); if (c.col) { const o = Array.from(AMX.c1s.options).find(x => up(x.value) === up(c.col)); if (o) AMX.c1s.value = o.value; } };
 
 /* ---------------------------------------------------------------------
    SERVER FOLDER  (same Superload folder + same Excel files as the Excel frame)
@@ -3116,7 +3205,7 @@ Object.assign(town, {
     g.save(); g.translate(cx, cy); g.rotate(t / 10); gr = g.createLinearGradient(0, 0, 26, 0); gr.addColorStop(0, 'rgba(79,227,255,.8)'); gr.addColorStop(1, 'rgba(79,227,255,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, 26, -.35, .35); g.fill(); g.restore();
     g.strokeStyle = 'rgba(176,124,255,.8)'; g.beginPath(); g.arc(cx, cy, 30, -t / 15, -t / 15 + 2.4); g.stroke();
     g.fillStyle = '#FF5FB4'; g.beginPath(); g.moveTo(cx, cy - 9); g.bezierCurveTo(cx + 7, cy - 9, cx + 7, cy, cx, cy + 6); g.bezierCurveTo(cx - 7, cy, cx - 7, cy - 9, cx, cy - 9); g.fill();
-    g.fillStyle = 'rgba(160,240,255,.85)'; g.font = '700 7px Consolas, "Courier New", monospace'; g.fillText('AGENTS ' + AG.filter(x => ['go', 'scan', 'back'].includes(x.state)).length + '/10', b[0] + 6, b[1] + 10); g.fillText('CARDS ' + this.cards.length, b[0] + b[2] - 46, b[1] + 10);
+    g.fillStyle = 'rgba(160,240,255,.85)'; g.font = '700 7px Consolas, "Courier New", monospace'; g.fillText('AGENTS ' + AG.filter(x => ['go', 'scan', 'back'].includes(x.state)).length + '/' + AG.length, b[0] + 6, b[1] + 10); g.fillText('CARDS ' + this.cards.length, b[0] + b[2] - 46, b[1] + 10);
     for (let i = 0; i < 18; i++) { const h = 3 + Math.abs(Math.sin(t / 7 + i)) * 10; g.fillStyle = 'rgba(79,227,255,.6)'; g.fillRect(b[0] + 8 + i * 4, b[1] + b[3] - 4 - h, 2.5, h); g.fillRect(b[0] + b[2] - 80 + i * 4, b[1] + b[3] - 4 - h * .7, 2.5, h * .7); }
     // right: charts
     gr = g.createLinearGradient(c[0], c[1], c[0] + c[2], c[1]); gr.addColorStop(0, '#22104A'); gr.addColorStop(1, '#0D2B66'); g.fillStyle = gr; g.fillRect(c[0], c[1], c[2], c[3]);
@@ -3303,13 +3392,18 @@ const HEAD_DEF = [
   ['ORG Type', 'ORG Type | Org Type'], ['EMP Id', 'EMP Id | EMP | Emptoris'], ['T.Filing', 'T.Filing | T Fill | T Filing | Timely Filing'],
   ['P.Table', 'P.Table | P Tab | P Table | Penalty Table'], ['EI', 'EI | E&I'], ['M', 'M | MNR | M&R'], ['C', 'C | C&S | CS'],
   ['EI - FS', 'EI - FS | EI FS | EI-FS'], ['M&R FS', 'M&R FS | MR FS | MNR FS'], ['Mkt Name', 'Mkt Name | Market Name'],
-  ['Mkt Num.', 'Mkt Num. | Mkt Num | Mkt Number | Market Number'], ['Evercare', 'Evercare | Evecare'], ['Mkt&MNR', 'Mkt&MNR | Mkt & MNR'],
-  ['Group Notes', 'Group Notes | Comments | Comment | Notes'], ['Extra', 'Extra | Extra Comments | Extra Comment | Comments 2']
+  ['Mkt Num.', 'Mkt Num. | Mkt Num | Mkt Number | Market Number'], ['Evercare', 'Evercare | Evecare'],
+  ['Group Notes', 'CLM/ACR | CLM / ACR | CLM ACR | Group Notes | Comments | Comment | Notes'], ['Extra', 'Extra | Extra Comments | Extra Comment | Comments 2']
 ];
 const hkey = s => String(s || '').toUpperCase().replace(/[\s.\-_]/g, '');
 function headSheet() {
   let v = sheet('HTML_HEADINGS');
   if (!v || v.length < 2) { DB[norm('HTML_HEADINGS')] = {name: 'HTML_HEADINGS', rows: [['Frame box', 'TIN list heading(s)  (several: A | B | C)']].concat(HEAD_DEF.map(r => r.slice()))}; v = sheet('HTML_HEADINGS'); }
+  if (!headSheet.mig) {            // v5.2g: Group Notes takes CLM/ACR first · Mkt&MNR box removed
+    headSheet.mig = true;
+    const g = v.find((r, i) => i && up(r[0]) === 'GROUP NOTES'); if (g && !/CLM/i.test(g[1] || '')) { g[1] = 'CLM/ACR | CLM / ACR | ' + (g[1] || ''); }
+    const m = v.findIndex((r, i) => i && up(r[0]) === 'MKT&MNR'); if (m > 0) v.splice(m, 1);
+  }
   return v;
 }
 function headCols(v, box) {           // column numbers of the TIN data for one frame box, in order
@@ -3438,6 +3532,537 @@ gridRender = function (t) {
   $$('#gt0 tr').forEach(tr_ => { const i = tr_.querySelector('input[data-c="0"]'); if (i && S.has(up(i.value))) tr_.classList.add('cty'); });
 };
 
+/* =====================================================================
+   v5.2g
+   rules (Del -> Yes Yes Yes / N/A ...) · proper dropdowns · popups: Esc + drag,
+   never off screen · remember login · MASTER SAVE same GD -> ask + tracker ·
+   agents: Exa (MNR / CAP / HSD text), Manu + Arya (Mkt Num + M&R FS together),
+   Cassie (ST -> Medicaid from CSP_LOB), Cora (2 sets -> pick popup), 4 more desks ·
+   HINT as a table (all columns, slider, order in ADMIN / ☰) · VACCN click ·
+   grid: mouse select + Ctrl+C · C / M / MD quick viewers
+   ===================================================================== */
+SYNC_ITEMS.push(['HTML_RULES', 'Admin/HTML_Rules.xlsx'], ['HTML_CSPMAP', 'Admin/HTML_CspMap.xlsx'], ['HTML_HINTCOLS', 'Admin/HTML_HintCols.xlsx'], ['VACCN', 'Data/VACCN.xlsx']);
+function defSheet(nm, hdr, def) {
+  let v = sheet(nm);
+  if (!v || v.length < 2) { DB[norm(nm)] = {name: nm, rows: [hdr.slice()].concat(def.map(r => r.slice()))}; v = sheet(nm); }
+  return v;
+}
+const fxName = s => Object.keys(FX).find(k => up(k) === up(tr(s)));
+
+/* ---------- RULES: when a box gets a value, other boxes are set ---------- */
+const RULE_HDR = ['When box', 'is', 'Set box', 'to', 'Note'];
+const RULE_DEF = [
+  ['Del/Non Del', 'Del', 'Del Box 1', 'Yes', ''], ['Del/Non Del', 'Del', 'Del Box 2', 'Yes', ''], ['Del/Non Del', 'Del', 'Del Box 3', 'Yes', ''],
+  ['Del/Non Del', 'Del', 'Comment', 'N/A', ''], ['Del/Non Del', 'Del', '(601) Date', 'N/A', ''], ['Del/Non Del', 'Del', '(205/252)', 'N/A', ''],
+  ['Spc Code', '(blank)', 'P/S', '(blank)', 'Spc Code cleared = P/S cleared']
+];
+const ruleSheet = () => defSheet('HTML_RULES', RULE_HDR, RULE_DEF);
+function rulesApply(lab) {
+  const v = ruleSheet(), val = FV(lab), grp = []; let n = 0;
+  v.slice(1).forEach(r => {
+    if (up(r[0]) !== up(lab)) return;
+    const want = tr(r[1]);
+    const hit = /^\(blank\)$/i.test(want) ? !val : want === '*' ? !!val : up(val) === up(want);
+    if (!hit) return;
+    const f = fxName(r[2]); if (!f) return;
+    let to = tr(r[3]); if (/^\(blank\)$/i.test(to)) to = '';
+    if (FV(f) === to) return;
+    setFV(f, to, !!to, grp); n++;
+  });
+  if (n) { undoPush(grp); persist(); say('Rule: ' + lab + ' = ' + (val || '(blank)') + '  →  ' + n + ' box(es) set   (Ctrl+Z = back)', 'ok'); }
+}
+const _plusChanged = plusChanged;
+plusChanged = function (lab) { _plusChanged(lab); rulesApply(lab); if (/^(TIN|County|ST|PTI MPIN|Mkt Num\.|M&R FS|EI - FS|EMP Id)$/.test(lab)) qkPaint(); };
+
+/* ---------- DROPDOWN (stays open, shows every item) ---------- */
+const DD = {box: null, f: null, i: -1, items: []};
+function ddWire(e, f) {
+  if (f.w < 40) e.classList.add('nar');
+  e.addEventListener('mousedown', () => { if (DD.f === f) ddClose(); else setTimeout(() => ddOpen(f, false), 0); });
+  e.addEventListener('input', () => { if (!DD.pick) ddOpen(f, true); });
+  e.addEventListener('keydown', ev => {
+    if (ev.key === 'ArrowDown' && DD.f !== f) { ddOpen(f, false); ev.preventDefault(); return; }
+    if (DD.f !== f) return;
+    if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); DD.i = Math.max(0, Math.min(DD.items.length - 1, DD.i + (ev.key === 'ArrowDown' ? 1 : -1))); ddPaint(); }
+    else if (ev.key === 'Enter' || ev.key === 'Tab') { if (DD.i >= 0) { ev.preventDefault(); ddPick(DD.items[DD.i]); } else ddClose(); }
+    else if (ev.key === 'Escape') { ev.stopPropagation(); ddClose(); }
+  });
+  e.addEventListener('blur', () => setTimeout(() => { if (DD.f === f && document.activeElement !== e) ddClose(); }, 160));
+}
+function ddOpen(f, filter) {
+  fillDrop(f);
+  const all = f.items || [], q = up(f.inp.value);
+  let it = filter && q ? all.filter(x => up(x).startsWith(q)) : all;
+  if (filter && q && !it.length) it = all.filter(x => up(x).includes(q));
+  if (!it.length) it = all;
+  if (!it.length) return ddClose();
+  if (!DD.box) { DD.box = el('div', '', APP); DD.box.id = 'ddl'; DD.box.addEventListener('mousedown', e => { e.preventDefault(); const d = e.target.closest('[data-i]'); if (d) ddPick(DD.items[+d.dataset.i]); }); }
+  DD.f = f; DD.items = it; DD.i = it.findIndex(x => up(x) === q);
+  const a = APP.getBoundingClientRect(), r = f.inp.getBoundingClientRect();
+  DD.box.style.left = (r.left - a.left) + 'px'; DD.box.style.top = (r.bottom - a.top + 1) + 'px'; DD.box.style.minWidth = Math.max(70, r.width) + 'px';
+  DD.box.style.display = 'block'; ddPaint();
+}
+function ddPaint() { DD.box.innerHTML = DD.items.map((x, i) => '<div data-i="' + i + '"' + (i === DD.i ? ' class="on"' : '') + '>' + esc(x) + '</div>').join(''); }
+function ddPick(v) {
+  const f = DD.f; if (!f) return; ddClose();
+  const old = f.inp.value; f.inp.value = v; DD.pick = true;
+  f.inp.dispatchEvent(new Event('input', {bubbles: true})); DD.pick = false;
+  if (old !== v) undoPush([{t: 'f', lab: f.lab, old}]);
+  f.before = v;
+}
+function ddClose() { if (DD.box) DD.box.style.display = 'none'; DD.f = null; }
+
+/* ---------- POPUPS: never off screen, Esc closes the top one ---------- */
+function popClamp(p) {
+  if (!p || p.style.display !== 'block') return;
+  const a = APP.getBoundingClientRect(), vh = window.innerHeight, vw = window.innerWidth;
+  if (p.offsetHeight > vh - 12) { p.style.height = (vh - 12) + 'px'; p.classList.add('fit'); }
+  const minT = Math.max(-a.top + 6, -2000), maxT = vh - a.top - Math.min(p.offsetHeight, vh - 12) - 6;
+  const minL = -a.left + 4, maxL = vw - a.left - Math.min(p.offsetWidth, vw - 8) - 4;
+  let t = p.offsetTop, l = p.offsetLeft;
+  t = Math.max(minT, Math.min(t, Math.max(minT, maxT))); l = Math.max(minL, Math.min(l, Math.max(minL, maxL)));
+  p.style.top = t + 'px'; p.style.left = l + 'px';
+}
+function showPop(p) { p.style.display = 'block'; p.style.zIndex = ++showPop.z; popClamp(p); }
+window.addEventListener('scroll', () => $$('.pop').forEach(popClamp));
+window.addEventListener('resize', () => $$('.pop').forEach(popClamp));
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (DD.f) { ddClose(); return; }
+  if (GS.on) { gsClear(); return; }
+  const open = $$('.pop').filter(p => p.style.display === 'block').sort((a, b) => (+b.style.zIndex || 0) - (+a.style.zIndex || 0));
+  if (open.length) { e.preventDefault(); const x = $('.px', open[0]); if (x) x.click(); else open[0].style.display = 'none'; }
+});
+
+/* ---------- LOGIN remembered on this PC ---------- */
+function loginAuto() {
+  const id = LS.get('remember', ''); if (!id) return;
+  if (!LS.get('pins', {})[id]) return;
+  loginAuto.on = true;
+  Promise.resolve(login(id, '')).finally(() => { loginAuto.on = false; });
+}
+loginAuto.on = false;
+
+/* ---------- MASTER SAVE: same GD -> ask, tracker opens to edit ---------- */
+const _masterSave = masterSave;
+masterSave = function () {
+  const gd = up(FV('GD')), T = sheet('TRACKER');
+  if (gd && T) {
+    const c = col(T, 'GD'), same = [];
+    for (let r = 1; r < T.length; r++) if (c >= 0 && up(cell(T, r, c)) === gd) same.push(r);
+    if (same.length) {
+      const last = T[same[same.length - 1]], dc = col(T, 'Date'), bc = col(T, 'Saved By');
+      const ok = confirm('GD ' + FV('GD') + ' is already in the TRACKER (' + same.length + ' time(s), last ' + (last[dc] || '') + ' by ' + (last[bc] || '') + ').\n\nOK = save again (the old Tracker line is replaced)\nCancel = do not save - only open the Tracker');
+      if (!ok) { trkOpen(gd); return; }
+      for (let i = same.length - 1; i >= 0; i--) { backupOld('TRACKER', 'GD ' + gd, T[same[i]].join(' | ')); T.splice(same[i], 1); }
+    }
+  }
+  _masterSave();
+  trkOpen(gd);
+};
+const TRK = {q: '', pick: 0};
+function trkOpen(hl) {
+  let p = $('#popTRK');
+  if (!p) {
+    p = makePop('popTRK', '\u{1F4CB} TRACKER  -  edit · close with ✕ or Esc', 120, 90, 1160, 470);
+    const bar = el('div', 'abar', p.body);
+    const q = el('input', 'sin', bar); q.id = 'trkQ'; q.placeholder = 'filter (GD, M-PIN, TIN, name ...)'; q.style.width = '260px';
+    q.oninput = () => { TRK.q = q.value; trkPaint(); };
+    abtn(bar, '✔ SAVE', C.mari, () => { saveDB('TRACKER'); linkKick(); say('Tracker saved' + (AUTO.srv ? ' - SERVER ↻ sends it' : ''), 'ok'); });
+    abtn(bar, '✕ DELETE PICKED ROW', C.maroon, () => { const T = sheet('TRACKER'), r = TRK.pick; if (!T || !(r > 0)) return say('Click a row number first', 'bad'); if (!confirm('Delete Tracker row ' + r + '?')) return; backupOld('TRACKER', 'row ' + r, T[r].join(' | ')); T.splice(r, 1); TRK.pick = 0; saveDB('TRACKER'); trkPaint(); }, true);
+    abtn(bar, '⬇ EXCEL', C.green, () => exportExcel(['TRACKER']), true);
+    el('span', 'muted', bar).id = 'trkInfo';
+    const w = el('div', 'atw', p.body); w.id = 'trkW'; w.style.height = '400px';
+    w.oninput = e => { const i = e.target, T = sheet('TRACKER'); if (i.dataset.r == null || !T) return; const r = +i.dataset.r; while (T[r].length <= +i.dataset.c) T[r].push(''); T[r][+i.dataset.c] = i.value; i.parentNode.classList.add('chg'); markDirty('TRACKER'); clearTimeout(TRK.t); TRK.t = setTimeout(() => saveDB('TRACKER'), 800); };
+    w.onclick = e => { const t = e.target.closest('td.rn'); if (!t) return; TRK.pick = +t.dataset.r; $$('#trkW td.rn').forEach(x => x.classList.toggle('sel', x === t)); };
+  }
+  TRK.hl = up(hl || ''); TRK.q = ''; $('#trkQ').value = '';
+  showPop(p); trkPaint();
+  const h = $('#trkW tr.hl'); if (h) h.scrollIntoView({block: 'center'});
+}
+function trkPaint() {
+  const T = sheet('TRACKER'), w = $('#trkW'); if (!w) return;
+  if (!T) { w.innerHTML = '<div class="muted" style="padding:10px">No Tracker lines yet - MASTER SAVE adds them.</div>'; return; }
+  const f = TRK.q.toLowerCase(), gc = col(T, 'GD'), idx = [];
+  for (let r = 1; r < T.length; r++) if (!f || T[r].join(' ').toLowerCase().includes(f)) idx.push(r);
+  $('#trkInfo').textContent = idx.length + ' row(s)';
+  w.innerHTML = '<table class="dt edt"><thead><tr><th>#</th>' + T[0].map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' +
+    idx.slice(-400).map(r => '<tr' + (TRK.hl && gc >= 0 && up(T[r][gc]) === TRK.hl ? ' class="hl"' : '') + '><td class="rn' + (TRK.pick === r ? ' sel' : '') + '" data-r="' + r + '">' + r + '</td>' +
+      T[0].map((h, c) => '<td><input data-r="' + r + '" data-c="' + c + '" value="' + esc(T[r][c] == null ? '' : T[r][c]) + '"></td>').join('') + '</tr>').join('') + '</tbody></table>';
+}
+
+/* ---------- AGENTS: 11 people, 14 desks (3 free for later) ---------- */
+AG.push({id: 'EXCL', nm: 'Exa (MNR/CAP/HSD)', f: ''});
+LOOK.push(['#EBC09B', '#3A2214', 'bob', '#6C60D0'], ['#F3CBA8', '#22160F', 'pony', '#7568DB'], ['#DDA77F', '#4A2E1A', 'short', '#6E62D2'], ['#F1C7A2', '#1A1414', 'bun', '#7466D9']);
+DESKS.push([128, 160], [542, 160], [335, 210], [640, 160]);
+const agById = id => AG.find(a => a.id === id);
+function mkfsKey() { const m = digits(FV('Mkt Num.')), f = digits(FV('M&R FS')); return m && f ? m + '-' + f : m || (f ? '-' + f : ''); }
+function exclHits(tin) {
+  const v = tin.length >= 9 ? sheet('TIN EXCLUSION') : null, out = new Set(); if (!v) return out;
+  const cL = col(v, 'List'), cT = col(v, 'TIN');
+  for (let r = 1; r < v.length; r++) if (digits(cell(v, r, cT)) === tin) { const n = cell(v, r, cL).toLowerCase(); if (n.includes('mnr')) out.add('MNR'); if (n.includes('cap')) out.add('CAP'); if (n.includes('hsd')) out.add('HSD'); }
+  return out;
+}
+const _onField = town.onField.bind(town);
+town.onField = function (lab) {
+  if (lab === 'Mkt Num.' || lab === 'M&R FS') {           // both boxes together: Manu + Arya
+    if (!this.watch) return;
+    clearTimeout(this.keys.MKFS);
+    this.keys.MKFS = setTimeout(() => { const k = mkfsKey(); if (!k) return; this.job(agById('MNR FS'), k); if (k.indexOf('-') > 0) this.job(agById('A1025'), k); }, 900);
+    return;
+  }
+  _onField(lab);
+  if (lab === 'TIN' && this.watch) { clearTimeout(this.keys.EXCL); this.keys.EXCL = setTimeout(() => this.job(agById('EXCL'), FV('TIN')), 1000); }
+};
+const _run = town.run.bind(town);
+town.run = function (a, key) {
+  if (a.id === 'MNR FS') {
+    const [m, f] = String(key).split('-'), I = mnrIndex(), A = sheet('MNR A1025');
+    let n = 0; if (A && m && f) { let c = col(A, 'Mkt Num'); if (c < 0) c = 0; n = A.filter((r, i) => i && digits(r[c]) === m + f).length; }
+    const mOk = !m || I.M.has(m), fOk = !f || I.F.has(f);
+    return {ok: mOk && fOk, msg: (m ? 'Mkt ' + m + (mOk ? ' ✓' : ' ✕') : '') + (f ? (m ? ' · ' : '') + 'M&R FS ' + f + (fOk ? ' ✓' : ' ✕') : '') + (m && f ? ' · A1025 ' + (n ? n + ' line(s)' : 'none') : ''), act: n ? 'A1025' : ''};
+  }
+  if (a.id === 'EXCL') {
+    const t = digits(key); if (t.length < 9) return null; const h = exclHits(t);
+    return {ok: true, msg: h.size ? 'TIN found in ' + Array.from(h).join(' / ') + ' list' : 'TIN not in MNR / CAP / HSD lists', act: 'EXCL'};
+  }
+  const r = _run(a, key);
+  if (r && a.id === 'COMMERCIAL') r.multi = /set\(s\)/.test(r.msg) && comFind(digits(key)).length > 1;
+  if (r && a.id === 'CSP' && r.ok) r.msg += ' → Medicaid C&S';
+  return r;
+};
+const _act = town.act.bind(town);
+town.act = function (c) {
+  const p = (c.act || '').split('|');
+  if (p[0] === 'CSP') return cspMedicaidFill(true, p[1]);
+  if (p[0] === 'EXCL') { exclCheck(); return; }
+  _act(c);
+};
+const _finish2 = town.finish.bind(town);
+town.finish = function (a) {
+  _finish2(a);
+  if (a.id === 'EXCL' && a.res && a.res.ok) exclCheck();                 // ticks + text in B always (no filling of other boxes)
+  if (a.id === 'COMMERCIAL' && a.res && a.res.multi && !LS.get('agfill', false)) { showScreen(0); comFill(true); }   // 2 sets: you pick
+};
+// draw with free desks
+town.draw = function () {
+  const g = this.cx; if (!g || !this.bg) return;
+  g.clearRect(0, 0, this.W, this.H); g.drawImage(this.bg, 0, 0, this.W, this.H);
+  this.wall(g);
+  const items = [];
+  DESKS.forEach((d, i) => items.push({y: d[1] - 1, fn: () => this.desk(g, d[0], d[1], i, AG[i] ? AG[i].state !== 'seat' || (live.on && (this.t + i * 7) % 40 < 20) : false)}));
+  items.push({y: CORE.y + 22, fn: () => this.core(g)});
+  AG.forEach(a => items.push({y: a.state === 'seat' ? a.y + .5 : a.y, fn: () => this.person(g, a)}));
+  items.sort((p, q) => p.y - q.y).forEach(it => it.fn());
+  g.font = '700 8px Segoe UI'; g.textAlign = 'center';
+  DESKS.forEach((d, i) => { const a = AG[i], s = depth(d[1]), nm = a ? a.nm.split(' ')[0] : 'FREE', w = g.measureText(nm).width + 10, y = Math.min(d[1] + 9 * s, this.H - 12);
+    g.fillStyle = !a ? 'rgba(60,70,110,.6)' : a.mood === 'happy' ? 'rgba(22,199,132,.92)' : a.mood === 'sad' ? 'rgba(224,50,95,.92)' : 'rgba(10,20,60,.85)'; g.strokeStyle = 'rgba(79,227,255,.7)'; g.lineWidth = .8;
+    rr(g, d[0] - w / 2, y, w, 11, 5.5); g.fill(); g.stroke(); g.fillStyle = a ? '#DFF8FF' : '#9FB0D8'; g.fillText(nm, d[0], y + 8.3); });
+  AG.forEach(a => {
+    if (!a.bub || a.bubT <= 0) return;
+    g.font = '600 9.5px Segoe UI'; const t = a.bub.length > 46 ? a.bub.slice(0, 45) + '…' : a.bub, w = g.measureText(t).width + 14;
+    const s = depth(a.y), bx = Math.min(Math.max(a.x - w / 2, 2), this.W - w - 2), by = Math.max(2, a.y - 66 * s);
+    g.fillStyle = a.mood === 'sad' ? 'rgba(255,232,238,.96)' : a.mood === 'happy' ? 'rgba(229,255,242,.96)' : 'rgba(10,22,64,.92)';
+    g.strokeStyle = a.mood === 'sad' ? '#FF4D78' : a.mood === 'happy' ? '#16E08F' : '#4FE3FF'; g.lineWidth = 1.2;
+    g.shadowColor = g.strokeStyle; g.shadowBlur = 8; rr(g, bx, by, w, 17, 8.5); g.fill(); g.shadowBlur = 0; g.stroke();
+    g.fillStyle = a.mood ? '#1D1430' : '#DFF8FF'; g.textAlign = 'left'; g.fillText(t, bx + 7, by + 12);
+  });
+};
+const _noteAsk = noteAsk;
+noteAsk = function (q) { q = tr(q); if (/^\d{3,6}-\d{3,4}$/.test(q)) { town.job(agById('MNR FS'), q); town.job(agById('A1025'), q); return; } _noteAsk(q); };
+
+/* ---------- MEDICAID C&S from CSP_LOB by ST (J1400 tick + Cassie) ---------- */
+const MCD_HDR = ['Medicaid column', 'CSP_LOB heading(s)  (several: A | B)'];
+const MCD_DEF = [['LOB', 'LOB'], ["Ag ID's", 'AGAG'], ['NAME', 'NWPR | NVPR'], ['LOB Description', 'LOB Description | LOB Descr'], ['CAP code', 'CAP code | CAP'],
+  ['CAP/LOB eff. Dt', 'Earliest LOB Eff Date | Earliest | Eff Date'], ['LOB Term Dt', 'Term Date | Term'], ['Link', 'Link | ID // Link']];
+const mcdSheet = () => defSheet('HTML_CSPMAP', MCD_HDR, MCD_DEF);
+function mcdCol(v, heads) {
+  const hs = String(heads || '').split('|').map(hkey).filter(Boolean);
+  for (const h of hs) { const c = v[0].findIndex(x => hkey(x) === h); if (c >= 0) return c; }
+  for (const h of hs) { const c = v[0].findIndex(x => hkey(x).startsWith(h)); if (c >= 0) return c; }
+  return -1;
+}
+function cspMedicaidFill(manual, st) {
+  st = up(st || FV('ST')).slice(0, 2);
+  if (st.length !== 2) { if (manual) popup('MEDICAID C&S', 'Type ST first.', 'red'); return 0; }
+  const v = sheet('CSP_LOB') || sheet('CSP LOB');
+  if (!v) { if (manual) popup('MEDICAID C&S', 'CSP_LOB list not loaded (SERVER ↻).', 'red'); return 0; }
+  const cS = col(v, 'State'), M = mcdSheet().slice(1).map(r => [gci(0, r[0]), mcdCol(v, r[1])]).filter(x => x[0] >= 0 && x[1] >= 0);
+  const cL = (M.find(x => x[0] === 0) || [0, -1])[1];
+  const grp = []; let n = 0, found = 0;
+  for (let r = 1; r < v.length; r++) {
+    if (up(cell(v, r, cS)) !== st) continue;
+    const lob = cell(v, r, cL); if (!lob || !/\d/.test(lob) || /TERM/i.test(lob)) continue;
+    found++;
+    if (lobInGrid(lob)) continue;
+    const rr_ = nextEmpty(0); if (rr_ < 0) break;
+    M.forEach(([gc, sc]) => { const x = cell(v, r, sc); if (x) setGV(0, rr_, gc, x, grp); });
+    n++;
+  }
+  undoPush(grp);
+  if (!found) { if (manual) popup('MEDICAID C&S', 'No CSP_LOB lines for ' + st + '.', 'red'); return 0; }
+  showTab(0); gridRender(0); persist(); qkPaint();
+  if (n || manual) say(n ? 'Medicaid C&S: ' + n + ' LOB(s) of ' + st + ' from CSP_LOB  (Ctrl+Z = back)' : 'All ' + st + ' LOBs are already in Medicaid C&S', 'ok');
+  return n;
+}
+function j1400Fill(manual) { if (FV('County')) lobAddAll(false); cspMedicaidFill(manual); }
+
+/* ---------- VACCN: click = fill the VACCN row of Commercial E&I (by ST region) ---------- */
+const VAC_HDR = ['Region', 'States', 'Master Name', 'Master ID', 'Fee Sched', 'Penalty table', 'Note'];
+const VAC_DEF = [['1', 'CO,DE,DC,ME,MD,MA,NH,NJ,NY,NC,PA,RI,VT,VA,WV', '85003_00300/001/VACCN', '2807168', '', '', ''],
+  ['2', 'IL,IN,IA,KS,KY,MI,MN,MO,NE,ND,OH,SD,WI', '85002_00200/001/VACCN', '2827157', '', '', ''],
+  ['3', 'AL,AR,FL,GA,LA,MS,OK,PR,SC,TN,US', '85003_00300/001/VACCN', '2827164', '', '', '']];
+const vacSheet = () => defSheet('VACCN', VAC_HDR, VAC_DEF);
+function vaccnFill() {
+  const st = up(FV('ST')); if (st.length !== 2) return popup('VACCN', 'Type ST first.', 'red');
+  const v = vacSheet(), cs = col(v, 'States'), row = v.slice(1).find(r => String(r[cs] || '').toUpperCase().split(/[,\s;]+/).includes(st));
+  if (!row) return popup('VACCN', 'NOT FOUND: ' + st + ' is in no VACCN region (ADMIN > VACCN).', 'red');
+  let gr = -1; for (let r = 0; r < 22; r++) if (up(GV(1, r, 0)) === 'VACCN') { gr = r; break; }
+  if (gr < 0) { gr = nextEmpty(1); if (gr < 0) return popup('VACCN', 'Commercial E&I is full.', 'red'); }
+  const grp = []; setGV(1, gr, 0, 'VACCN', grp);
+  ['Master Name', 'Master ID', 'Fee Sched', 'Penalty table', 'Note'].forEach(h => { const c = col(v, h), x = c >= 0 ? tr(row[c]) : ''; if (x) setGV(1, gr, gci(1, h), x, grp); });
+  undoPush(grp); showTab(1); gridRender(1); persist();
+  say('VACCN FOUND: region ' + row[col(v, 'Region')] + ' (' + st + ') → Commercial row ' + (gr + 1) + '  (Ctrl+Z = back)', 'ok');
+}
+const _plusChecked = plusChecked;
+plusChecked = function (lab) {
+  if (lab === 'VACCN') { setFV('VACCN', ''); vaccnFill(); return; }       // no tick stays: click = data
+  if (lab === 'J1400') { j1400Fill(true); return; }
+  _plusChecked(lab);
+};
+
+/* ---------- HINT: TIN rows as a table, every column, slider, order from ADMIN / ☰ ---------- */
+const HC_HDR = ['TIN list heading  (several: A | B)', 'Show (Y/N)'];
+const HC_DEF = [['ST | State', 'Y'], ['Added On', 'Y'], ['ORG Type', 'Y'], ['PTI MPIN | PTI', 'Y'], ['MID/PHY/SPC | MID PHY SPC', 'Y'], ['EI - FS | EI FS', 'Y'], ['M&R FS | MNR FS', 'Y'],
+  ['Grp Nm | Group Name', 'Y'], ['TIN', 'Y'], ['Mkt Num. | Mkt Num', 'Y'], ['EMP Id | EMP', 'Y']];
+const hcSheet = () => defSheet('HTML_HINTCOLS', HC_HDR, HC_DEF);
+function hintCols(v) {
+  const n = v[0].length - 2, used = new Set(), out = [];
+  hcSheet().slice(1).forEach(r => {
+    const c = String(r[0] || '').split('|').map(hkey).filter(Boolean).map(h => v[0].findIndex((x, i) => i < n && hkey(x) === h)).find(c => c >= 0);
+    if (c == null || used.has(c)) return; used.add(c); if (up(r[1]) !== 'N') out.push(c);
+  });
+  for (let c = 0; c < n; c++) if (!used.has(c) && tr(v[0][c])) out.push(c);
+  return out;
+}
+function hintPaint() {
+  try { tinMark(); mkMarks(); } catch (e) {}
+  qkPaint();
+  const box = $('#hint'); if (!box) return;
+  hintRef = [];
+  const tin = digits(FV('TIN')), st = up(FV('ST')), cty = FV('County'), pti = digits(FV('PTI MPIN'));
+  let n = 0, m = 0, html = '';
+  const v = tinData(), byPti = hintMode === 'PTI' && pti.length >= 4 && tin.length < 9;
+  if ((tin.length >= 9 || byPti) && v) {
+    const cT = tinCol(v, 'TIN'), cP = tinCol(v, 'PTI MPIN'), cols = hintCols(v), hits = [];
+    for (let r = 1; r < v.length; r++) if (byPti ? digits(cell(v, r, cP)) === pti : digits(cell(v, r, cT)) === tin) hits.push(r);
+    if (hits.length) {
+      html += '<table class="ht"><thead><tr><th></th>' + cols.map(c => '<th>' + esc(v[0][c]) + '</th>').join('') + '<th>List</th></tr></thead><tbody>' +
+        hits.map(r => { hintRef.push('T' + r); return '<tr data-i="' + (hintRef.length - 1) + '"><td class="ok">✓</td>' + cols.map(c => '<td>' + esc(cell(v, r, c)) + '</td>').join('') + '<td class="muted">' + esc(v[r][v[0].length - 2]) + '</td></tr>'; }).join('') + '</tbody></table>';
+      n = hits.length;
+    }
+  }
+  const items = [];
+  if ((tin.length >= 9 || byPti) && n === 0) { items.push(['no', (byPti ? 'PTI MPIN ' + pti : 'TIN ' + tin) + ' not in the TIN list' + (v ? '' : ' (TIN list not loaded)') + '  -  press + to add it']); hintRef.push(''); }
+  if (cty) {
+    const L = sheet('COUNTY LOB');
+    if (L) {
+      const cS = col(L, 'State'), cC = col(L, 'County'), cL = colOf(L, 'LOB') >= 0 ? colOf(L, 'LOB') : col(L, 'LOB'), cD = col(L, 'LOB Description');
+      for (let r = 1; r < L.length; r++) if (up(cell(L, r, cC)) === up(cty) && (!st || up(cell(L, r, cS)) === st)) {
+        items.push(['lob', 'LOB ' + cell(L, r, cL) + '  -  ' + cell(L, r, cD) + '   (' + cell(L, r, cS) + ' ' + cty + ')' + (lobInGrid(cell(L, r, cL)) ? '   ✓' : '')]); hintRef.push('L' + r); m++;
+      }
+    }
+    if (m === 0) { items.push(['no', 'County ' + cty + ': no LOB saved' + (L ? '' : ' (COUNTY LOB not loaded)') + '  -  press + to add']); hintRef.push(''); }
+  }
+  if (!html && !items.length) { items.push(['no', 'Type TIN or County  -  matches show here  (TIN row: click = fill Group · LOB row: double-click = add to Medicaid C&S · ☰ = columns)']); hintRef.push(''); }
+  const off = n;
+  box.innerHTML = html + items.map((x, i) => '<div class="' + x[0] + '" data-i="' + (off + i) + '">' + esc(x[1]) + '</div>').join('');
+  $('#hintti').textContent = 'HINT' + (n + m ? dot + n + ' TIN' + dot + m + ' LOB' : '');
+}
+function hcolsUI(B, onSave) {
+  const v = tinData(), S = hcSheet();
+  const H = v ? v[0].slice(0, v[0].length - 2).filter(h => tr(h)) : [];
+  // list = sheet rows (in order) + every other TIN heading
+  const list = S.slice(1).map(r => ({h: tr(r[0]), on: up(r[1]) !== 'N'}));
+  H.forEach(h => { if (!list.some(x => x.h.split('|').map(hkey).includes(hkey(h)))) list.push({h, on: true}); });
+  B.innerHTML = '<div class="muted" style="margin-bottom:6px">Order = order in the HINT (▲▼). Untick = hidden. The HINT box has a slider for the rest. Saved in sheet HTML_HINTCOLS (SERVER ↻ shares it).</div>';
+  const w = el('div', 'hcl', B);
+  const draw = () => {
+    w.innerHTML = list.map((x, i) => { const found = !v || x.h.split('|').map(hkey).some(k => H.some(h => hkey(h) === k));
+      return '<div><label><input type="checkbox" data-i="' + i + '"' + (x.on ? ' checked' : '') + '> ' + esc(x.h) + (found ? '' : ' <span class="pill bad">not in TIN list</span>') + '</label><b data-u="' + i + '">▲</b><b data-d="' + i + '">▼</b></div>'; }).join('');
+  };
+  draw();
+  w.onclick = e => { const u = e.target.dataset.u, d = e.target.dataset.d; const i = u != null ? +u : d != null ? +d : -1; if (i < 0) return; const j = u != null ? i - 1 : i + 1; if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; draw(); };
+  w.onchange = e => { const i = e.target.dataset.i; if (i != null) list[+i].on = e.target.checked; };
+  const r = el('div', 'abar', B); r.style.marginTop = '8px';
+  abtn(r, '✔ SAVE', C.mari, () => { DB[norm('HTML_HINTCOLS')] = {name: 'HTML_HINTCOLS', rows: [HC_HDR.slice()].concat(list.map(x => [x.h, x.on ? 'Y' : 'N']))}; saveDB('HTML_HINTCOLS'); hintPaint(); say('HINT columns saved', 'ok'); if (onSave) onSave(); });
+  abtn(r, '↺ DEFAULT', C.maroon, () => { delete DB[norm('HTML_HINTCOLS')]; hcSheet(); saveDB('HTML_HINTCOLS'); hcolsUI(B, onSave); hintPaint(); }, true);
+}
+function hcolsOpen() {
+  let p = $('#popHC'); if (!p) { p = makePop('popHC', '☰ HINT COLUMNS  -  what shows first', 600, 110, 430); el('div', '', p.body).id = 'hcB'; }
+  hcolsUI($('#hcB'), () => p.style.display = 'none'); showPop(p);
+}
+
+/* ---------- GRID: select with the mouse (or row numbers), Ctrl+C = copy like Excel ---------- */
+const GS = {t: -1, on: false, drag: false};
+function gsCell(e) {
+  const td = e.target.closest ? e.target.closest('td') : null, tb = td && td.closest('table.g');
+  if (!tb || !/^gt\d$/.test(tb.id)) return null;
+  return {t: +tb.id[2], r: td.parentNode.rowIndex - 1, c: td.cellIndex - 1};
+}
+function gsRange() { return {r0: Math.min(GS.r0, GS.r1), r1: Math.max(GS.r0, GS.r1), c0: Math.min(GS.c0, GS.c1), c1: Math.max(GS.c0, GS.c1)}; }
+function gsPaint() {
+  $$('table.g td.gsel').forEach(x => x.classList.remove('gsel'));
+  if (!GS.on) return;
+  const R = gsRange(), tb = $('#gt' + GS.t); if (!tb) return;
+  for (let r = R.r0; r <= R.r1; r++) { const row = tb.rows[r + 1]; if (!row) continue; for (let c = R.c0; c <= R.c1; c++) { const td = row.cells[c + 1]; if (td) td.classList.add('gsel'); } }
+  say(G[GS.t].name + ': ' + (R.r1 - R.r0 + 1) + ' row(s) x ' + (R.c1 - R.c0 + 1) + ' col(s) picked  -  Ctrl+C = copy · Delete = clear · Esc = off');
+}
+function gsClear() { GS.on = false; GS.drag = false; gsPaint(); }
+function gsVal(t, r, c) { return t === 1 && r === 22 && c === 1 ? FV('ENW Yes or No') : G[t].data[r][c]; }
+document.addEventListener('mousedown', e => {
+  const p = gsCell(e);
+  if (!p) { if (GS.on && !(e.target.closest && e.target.closest('.btn'))) gsClear(); return; }
+  if (p.c < 0) {                                     // row number = whole row(s)
+    e.preventDefault(); if (document.activeElement) document.activeElement.blur();
+    if (e.shiftKey && GS.on && GS.t === p.t) { GS.r1 = p.r; } else Object.assign(GS, {t: p.t, r0: p.r, r1: p.r, c0: 0, c1: G[p.t].cols.length - 1, on: true});
+    GS.drag = true; GS.row = true; gsPaint(); return;
+  }
+  if (e.shiftKey && GS.t === p.t && (GS.on || GS.r0 != null)) { e.preventDefault(); Object.assign(GS, {r1: p.r, c1: p.c, on: true}); gsPaint(); return; }
+  if (GS.on) gsClear();
+  Object.assign(GS, {t: p.t, r0: p.r, c0: p.c, r1: p.r, c1: p.c, on: false, drag: true, row: false});
+});
+document.addEventListener('mouseover', e => {
+  if (!GS.drag) return; const p = gsCell(e); if (!p || p.t !== GS.t) return;
+  if (GS.row) { GS.r1 = p.r; gsPaint(); return; }
+  if (p.c < 0) return;
+  if (p.r === GS.r0 && p.c === GS.c0 && !GS.on) return;
+  GS.on = true; GS.r1 = p.r; GS.c1 = p.c;
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  const s = window.getSelection(); if (s) s.removeAllRanges();
+  gsPaint();
+});
+document.addEventListener('mouseup', () => { GS.drag = false; });
+document.addEventListener('keydown', e => {
+  if (!GS.on) return;
+  const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName) && !(a.closest && a.closest('table.g'))) return;
+  const R = gsRange(), t = GS.t;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+    e.preventDefault(); const out = [];
+    for (let r = R.r0; r <= R.r1; r++) { const row = []; for (let c = R.c0; c <= R.c1; c++) row.push(gsVal(t, r, c)); out.push(row.join('\t')); }
+    copyText(out.join('\n')); say((R.r1 - R.r0 + 1) + ' row(s) copied - paste in Excel / anywhere', 'ok');
+  } else if (e.key === 'Delete' || e.key === 'Backspace') {
+    e.preventDefault(); const grp = [];
+    for (let r = R.r0; r <= R.r1; r++) for (let c = R.c0; c <= R.c1; c++) if (!(t === 1 && r === 22)) setGV(t, r, c, '', grp);
+    undoPush(grp); gridRender(t); persist(); gsPaint(); say(grp.length + ' cell(s) cleared  (Ctrl+Z = back)');
+  }
+});
+const _gridRender2 = gridRender;
+gridRender = function (t) { _gridRender2(t); if (GS.on && GS.t === t) gsPaint(); };
+
+/* ---------- C / M / MD quick viewers (same lists, edit + note) ---------- */
+function qkData(k) {
+  const S = [];
+  if (k === 'C') {
+    const v = sheet('COMMERCIAL'); let sets = comFind(''); const key = digits(FV('PTI MPIN')) || digits(FV('TIN'));
+    if (!sets.length && key) sets = comFind(key);
+    if (v) sets.forEach((s, i) => S.push({sheet: 'COMMERCIAL', rows: s, title: 'SET ' + (i + 1) + dot + 'PTI ' + cell(v, s[0], hdrC(v, 'PTI')) + dot + 'TIN ' + cell(v, s[0], hdrC(v, 'TIN')) + dot + 'FS ' + cell(v, s[0], hdrC(v, 'Fee')),
+      note: 'hint', fill: () => comApply(s), keys: {'PTI MPIN': FV('PTI MPIN'), 'TIN': digits(FV('TIN')), 'EMP Id': FV('EMP Id'), 'Fee Schedule': FV('EI - FS')}}));
+    if (!S.length) S.push({sheet: 'COMMERCIAL', rows: [], title: 'No set for this PTI MPIN / TIN yet - + ROW adds one (or fill the grid and SAVE GRID TO LIST)', note: 'hint', keys: {'PTI MPIN': FV('PTI MPIN'), 'TIN': digits(FV('TIN')), 'EMP Id': FV('EMP Id'), 'Fee Schedule': FV('EI - FS')}, hdr: COM_HDR, extra: () => comSaveGrid()});
+  }
+  if (k === 'M') {
+    const v = sheet('MNR A1025') || sheet('MNR_A1025'), mk = digits(FV('Mkt Num.')), fs = digits(FV('M&R FS')), rows = [];
+    if (v && mk && fs) { let c = col(v, 'Mkt Num'); if (c < 0) c = 0; for (let r = 1; r < v.length; r++) if (digits(cell(v, r, c)) === mk + fs) rows.push(r); }
+    S.push({sheet: sheet('MNR A1025') || !sheet('MNR_A1025') ? 'MNR A1025' : 'MNR_A1025', rows, title: mk && fs ? 'A1025 ' + mk + '-' + fs + dot + rows.length + ' line(s)' : 'Type Mkt Num. and M&R FS in Group', note: 'Note', fill: () => a1025Fill(true), keys: {'Mkt Num': mk && fs ? mk + '-' + fs : ''}});
+  }
+  if (k === 'MD') {
+    const st = up(FV('ST')), cty = up(FV('County'));
+    const L = sheet('COUNTY LOB'), r1 = [];
+    if (L && cty) { const cS = col(L, 'State'), cC = col(L, 'County'); for (let r = 1; r < L.length; r++) if (up(cell(L, r, cC)) === cty && (!st || up(cell(L, r, cS)) === st)) r1.push(r); }
+    S.push({sheet: 'COUNTY LOB', rows: r1, title: 'COUNTY LOB' + dot + (cty ? FV('County') + (st ? ' ' + st : '') + dot + r1.length + ' line(s)' : 'type County'), note: 'Note', fill: () => lobAddAll(true), keys: {'State': st, 'County': FV('County')}});
+    const V = sheet('CSP_LOB'), r2 = [];
+    if (V && st) { const cS = col(V, 'State'); for (let r = 1; r < V.length; r++) if (up(cell(V, r, cS)) === st) r2.push(r); }
+    S.push({sheet: 'CSP_LOB', rows: r2, title: 'CSP_LOB' + dot + (st ? st + dot + r2.length + ' line(s)' : 'type ST'), note: 'Note', fill: () => cspMedicaidFill(true), keys: {'State': st}});
+  }
+  return S;
+}
+function qkPaint() {
+  ['C', 'M', 'MD'].forEach(k => {
+    const q = $('#qk' + k); if (!q) return; let n = 0;
+    try { const S = qkData(k); n = k === 'C' ? S.filter(x => x.rows.length).length : S.reduce((s, x) => s + x.rows.length, 0); } catch (e) {}
+    q.classList.toggle('has', n > 0); $('i', q).textContent = n ? (n > 99 ? '99+' : n) : '';
+  });
+}
+const QK = {k: 'C', S: []};
+function qkOpen(k) {
+  QK.k = k; QK.S = qkData(k);
+  let p = $('#popQK');
+  if (!p) {
+    p = makePop('popQK', '', 150, 110, 1100, 500); const w = el('div', '', p.body); w.id = 'qkW';
+    w.addEventListener('input', e => {
+      const i = e.target, s = QK.S[+i.dataset.s]; if (!s) return; const v = sheet(s.sheet); if (!v) return;
+      if (i.dataset.note != null) { if (!s.rows.length) return; let c = v[0].findIndex(h => up(h) === up(s.note)); if (c < 0) { v[0].push(s.note); c = v[0].length - 1; } while (v[s.rows[0]].length <= c) v[s.rows[0]].push(''); v[s.rows[0]][c] = i.value; }
+      else { const r = +i.dataset.r, c = +i.dataset.c; while (v[r].length <= c) v[r].push(''); v[r][c] = i.value; i.parentNode.classList.add('chg'); }
+      s.dirty = true; markDirty(s.sheet);
+    });
+    w.addEventListener('click', e => {
+      const b = e.target.closest('[data-qa]'); if (!b) return; const s = QK.S[+b.dataset.s], a = b.dataset.qa;
+      if (a === 'fill') { qkSave(); p.style.display = 'none'; s.fill(); }
+      if (a === 'add') { let v = sheet(s.sheet); if (!v) v = ensureSheet(s.sheet, s.hdr || Object.keys(s.keys).concat([s.note])); const row = v[0].map(h => { const k = Object.keys(s.keys).find(x => up(h).includes(up(x))); return k ? s.keys[k] : ''; }); v.push(row); s.rows.push(v.length - 1); s.dirty = true; markDirty(s.sheet); qkDraw(); }
+      if (a === 'del') { const v = sheet(s.sheet), r = +b.dataset.r; if (!confirm('Delete this line from ' + s.sheet + '?')) return; backupOld(s.sheet, 'row ' + r, v[r].join(' | ')); v.splice(r, 1); saveDB(s.sheet); QK.S = qkData(QK.k); qkDraw(); qkPaint(); }
+      if (a === 'extra') s.extra();
+    });
+  }
+  p.head.textContent = {C: '\u{1F7E0} C · COMMERCIAL E&I  -  saved sets', M: '\u{1F7E3} M · MEDICARE M&R  -  A1025 lines', MD: '\u{1F7E2} MD · MEDICAID C&S  -  County LOB + CSP LOB'}[k] + '   (edit = same list · Esc closes)';
+  const old = $('#qkBar', p); if (old) old.remove();
+  const bar = el('div', 'abar', p.body); bar.id = 'qkBar'; p.body.insertBefore(bar, p.body.firstChild);
+  abtn(bar, '✔ SAVE CHANGES', C.mari, () => { qkSave(); say('Saved', 'ok'); });
+  abtn(bar, '↻ RELOAD', C.sky, () => { QK.S = qkData(QK.k); qkDraw(); }, true);
+  showPop(p); qkDraw();
+}
+function qkSave() { const n = QK.S.filter(s => s.dirty).map(s => s.sheet); QK.S.forEach(s => s.dirty = false); if (n.length) { saveDB(...n); linkKick(); } qkPaint(); }
+function qkDraw() {
+  $('#qkW').innerHTML = QK.S.map((s, si) => {
+    const v = sheet(s.sheet), H = v ? v[0] : (s.hdr || []), nc = v ? H.findIndex(h => up(h) === up(s.note)) : -1;
+    const note = v && s.rows.length && nc >= 0 ? tr(v[s.rows[0]][nc]) : '';
+    const cols = H.map((h, c) => c).filter(c => c !== nc);
+    return '<div class="qks"><div class="qkt"><b>' + esc(s.title) + '</b>' +
+      (s.fill && s.rows.length ? '<span class="btn st" style="--b:#F07F1E" data-qa="fill" data-s="' + si + '">➤ FILL FRAME</span>' : '') +
+      '<span class="btn st lite" style="--b:#0E9AA7" data-qa="add" data-s="' + si + '">+ ROW</span>' +
+      (s.extra ? '<span class="btn st lite" style="--b:#0E9AA7" data-qa="extra" data-s="' + si + '">SAVE GRID TO LIST</span>' : '') + '</div>' +
+      (s.rows.length ? '<div class="atw" style="max-height:250px"><table class="dt edt"><thead><tr><th></th>' + cols.map(c => '<th>' + esc(H[c]) + '</th>').join('') + '</tr></thead><tbody>' +
+        s.rows.map(r => '<tr><td class="rn"><b data-qa="del" data-s="' + si + '" data-r="' + r + '" title="delete line" style="cursor:pointer;color:#9B1B3F">✕</b></td>' + cols.map(c => '<td><input data-s="' + si + '" data-r="' + r + '" data-c="' + c + '" value="' + esc(v[r][c] == null ? '' : v[r][c]) + '"></td>').join('') + '</tr>').join('') + '</tbody></table></div>' : '') +
+      (s.rows.length ? '<textarea class="qkn" data-s="' + si + '" data-note="1" placeholder="\u{1F4DD} note for this set (hint for next time) ...">' + esc(note) + '</textarea>' : '') + '</div>';
+  }).join('');
+}
+
+/* ---------- ADMIN: new tabs ---------- */
+ADM_TABS.splice(3, 0, ['rules', '\u2696 RULES'], ['hcols', '\u2630 HINT COLUMNS'], ['mcd', '\u{1F7E2} MEDICAID \u2190 CSP'], ['vaccn', '\u{1F489} VACCN']);
+function admPaint() {
+  $$('#popAD .admtab').forEach(x => x.classList.toggle('on', x.dataset.k === ADM.tab));
+  const B = ADM.body; B.innerHTML = '';
+  ({trig: admTrig, head: admHead, map: admMap, layout: admLayout, users: admUsers, lists: admLists, master: admMaster, btns: admBtns, sync: admSync, bridge: admBridge, log: admLog,
+    rules: admRules, hcols: B => hcolsUI(B), mcd: admMcd, vaccn: admVac})[ADM.tab](B);
+}
+function admRules(B) {
+  ahelp(B, '<b>RULES</b> = when a box gets a value, other boxes are set by themselves. <code>(blank)</code> = empty box, <code>*</code> = any value. Example: Del/Non Del = Del \u2192 Del Box 1/2/3 = Yes, Comment / (601) / (205/252) = N/A. Box names = the frame labels. Saved in sheet HTML_RULES (SERVER \u21BB shares it, Excel keeps it).');
+  ruleSheet(); sheetEditor(B, 'HTML_RULES', RULE_HDR, {h: 440});
+  el('div', 'ahelp', B, 'Boxes: ' + FL.filter(f => f.kind !== 'K').map(f => esc(f.lab)).join(' \u00b7 '));
+}
+function admMcd(B) {
+  ahelp(B, '<b>MEDICAID C&S \u2190 CSP_LOB</b>: which CSP_LOB heading fills which Medicaid column (J1400 tick and Cassie / ST agent). Several names: <code>NWPR | NVPR</code>. Empty = not filled. Sheet HTML_CSPMAP.');
+  mcdSheet(); sheetEditor(B, 'HTML_CSPMAP', MCD_HDR, {h: 300});
+  const v = sheet('CSP_LOB'); if (v) el('div', 'ahelp', B, 'CSP_LOB headings now: <b>' + v[0].map(esc).join('</b> \u00b7 <b>') + '</b>');
+}
+function admVac(B) {
+  ahelp(B, '<b>VACCN</b>: click the VACCN tick (Commercial E&I) = the row of the ST region goes into the VACCN line of the grid (Master Name, Master ID, Fee Sched, Penalty table, Note). No tick stays. States separated by commas. Own file Data\\VACCN.xlsx.');
+  vacSheet(); sheetEditor(B, 'VACCN', VAC_HDR, {h: 380});
+}
+
+// quick icons follow every change of the frame
+const _persist = persist;
+persist = function () { _persist(); clearTimeout(qkPaint.t); qkPaint.t = setTimeout(qkPaint, 400); };
+
 /* ---------------------------------------------------------------------
    "i"  LAYOUT EDITOR  (password 763388, owner only)
    --------------------------------------------------------------------- */
@@ -3531,6 +4156,7 @@ function onClick(k, ev) {
     case 'B_CLEAR': resetFrame(true); break;
     case 'B_ERASE': if (!trig('Reset Excel')) popup('Reset Excel', 'No Excel macro set yet.\n"i" > ADMIN > BUTTONS \u2192 EXCEL > Reset Excel: put your macro name.', 'red'); break;
     case 'B_HPLUS': countyAddPrompt(); break;
+    case 'B_HCOLS': hcolsOpen(); break;
     case 'B_PCOM': if (!trig('LOAD PCOM')) popup('LOAD PCOM', 'No Excel macro set.\n"i" > ADMIN > BUTTONS \u2192 EXCEL.', 'red'); break;
     case 'B_CMAP': if (!USER.admin) return say('Only the Admin changes which box goes to which cell', 'bad'); ADM.tab = 'map'; admOpen(); break;
     case 'B_UHCID': uhcidAdd(); break;
@@ -3599,14 +4225,12 @@ function buildPage() {
   const f = PG;
   // top bar
   card(f, 'C_TOP', '', 4, 0, 572, 34);
-  [['Site', 10, 60], ['ST', 190, 30], ['GD', 256, 60], ['Phy. Name', 342, 80], ['Phycon TIN', 478, 80]].forEach(([t, x, w]) => { lbl(f, 'TL_' + t, t, x, 0, w, 'left').style.fontSize = '9px'; });
-  addF(f, 'Site', 'C', 10, 13, 140, 16);
-  btn(f, 'B_LINK', 'link', 154, 13, 30, 16, C.mari);
-  addF(f, 'ST', 'T', 190, 13, 30, 16);
-  btn(f, 'B_GO', 'GO', 224, 13, 26, 16, C.mari);
-  addF(f, 'GD', 'T', 256, 13, 80, 16);
-  addF(f, 'Phy. Name', 'T', 342, 13, 130, 16);
-  addF(f, 'Phycon TIN', 'T', 478, 13, 90, 16);
+  [['ST', 10, 30], ['GD', 76, 60], ['Phy. Name', 190, 80], ['Phycon TIN', 432, 80]].forEach(([t, x, w]) => { lbl(f, 'TL_' + t, t, x, 0, w, 'left').style.fontSize = '9px'; });
+  addF(f, 'ST', 'T', 10, 13, 30, 16);
+  btn(f, 'B_GO', 'GO', 44, 13, 26, 16, C.mari);
+  addF(f, 'GD', 'T', 76, 13, 108, 16);
+  addF(f, 'Phy. Name', 'T', 190, 13, 236, 16);
+  addF(f, 'Phycon TIN', 'T', 432, 13, 136, 16);
   // individual
   card(f, 'C_IND', 'INDIVIDUAL INFORMATION', 4, 38, 378, 332);
   btn(f, 'B_ERIND', 'Erase', 334, 40, 44, 13, C.maroon);
@@ -3650,7 +4274,6 @@ function buildPage() {
   btn(f, 'B_EXIT', 'Exit Frame', 298, 349, 76, 18, C.ink);
   // group
   card(f, 'C_GRP', 'GROUP INFO', 386, 38, 190, 332);
-  btn(f, 'B_AMD', 'Amd', 466, 40, 32, 13, C.sky);
   btn(f, 'B_STAR', '\u2605', 501, 40, 18, 13, C.amber).title = 'Add this TIN + Group to the TIN list';
   btn(f, 'B_ERGRP', 'Erase', 530, 40, 42, 13, C.maroon);
   const SG = 18, GX = 446;
@@ -3660,9 +4283,9 @@ function buildPage() {
   gl('GL7', 'EI', 7); addF(f, 'EI', 'C', GX, Y + SG * 7, 34);
   lbl(f, 'GL7b', 'M', 482, Y + SG * 7, 10); addF(f, 'M', 'C', 494, Y + SG * 7, 34);
   lbl(f, 'GL7c', 'C', 530, Y + SG * 7, 10); addF(f, 'C', 'C', 542, Y + SG * 7, 28);
-  [['EI - FS', 8, 124], ['M&R FS', 9, 106], ['Mkt Name', 10, 124], ['Mkt Num.', 11, 106], ['Evercare', 12, 124], ['Mkt&MNR', 13, 124]].forEach(([t, i, w]) => { gl('GL' + i, t, i); addF(f, t, 'T', GX, Y + SG * i, w); });
+  [['EI - FS', 8, 124], ['M&R FS', 9, 106], ['Mkt Name', 10, 124], ['Mkt Num.', 11, 106], ['Evercare', 12, 124]].forEach(([t, i, w]) => { gl('GL' + i, t, i); addF(f, t, 'T', GX, Y + SG * i, w); });
   [['mkFs', 9, 'MK_FS'], ['mkMkt', 11, 'MK_MKT']].forEach(([id, i, k]) => { const m = el('div', 'tinmk', f); pos(m, 555, Y + SG * i + 1, 14, 14); m.id = id; reg(m, k); });
-  addF(f, 'Group Notes', 'M', 392, Y + SG * 14 + 2, 178, 26).e.placeholder = 'Group Notes';
+  addF(f, 'Group Notes', 'M', 392, Y + SG * 13 + 2, 178, 44).e.placeholder = 'Group Notes  (CLM / ACR from the TIN list)';
   addF(f, 'Extra', 'M', 392, Y + SG * 14 + 31, 178, 22).e.placeholder = 'Extra (from the TIN list)';
   // hint + highlight box
   const hc = card(f, 'C_HINT', '', 4, 374, 572, 141);
@@ -3671,6 +4294,7 @@ function buildPage() {
   btn(f, 'B_CMAP', 'CELL MAP', 193, 376, 60, 13, C.aub, true);
   ['NDB', 'MED', 'EI', 'CS', 'S', 'P'].forEach((q, i) => btn(f, 'B_Q_' + q, 'OPEN ' + q, 258 + i * 49, 376, 45, 13, [C.teal, C.rose, C.mari, C.violet, C.sky, C.green][i]));
   btn(f, 'B_HPLUS', '+', 553, 394, 18, 14, C.teal, false, 13).title = 'TIN not in list -> add it / County -> add LOB codes';
+  btn(f, 'B_HCOLS', '\u2630', 553, 412, 18, 14, C.aub2, false, 11).title = 'HINT columns: which TIN list columns show, and in which order';
   const hb = el('div', '', f); hb.id = 'hint'; pos(hb, 7, 394, 544, 117); reg(hb, 'LST_HINT');
   hb.addEventListener('click', e => { const d = e.target.closest('[data-i]'); if (d) hintClick(+d.dataset.i, false); });
   hb.addEventListener('dblclick', e => { const d = e.target.closest('[data-i]'); if (d) hintClick(+d.dataset.i, true); });
@@ -3705,8 +4329,11 @@ function buildPage() {
   pc.addEventListener('contextmenu', e => { e.preventDefault(); pConnect(); });
   const sp = sbtn(cw, 'B_SYNCP', '<span>↻</span>', C.maroon); sp.id = 'bAutoP'; sp.classList.add('rsync'); sp.onclick = () => autoToggle('prac');
   el('span', 'hsep', cw);
-  const tk = sbtn(cw, 'B_TRK', 'TRACKER', C.ink); tk.classList.add('sm'); tk.onclick = () => { ADM.sh = 'TRACKER'; if (USER.admin) { ADM.tab = 'master'; admOpen(); } else trackerShow(); };
+  const tk = sbtn(cw, 'B_TRK', 'TRACKER', C.ink); tk.classList.add('sm'); tk.onclick = () => trkOpen();
   const bi = sbtn(cw, 'B_I', 'i', C.sky); bi.id = 'bI'; bi.classList.add('ibtn');
+  const qk = el('div', 'qkw', b);
+  [['C', 'Commercial E&I - saved sets (COMMERCIAL list)', '#C2560A'], ['M', 'Medicare M&R - A1025 lines', '#5B2F99'], ['MD', 'Medicaid C&S - County LOB + CSP LOB', '#0B7F8A']]
+    .forEach(([t, ti, c]) => { const q = el('div', 'qk', qk, t + '<i></i>'); q.id = 'qk' + t; q.title = ti; q.style.setProperty('--q', c); q.onclick = () => qkOpen(t); });
   el('div', '', b).id = 'log';
   const nt = el('div', 'ic', b, '\u{1F4DD}'); nt.title = 'Sticky note (agent cards)'; nt.onclick = noteShow; nt.style.fontSize = '16px';
   const e = el('img', '', b); e.id = 'earth'; e.src = ART.earth_0; e.title = 'JARVIS'; e.onclick = () => onClick('B_EARTH');
@@ -3804,6 +4431,7 @@ function buildLogin() {
   const b = el('div', '', L); b.id = 'lgbox';
   b.innerHTML = '<h1>\u2726 SUPERLOAD</h1><h2>ALPHA NEXTGEN ECLIPSE \u00b7 v' + VER + ' \u00b7 HTML</h2>' +
     '<input id="lgid" placeholder="MSID" autocomplete="off"><input id="lgpin" type="password" maxlength="4" placeholder="4 digit PIN" autocomplete="off">' +
+    '<label id="lgrem"><input type="checkbox" id="lgremc" checked> Remember me on this PC (no login next time)</label>' +
     '<div class="btn" id="lgok" style="--b:#F07F1E;width:100%">LOGIN</div><div id="lgmsg"></div>' +
     '<div id="lgwel">Welcome \u00b7 Licence: internal use \u00b7 first login on this PC sets your PIN</div>';
   const go = () => login($('#lgid').value, $('#lgpin').value);
@@ -3814,14 +4442,16 @@ async function sha(s) { try { const b = await crypto.subtle.digest('SHA-256', ne
 async function login(id, pin) {
   id = up(id); pin = digits(pin);
   if (!id) return $('#lgmsg').textContent = 'Type your MSID';
-  if (pin.length !== 4) return $('#lgmsg').textContent = 'PIN = 4 digits';
+  if (pin.length !== 4 && !loginAuto.on) return $('#lgmsg').textContent = 'PIN = 4 digits';
   const U = sheet('HTML USERS'), row = userRow(id);
   if (id !== OWNER && U && U.length > 1 && (!row || up(row[3]) === 'N')) return $('#lgmsg').textContent = 'MSID not allowed - ask the Admin (ADMIN > USERS)';
   const pins = LS.get('pins', {}); const h = await sha(id + pin);
-  if (!pins[id]) { pins[id] = h; LS.set('pins', pins); }
+  if (loginAuto.on) { if (!pins[id]) return; }
+  else if (!pins[id]) { pins[id] = h; LS.set('pins', pins); }
   else if (pins[id] !== h) return $('#lgmsg').textContent = 'Wrong PIN';
   USER = {id, owner: id === OWNER, admin: id === OWNER || (row && /admin/i.test(row[2] || ''))};
   LS.set('lastid', id);
+  if (!loginAuto.on) LS.set('remember', $('#lgremc') && $('#lgremc').checked ? id : '');
   $('#login').style.display = 'none';
   $('#huser').textContent = '\u{1F464} ' + id + (USER.admin ? ' · ADMIN' : '');
   $('#bI').classList.toggle('hidden', !USER.admin);
@@ -3865,6 +4495,7 @@ function tinMark() {
   town.build(); live.build(); jv.build(); edit.load(); editMouse();
   dataInfo(); hintPaint(); town.status(); afterData(); connPaint();
   $('#lgid').value = LS.get('lastid', '');
+  loginAuto();
   $('#fileIn').onchange = e => { loadFiles(Array.from(e.target.files)); e.target.value = ''; };
   $('#teachIn').onchange = e => { jv.teach(Array.from(e.target.files)); e.target.value = ''; };
   document.addEventListener('keydown', e => {
