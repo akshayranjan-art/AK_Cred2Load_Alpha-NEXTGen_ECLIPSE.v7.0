@@ -513,6 +513,15 @@ table.dt tr.hl td{background:#FFF3C4}
 @keyframes nwander2{0%,100%{transform:translate(0,0) scale(1)}30%{transform:translate(-80px,10px) scale(.9)}60%{transform:translate(60px,-12px) scale(1.1)}}
 .norb{position:absolute;left:calc(50% - 20px);top:calc(50% - 20px);width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#7FF6FF 0,#1FA5FF 30%,#3B2BB5 70%,#0b0a2a 100%);box-shadow:0 0 22px #1FA5FF,0 0 40px rgba(123,92,255,.6);animation:orbp calc(4s/var(--sp)) ease-in-out infinite}
 @keyframes orbp{50%{transform:scale(1.08);box-shadow:0 0 30px #1FA5FF,0 0 60px rgba(123,92,255,.8)}}
+/* amardi v5.2i */
+.stw table.dt tr.amfr th{position:sticky;top:22px;background:#EFE7F7;padding:2px 3px;z-index:2}
+.stw table.dt thead tr:first-child th{position:sticky;top:0;z-index:3;cursor:pointer;user-select:none}
+.amf{width:100%;min-width:60px;height:20px;font:10.5px "Segoe UI";border:1px solid #CBBFDB;border-radius:4px;background:#fff;color:#4A3D5C}
+.amf.on{background:#FFF0D6;border-color:#F07F1E;color:#9A4A00;font-weight:700}
+.stw table.dt td{cursor:copy}
+.stw table.dt td.cp{background:#D7F5E4 !important;box-shadow:inset 0 0 0 1px #16A34A}
+#scr7 .cb .btn.st{font-size:9.5px;padding:0 6px}
+.amcols label.def{font-weight:700;color:#0B6B33}
 </style>
 </head>
 <body>
@@ -552,7 +561,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
    (LOAD EXCEL reads them: TIN LIST / TIN_List, COUNTY LOB, CSP_LOB ...).
    Fixed layout 1400 x 780 px - nothing moves or scales by itself.
    ===================================================================== */
-const VER = '5.2h';
+const VER = '5.2i';
 const K = 1.25;                    // 1 pt of the Excel frame = 1.25 px
 const OWNER = 'ARANJA14';
 const I_PASS = '763388';
@@ -4935,6 +4944,191 @@ function admStrip(B) {
   const r = abar(B); abtn(r, '↺ DEFAULT', C.maroon, () => { LS.set('stripcfg', {}); admPaint(); stripBuild(); }, true);
   abtn(r, '\u{1F441} SHOW THE STRIP NOW', C.teal, () => { AT.hide = true; LS.set('athide', true); atLayout(); });
 }
+
+/* =====================================================================
+   v5.2i  AMARDI
+   PTI MPIN DEMO  (was DEMOGRAPHIC)   ·   CSP / IFP SNAP  (was CAP DATA)
+   default columns always the same (tick more when needed, DEFAULT brings them back,
+   a new dump starts with the default again) · filter under every heading ·
+   click a heading = sort · DEMO: Search by (default Org Type Cd) + value list ·
+   SNAP: LOB list + SPECIALTY list · a dump goes to its own data by its headings
+   ===================================================================== */
+const AM_DEF = {
+  AM_DEMO: ['MPIN', 'Tax ID', 'Org Type Cd', 'Address ID', 'Street', 'City', 'State', 'Zip Cd', 'County', 'Adr Type'],
+  AM_CAP: ['LOB', 'AgreementID', 'SPECIALTY', 'SPECIALTY_2', 'GROUP_ID', 'PRAD_ADDR1', 'PRAD_CITY', 'PRAD_STATE', 'PRAD_ZIP', 'ZipPlus4', 'OrgTypeCd']
+};
+const AM_NAME = {AM_DEMO: 'PTI MPIN DEMO', AM_CAP: 'CSP / IFP SNAP'};
+const amK = s => String(s || '').toUpperCase().replace(/[\s_\-.]/g, '');
+function amCfg() {
+  const c = Object.assign({show: null, col: '', sort: '', dir: 1}, LS.get('amcfg2_' + AMX.cur, {}));
+  if (!c.show) c.show = AM_DEF[AMX.cur].map(amK);
+  if (!c.col && AMX.cur === 'AM_DEMO') c.col = 'Org Type Cd';
+  return c;
+}
+function amCfgSet(c) { LS.set('amcfg2_' + AMX.cur, c); }
+function amVis(h) {               // visible column numbers, in the data order
+  const c = amCfg(); let k = h.map((x, i) => i).filter(i => tr(h[i]) && c.show.includes(amK(h[i])));
+  if (!k.length) k = h.map((x, i) => i).filter(i => tr(h[i])).slice(0, 10);
+  return k;
+}
+function amCol(h, name) { return h.findIndex(x => amK(x) === amK(name)); }
+function amUniq(v, c) { if (c < 0) return []; const s = new Set(); for (let r = 1; r < v.length; r++) { const x = tr(v[r][c]); if (x) s.add(x); } return Array.from(s).sort((a, b) => { const n1 = parseFloat(a), n2 = parseFloat(b); return isNaN(n1) || isNaN(n2) ? a.localeCompare(b) : n1 - n2; }); }
+const optAll = (a, cur, all) => '<option value="">' + (all || '(all)') + '</option>' + a.map(x => '<option' + (x === cur ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
+
+/* ---------- build: new names + search block ---------- */
+const _amBuild = amBuild;
+amBuild = function (S) {
+  _amBuild(S);
+  AMX.bCap.textContent = AM_NAME.AM_CAP; AMX.bDemo.textContent = AM_NAME.AM_DEMO;
+  // the old search grid becomes ours
+  const g = AMX.c1s.parentNode; g.innerHTML = ''; AMX.sg = g;
+  g.onchange = e => {
+    const t = e.target; if (!t.dataset.am) return;
+    if (t.dataset.am === 'c1' || t.dataset.am === 'c2') { AMX.sv = AMX.sv || {}; AMX.sv[t.dataset.am === 'c1' ? 'v1' : 'v2'] = ''; amSearchUI(); }
+    amSearch(false);
+  };
+  AMX.flt = {};
+  // copy buttons next to COPY RESULT
+  const cr = $$('.btn', AMX.c1.body).find(x => /COPY RESULT/.test(x.textContent));
+  if (cr) { const rb = cbtn(cr.parentNode, '\u2398  COPY ROW', C.aub, amCopyRow, 'lite'); rb.style.flex = '1'; cr.parentNode.insertBefore(rb, cr.nextSibling); }
+  el('div', 'tip', AMX.c1.body, '<b>Copy:</b> click a cell = that value is copied (AGID, PTI MPIN ...) \u00b7 right-click a heading = the whole column \u00b7 COPY ROW / COPY RESULT = with headings');
+};
+const _amSwitch = amSwitch;
+amSwitch = function (nm) {
+  AMX.flt = {}; AMX.srt = null; AMX.sv = {};
+  _amSwitch(nm);
+  AMX.c1.ti.textContent = '✦  ' + AM_NAME[nm];
+};
+amInfo = function () {
+  const v = sheet(AMX.cur), h = v && v[0] ? v[0].filter(x => tr(x)) : [];
+  AMX.c1.ti.textContent = '✦  ' + AM_NAME[AMX.cur];
+  AMX.rem.value = LS.get('amrem_' + AMX.cur, '');
+  AMX.stat.textContent = v && v.length > 1 ? '✔ ' + (v.length - 1) + ' rows · ' + h.length + ' columns saved · ' + LS.get('amstamp_' + AMX.cur, '') : 'Nothing saved yet. Drop the Excel file in DUMP (or PASTE DATA / FILE).';
+  AMX.hl.textContent = h.length ? 'HEADERS:  ' + h.join('  ·  ') : '';
+  amSearchUI();
+};
+// DEMO: Search by (column) + value list, And (column) + value list   ·   SNAP: LOB list + SPECIALTY list
+function amSearchUI() {
+  const g = AMX.sg; if (!g) return; const v = sheet(AMX.cur), h = v && v[0] ? v[0] : [], sv = AMX.sv = AMX.sv || {};
+  if (AMX.cur === 'AM_CAP') {
+    const cL = amCol(h, 'LOB'), cS = amCol(h, 'SPECIALTY');
+    g.innerHTML = '<div class="kk">Search by LOB</div><div class="kk">Search by SPECIALTY</div>' +
+      '<select class="ssel" data-am="v1">' + optAll(v ? amUniq(v, cL) : [], sv.v1, '(all LOB)') + '</select>' +
+      '<select class="ssel" data-am="v2">' + optAll(v ? amUniq(v, cS) : [], sv.v2, '(all specialty)') + '</select>';
+  } else {
+    const c = amCfg(), hh = h.filter(x => tr(x));
+    if (!sv.c1) sv.c1 = (hh.find(x => amK(x) === amK(c.col)) || hh.find(x => amK(x) === 'ORGTYPECD') || hh[0] || '');
+    const c1 = amCol(h, sv.c1), c2 = sv.c2 ? amCol(h, sv.c2) : -1;
+    g.innerHTML = '<div class="kk">Search by</div><div class="kk">Value</div>' +
+      '<select class="ssel" data-am="c1">' + hh.map(x => '<option' + (x === sv.c1 ? ' selected' : '') + '>' + esc(x) + '</option>').join('') + '</select>' +
+      '<select class="ssel" data-am="v1">' + optAll(v ? amUniq(v, c1) : [], sv.v1) + '</select>' +
+      '<div class="kk">And  (optional)</div><div></div>' +
+      '<select class="ssel" data-am="c2"><option value="">(none)</option>' + hh.map(x => '<option' + (x === sv.c2 ? ' selected' : '') + '>' + esc(x) + '</option>').join('') + '</select>' +
+      '<select class="ssel" data-am="v2"' + (c2 < 0 ? ' disabled' : '') + '>' + optAll(v && c2 >= 0 ? amUniq(v, c2) : [], sv.v2) + '</select>';
+  }
+}
+function amReadUI() { const sv = AMX.sv = AMX.sv || {}; $$('[data-am]', AMX.sg).forEach(x => sv[x.dataset.am] = x.value); return sv; }
+
+/* ---------- search + header filters + sort ---------- */
+amSearch = function (quick) {
+  const v = sheet(AMX.cur);
+  if (!v || v.length < 2) { AMX.T.t.innerHTML = '<tbody><tr><td class="muted" style="padding:12px">(no data - drop the Excel file in DUMP)</td></tr></tbody>'; AMX.T.rows = []; AMX.full = []; AMX.c2.ti.textContent = '✦  RESULT'; return; }
+  const h = v[0], sv = amReadUI(), q = tr(AMX.q.value).toLowerCase();
+  let A, B;
+  if (AMX.cur === 'AM_CAP') { A = [amCol(h, 'LOB'), sv.v1]; B = [amCol(h, 'SPECIALTY'), sv.v2]; }
+  else { A = [amCol(h, sv.c1), sv.v1]; B = [sv.c2 ? amCol(h, sv.c2) : -1, sv.v2]; }
+  const vis = amVis(h), rows = [];
+  for (let r = 1; r < v.length; r++) {
+    const row = v[r];
+    if (A[0] >= 0 && A[1] && tr(row[A[0]]) !== A[1]) continue;
+    if (B[0] >= 0 && B[1] && tr(row[B[0]]) !== B[1]) continue;
+    if (quick && q && !row.join('|').toLowerCase().includes(q)) continue;
+    rows.push(row);
+  }
+  AMX.base = rows; AMX.fullHdr = h; AMX.vis = vis;
+  const what = [A[1] ? (AMX.cur === 'AM_CAP' ? 'LOB' : sv.c1) + ' = ' + A[1] : '', B[1] ? (AMX.cur === 'AM_CAP' ? 'SPECIALTY' : sv.c2) + ' = ' + B[1] : '', quick && q ? "any column '" + AMX.q.value + "'" : ''].filter(Boolean).join('  ·  ');
+  AMX.what = what;
+  amRender();
+};
+function amRender() {
+  const h = AMX.fullHdr, vis = AMX.vis, f = AMX.flt || {}, cfg = amCfg();
+  let rows = AMX.base.filter(r => vis.every(c => !f[c] || tr(r[c]) === f[c]));
+  const s = AMX.srt || (amCol(h, cfg.sort) >= 0 ? {c: amCol(h, cfg.sort), d: cfg.dir || 1} : null);
+  if (s) rows = rows.slice().sort((a, b) => { const p = tr(a[s.c]), q = tr(b[s.c]), n1 = parseFloat(p), n2 = parseFloat(q); return (isNaN(n1) || isNaN(n2) ? p.localeCompare(q) : n1 - n2) * s.d; });
+  const show = rows.slice(0, 1500);
+  AMX.full = show; AMX.hdr = vis.map(c => h[c]); AMX.T.rows = show.map(r => vis.map(c => r[c]));
+  const fl = c => { const vals = Array.from(new Set(AMX.base.filter(r => vis.every(k => k === c || !f[k] || tr(r[k]) === f[k])).map(r => tr(r[c])).filter(Boolean))).sort((a, b) => { const n1 = parseFloat(a), n2 = parseFloat(b); return isNaN(n1) || isNaN(n2) ? a.localeCompare(b) : n1 - n2; }).slice(0, 400);
+    return '<select data-f="' + c + '" class="amf' + (f[c] ? ' on' : '') + '"><option value="">▾ all</option>' + vals.map(x => '<option' + (x === f[c] ? ' selected' : '') + '>' + esc(x) + '</option>').join('') + '</select>'; };
+  AMX.T.t.innerHTML = '<thead><tr>' + vis.map(c => '<th data-s="' + c + '" title="click = sort">' + esc(h[c]) + (s && s.c === c ? (s.d > 0 ? ' ▲' : ' ▼') : '') + '</th>').join('') + '</tr>' +
+    '<tr class="amfr">' + vis.map(c => '<th>' + fl(c) + '</th>').join('') + '</tr></thead><tbody>' +
+    show.map((r, i) => '<tr data-i="' + i + '">' + vis.map(c => '<td>' + esc(r[c] == null ? '' : r[c]) + '</td>').join('') + '</tr>').join('') + '</tbody>';
+  const nf = Object.values(f).filter(Boolean).length, v = sheet(AMX.cur);
+  AMX.c2.ti.textContent = '✦  RESULT  ·  ' + rows.length + ' of ' + (v.length - 1) + ' rows' + (AMX.what ? '  ·  ' + AMX.what : '') + (nf ? '  ·  ' + nf + ' filter(s)' : '') + (rows.length > 1500 ? '  ·  first 1500 shown' : '');
+}
+document.addEventListener('change', e => { const t = e.target; if (!t.classList || !t.classList.contains('amf')) return; AMX.flt[t.dataset.f] = t.value; amRender(); });
+document.addEventListener('click', e => {
+  const th = e.target.closest && e.target.closest('th[data-s]'); if (!th || !AMX.T || !AMX.T.contains(th)) return;
+  const c = +th.dataset.s; AMX.srt = AMX.srt && AMX.srt.c === c ? {c, d: -AMX.srt.d} : {c, d: 1}; amRender();
+});
+document.addEventListener('click', e => {
+  const tr_ = e.target.closest && e.target.closest('tr[data-i]'); if (!tr_ || !AMX.T || !AMX.T.contains(tr_)) return;
+  $$('tr.sel', AMX.T.t).forEach(x => x.classList.remove('sel')); tr_.classList.add('sel');
+  const td = e.target.closest('td'); if (!td) return;
+  const val = tr(td.textContent); if (!val) return;
+  copyText(val); $$('td.cp', AMX.T.t).forEach(x => x.classList.remove('cp')); td.classList.add('cp');
+  say('\u2398 Copied: ' + val, 'ok');
+});
+// right-click a heading = copy that whole column (no duplicates)
+document.addEventListener('contextmenu', e => {
+  const th = e.target.closest && e.target.closest('th[data-s]'); if (!th || !AMX.T || !AMX.T.contains(th)) return;
+  e.preventDefault(); const c = +th.dataset.s, vals = Array.from(new Set(AMX.full.map(r => tr(r[c])).filter(Boolean)));
+  copyText(vals.join('\n')); say('\u2398 Column ' + AMX.fullHdr[c] + ' copied: ' + vals.length + ' value(s)', 'ok');
+});
+function amCopyRow() {
+  const tr_ = $('tr.sel', AMX.T.t); if (!tr_) return say('Click a row first', 'bad');
+  const r = AMX.T.rows[+tr_.dataset.i]; copyText([AMX.hdr.join('\t'), r.join('\t')].join('\n')); say('\u2398 Row copied (with headings) - paste in Excel', 'ok');
+}
+amCopy = function () { if (!AMX.T.rows || !AMX.T.rows.length) return say('Nothing to copy', 'bad'); copyText([AMX.hdr.join('\t')].concat(AMX.T.rows.map(r => r.join('\t'))).join('\n')); say('Result copied (' + AMX.T.rows.length + ' rows) - paste in Excel', 'ok'); };
+
+/* ---------- a dump goes to its own data (by the headings) + default columns again ---------- */
+function amKind(grid) {
+  const first = Math.max(0, grid.findIndex(r => r.filter(x => tr(x)).length >= 2)), H = (grid[first] || []).map(amK);
+  const cap = ['AGREEMENTID', 'CSHEALTHPLAN', 'PRADADDR1', 'NWPRPFX', 'CSPID'].filter(x => H.includes(x)).length;
+  const demo = ['TAXID', 'ADDRESSID', 'ORGTYPECD', 'ADRTYPE', 'LASTNAMEORGNAME'].filter(x => H.includes(x)).length;
+  return cap > demo ? 'AM_CAP' : demo > cap ? 'AM_DEMO' : '';
+}
+const _amSave = amSave;
+amSave = function (grid) {
+  const k = amKind(grid);
+  if (k && k !== AMX.cur) { amSwitch(k); say('This data is ' + AM_NAME[k] + ' - saved there', 'ok'); }
+  const c = amCfg(); c.show = AM_DEF[AMX.cur].map(amK); amCfgSet(c);       // new data = default columns
+  AMX.flt = {}; AMX.srt = null; AMX.sv = {};
+  _amSave(grid);
+};
+
+/* ---------- COLUMNS setting: default ticks + DEFAULT button ---------- */
+amSetOpen = function () {
+  const v = sheet(AMX.cur); if (!v || !v[0] || !v[0].some(x => tr(x))) return popup('COLUMNS', 'Dump the data first (drop the Excel file or PASTE DATA).', 'red');
+  let p = $('#popAMS'); if (!p) p = makePop('popAMS', '', 420, 110, 600);
+  p.head.textContent = '⚙ ' + AM_NAME[AMX.cur] + '  -  columns (default ticks come back with DEFAULT and with new data)';
+  const h = v[0].filter(x => tr(x)), c = amCfg(), op = (a, k) => a.map(x => '<option' + (amK(x) === amK(k) ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
+  p.body.innerHTML = '<div class="muted" style="margin-bottom:6px">Tick = the column shows in RESULT. <b>Default</b>: ' + AM_DEF[AMX.cur].map(esc).join(', ') + '</div>' +
+    '<div class="amcols">' + h.map(x => '<label' + (AM_DEF[AMX.cur].map(amK).includes(amK(x)) ? ' class="def"' : '') + '><input type="checkbox" data-h="' + esc(amK(x)) + '"' + (c.show.includes(amK(x)) ? ' checked' : '') + '> ' + esc(x) + '</label>').join('') + '</div>' +
+    '<div style="display:grid;grid-template-columns:110px 1fr;gap:5px;align-items:center;margin-top:8px">' +
+    (AMX.cur === 'AM_DEMO' ? 'Search by (default)<select id="amsCol">' + op(h, c.col) + '</select>' : '') +
+    'Sort by<select id="amsSort"><option value="">none</option>' + op(h, c.sort) + '</select>Order<select id="amsDir"><option value="1">A → Z</option><option value="-1"' + (c.dir < 0 ? ' selected' : '') + '>Z → A</option></select></div>';
+  const r = el('div', '', p.body); r.style.cssText = 'display:flex;gap:6px;margin-top:8px';
+  cbtn(r, '↺ DEFAULT', C.teal, () => { const d = AM_DEF[AMX.cur].map(amK); $$('#popAMS [data-h]').forEach(x => x.checked = d.includes(x.dataset.h)); }, 'lite');
+  cbtn(r, 'ALL', C.sky, () => $$('#popAMS [data-h]').forEach(x => x.checked = true), 'lite');
+  cbtn(r, 'NONE', C.sky, () => $$('#popAMS [data-h]').forEach(x => x.checked = false), 'lite');
+  cbtn(r, '✔ SAVE', C.mari, () => {
+    const n = {show: $$('#popAMS [data-h]').filter(x => x.checked).map(x => x.dataset.h), col: $('#amsCol') ? $('#amsCol').value : '', sort: $('#amsSort').value, dir: +$('#amsDir').value};
+    if (!n.show.length) return say('Keep at least one column', 'bad');
+    amCfgSet(n); AMX.flt = {}; AMX.sv = {}; p.style.display = 'none'; amInfo(); amSearch(true); say('Columns saved', 'ok');
+  });
+  showPop(p);
+};
+amClear = (function (prev) { return function () { prev(); AMX.flt = {}; AMX.sv = {}; amInfo(); }; })(amClear);
 
 /* ---------------------------------------------------------------------
    "i"  LAYOUT EDITOR  (password 763388, owner only)
