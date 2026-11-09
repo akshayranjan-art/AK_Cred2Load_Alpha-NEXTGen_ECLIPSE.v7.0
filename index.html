@@ -532,6 +532,10 @@ table.dt tr.hl td{background:#FFF3C4}
 #popAMD.mini .pb{display:none}
 #exW td.cp{background:#D7F5E4;box-shadow:inset 0 0 0 1px #16A34A}
 #exW td{cursor:copy;white-space:nowrap}
+#hint table.hlob{margin-top:4px}
+#hint table.hlob tr.st td{background:#DDF7E8;color:#0B6B33;font-weight:700}
+#hint table.hlob td{color:#4B2C6F;font-weight:500}
+.exh{font-weight:800;color:#9B1B3F;margin:8px 0 3px;font-size:12px}
 </style>
 </head>
 <body>
@@ -571,7 +575,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
    (LOAD EXCEL reads them: TIN LIST / TIN_List, COUNTY LOB, CSP_LOB ...).
    Fixed layout 1400 x 780 px - nothing moves or scales by itself.
    ===================================================================== */
-const VER = '5.2j';
+const VER = '5.2k';
 const K = 1.25;                    // 1 pt of the Excel frame = 1.25 px
 const OWNER = 'ARANJA14';
 const I_PASS = '763388';
@@ -2706,7 +2710,7 @@ const SYNC_ITEMS = [
   ['EDIT NOTES', 'Data/Edit_Notes.xlsx'], ['TIN LIST', 'Data/TIN_List.xlsx'], ['UPDATE BACKUP', 'Data/Update_Backup.xlsx'],
   ['SAVE MAP DATA', 'Admin/Transfer_Map.xlsx'], ['GRID SETUP', 'Admin/Grid_Setup.xlsx'], ['ADMIN_RULES', 'Admin/Button_Access.xlsx'],
   ['MNR_HIDE', 'Data/MNR_Hidden_Lines.xlsx'], ['COUNTY LOB', 'Data/County_LOB.xlsx'], ['SPECIALTY', 'Data/Specialty.xlsx'],
-  ['COMMERCIAL', 'Data/Commercial.xlsx'], ['MNR A1025', 'Data/MNR_A1025.xlsx'], ['TIN EXCLUSION', 'Data/TIN_Exclusion.xlsx'], ['HTML_TRIGGERS', 'Admin/HTML_Triggers.xlsx'], ['HTML_HEADINGS', 'Admin/HTML_Headings.xlsx'],
+  ['COMMERCIAL', 'Data/Commercial.xlsx'], ['MNR A1025', 'Data/MNR_A1025.xlsx'], ['TIN EXCLUSION', 'Data/TIN_Exclusion.xlsx'], ['MNR TIN EXCLUSION', 'Data/TIN_Exclusion.xlsx'], ['HSD TIN EXCLUSION', 'Data/TIN_Exclusion.xlsx'], ['HTML_TRIGGERS', 'Admin/HTML_Triggers.xlsx'], ['HTML_HEADINGS', 'Admin/HTML_Headings.xlsx'],
   ['CELL MAP', 'Admin/Cell_Map.xlsx'], ['DATABASE ACTIONS', 'Admin/Database_Actions.xlsx'], ['HTML USERS', 'Admin/HTML_Users.xlsx']
 ];
 let DIRTY = new Set(), SMETA = {}, DIR = null, PDIR = null, BRQ = [];
@@ -2794,13 +2798,19 @@ async function connPaint() {
   try { autoPaint(); } catch (e) {}
 }
 function readSheetOf(wb, name) {
-  const sn = wb.SheetNames.find(s => norm(s) === norm(name)) || wb.SheetNames.find(s => norm(s).includes(norm(name))) || wb.SheetNames[0];
+  let sn = wb.SheetNames.find(s => norm(s) === norm(name)) || wb.SheetNames.find(s => norm(s).includes(norm(name)));
+  if (!sn && /^(MNR|HSD) TIN EXCLUSION$/.test(norm(name))) return [];      // that sheet is not in the file
+  sn = sn || wb.SheetNames[0];
   let rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], {header: 1, raw: false, defval: '', blankrows: false});
   return rows.map(r => r.map(x => x == null ? '' : String(x)));
 }
 async function writeXlsx(path, name, rows) {
   const fh = await fileGet(path, true); if (!fh) throw new Error('cannot write ' + path);
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), name.slice(0, 31));
+  // keep the other sheets of the file (e.g. TIN_Exclusion.xlsx has 3 sheets)
+  let wb = null; try { const f = await fh.getFile(); if (f.size) wb = XLSX.read(await f.arrayBuffer(), {type: 'array'}); } catch (e) { wb = null; }
+  if (!wb || !wb.SheetNames.length) wb = XLSX.utils.book_new();
+  const sn = wb.SheetNames.find(x => norm(x) === norm(name)) || (wb.SheetNames.length === 1 ? wb.SheetNames[0] : null);
+  if (sn) wb.Sheets[sn] = XLSX.utils.aoa_to_sheet(rows); else XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), name.slice(0, 31));
   const w = await fh.createWritable(); await w.write(XLSX.write(wb, {type: 'array', bookType: 'xlsx'})); await w.close();
   return (await fh.getFile()).lastModified;
 }
@@ -5147,17 +5157,32 @@ amClear = (function (prev) { return function () { prev(); AMX.flt = {}; AMX.sv =
    AMARDI: floating window from Group Info "Amd" (drag, minimise, Esc)
    ===================================================================== */
 const tin9 = s => { const d = digits(s); return d ? d.padStart(9, '0') : ''; };
-function exclRows(tin) {
-  const v = sheet('TIN EXCLUSION'); if (!v || !tin) return {v, rows: []};
-  const cT = col(v, 'TIN'); const rows = [];
-  for (let r = 1; r < v.length; r++) if (tin9(cell(v, r, cT)) === tin) rows.push(r);
-  return {v, rows};
+// all exclusion sheets: TIN EXCLUSION (CAP) · MNR TIN Exclusion (Tax ID) · HSD Tin Exclusion (TIN_nbr)
+function exclSheets() { return Object.values(DB).filter(x => /TIN EXCLUSION/.test(norm(x.name)) && x.rows && x.rows.length > 1); }
+function exclTinCol(h) {
+  const k = h.map(x => String(x || '').toUpperCase().replace(/[^A-Z]/g, ''));
+  for (const n of ['TIN', 'TAXID', 'TINNBR', 'TINNUMBER', 'TAXIDNUMBER']) { const c = k.indexOf(n); if (c >= 0) return c; }
+  return k.findIndex(x => /^TIN|TAXID/.test(x));
 }
+function exclKind(sh, v, r) {
+  const n = norm(sh.name), cL = col(v, 'List'), l = cL >= 0 ? cell(v, r, cL).toUpperCase() : '';
+  if (/^MNR/.test(n) || l.includes('MNR')) return 'MNR';
+  if (/^HSD/.test(n) || l.includes('HSD')) return 'HSD';
+  return 'CAP';
+}
+function exclAll(tin) {
+  const out = []; if (!tin) return out;
+  exclSheets().forEach(sh => { const v = sh.rows, c = exclTinCol(v[0]); if (c < 0) return; const rows = [];
+    for (let r = 1; r < v.length; r++) if (tin9(cell(v, r, c)) === tin) rows.push(r);
+    if (rows.length) out.push({sh, v, rows}); });
+  return out;
+}
+function exclRows(tin) { const a = exclAll(tin); return {rows: [].concat(...a.map(x => x.rows))}; }
 exclCheck = function () {
   const tin = digits(FV('TIN')).length >= 8 ? tin9(FV('TIN')) : '';
-  const {v, rows} = exclRows(tin), L = new Set();
-  if (v) { const cL = col(v, 'List'); rows.forEach(r => { const n = cell(v, r, cL).toLowerCase(); if (n.includes('mnr')) L.add('MNR'); if (n.includes('cap')) L.add('CAP'); if (n.includes('hsd')) L.add('HSD'); }); }
-  const hit = rows.length > 0, txt = hit ? 'TIN found in ' + (L.size ? Array.from(L).join(' / ') : 'exclusion') + ' list' + (rows.length > 1 ? ' (' + rows.length + ' lines)' : '') : '';
+  const A = exclAll(tin), L = new Set(); let n = 0;
+  A.forEach(x => x.rows.forEach(r => { L.add(exclKind(x.sh, x.v, r)); n++; }));
+  const hit = n > 0, txt = hit ? 'TIN found in ' + Array.from(L).join(' / ') + ' list' + (n > 1 ? ' (' + n + ' lines)' : '') : '';
   setFV('MNR Tin Exclusion', L.has('MNR') ? 'Y' : ''); setFV('Cap Code', L.has('CAP') ? 'Y' : ''); setFV('HSD County', L.has('HSD') ? 'Y' : '');
   setFV('B check', hit ? 'Y' : '');
   if (hit) { if (!FV('B') || FV('B') === exclCheck.txt) setFV('B', txt, true); say(txt + '  -  tick next to B = all details', 'bad'); }
@@ -5166,36 +5191,40 @@ exclCheck = function () {
 };
 function exclShow() {
   const tin = tin9(FV('TIN')); if (!tin) return say('Type the TIN first', 'bad');
-  const {v, rows} = exclRows(tin);
-  let p = $('#popEX'); if (!p) { p = makePop('popEX', '', 180, 150, 1040, 360); el('div', 'atw', p.body).id = 'exW'; $('#exW').style.height = '300px';
+  const A = exclAll(tin), n = A.reduce((s, x) => s + x.rows.length, 0);
+  let p = $('#popEX'); if (!p) { p = makePop('popEX', '', 140, 130, 1120, 420); el('div', 'atw', p.body).id = 'exW'; $('#exW').style.height = '360px';
     $('#exW').onclick = e => { const td = e.target.closest('td'); if (!td || !tr(td.textContent)) return; copyText(tr(td.textContent)); $$('#exW td.cp').forEach(x => x.classList.remove('cp')); td.classList.add('cp'); say('⎘ Copied: ' + tr(td.textContent), 'ok'); }; }
-  p.head.textContent = '\u{1F6AB} TIN ' + tin + '  -  ' + (rows.length ? rows.length + ' line(s) in the exclusion list (click a cell = copy)' : 'not in the MNR / CAP / HSD list');
-  if (!v) $('#exW').innerHTML = '<div class="muted" style="padding:10px">TIN EXCLUSION list not loaded (SERVER ↻)</div>';
-  else { const cols = v[0].map((h, c) => c).filter(c => tr(v[0][c]) || rows.some(r => tr(cell(v, r, c))));
-    $('#exW').innerHTML = rows.length ? '<table class="dt"><thead><tr>' + cols.map(c => '<th>' + esc(v[0][c]) + '</th>').join('') + '</tr></thead><tbody>' + rows.map(r => '<tr>' + cols.map(c => '<td>' + esc(cell(v, r, c)) + '</td>').join('') + '</tr>').join('') + '</tbody></table>' : '<div class="muted" style="padding:10px">No line for this TIN.</div>'; }
+  p.head.textContent = '\u{1F6AB} TIN ' + tin + '  -  ' + (n ? n + ' line(s) in the exclusion lists (click a cell = copy)' : 'not in the CAP / MNR / HSD lists');
+  if (!exclSheets().length) { $('#exW').innerHTML = '<div class="muted" style="padding:10px">TIN exclusion lists not loaded (SERVER ↻)</div>'; return showPop(p); }
+  $('#exW').innerHTML = n ? A.map(({sh, v, rows}) => { const cols = v[0].map((h, c) => c).filter(c => tr(v[0][c]) || rows.some(r => tr(cell(v, r, c))));
+      return '<div class="exh">' + esc(sh.name) + '  ·  ' + rows.length + ' line(s)</div><table class="dt"><thead><tr>' + cols.map(c => '<th>' + esc(v[0][c]) + '</th>').join('') + '</tr></thead><tbody>' +
+        rows.map(r => '<tr>' + cols.map(c => '<td>' + esc(cell(v, r, c)) + '</td>').join('') + '</tr>').join('') + '</tbody></table>'; }).join('')
+    : '<div class="muted" style="padding:10px">No line for this TIN in ' + exclSheets().map(x => esc(x.name)).join(', ') + '.</div>';
   showPop(p);
 }
 setTimeout(() => { const f = FX['B check']; if (!f) return; f.e.title = 'TIN in MNR / CAP / HSD list - click = all details';
   f.inp.addEventListener('click', () => { exclShow(); setTimeout(() => setFV('B check', exclRows(tin9(FV('TIN'))).rows.length ? 'Y' : ''), 0); }); }, 0);
 
-/* ---------- HINT: County LOB by county name only ---------- */
+/* ---------- HINT: County LOB by county name only, as a table with every heading ---------- */
 const _hintPaint5 = hintPaint;
 hintPaint = function () {
   _hintPaint5();
   const box = $('#hint'), cty = FV('County'), st = up(FV('ST')); if (!box || !cty) return;
   const L = sheet('COUNTY LOB'); if (!L) return;
   $$('#hint .lob', box).forEach(x => x.remove()); $$('#hint .no', box).filter(x => /^County /.test(x.textContent)).forEach(x => x.remove());
-  const cS = col(L, 'State'), cC = col(L, 'County'), cL = colOf(L, 'LOB') >= 0 ? colOf(L, 'LOB') : col(L, 'LOB'), cD = col(L, 'LOB Description');
+  const cS = col(L, 'State'), cC = col(L, 'County'), cL = colOf(L, 'LOB') >= 0 ? colOf(L, 'LOB') : col(L, 'LOB');
   const hits = []; for (let r = 1; r < L.length; r++) if (up(cell(L, r, cC)) === up(cty)) hits.push(r);
   hits.sort((a, b) => (up(cell(L, b, cS)) === st) - (up(cell(L, a, cS)) === st));
-  let html = '', n = 0;
-  hits.forEach(r => { hintRef.push('L' + r); const same = st && up(cell(L, r, cS)) === st; if (same) n++;
-    html += '<div class="lob' + (same ? ' st' : '') + '" data-i="' + (hintRef.length - 1) + '">' + (same ? '● ' : '') + 'LOB ' + esc(cell(L, r, cL)) + '  -  ' + esc(cell(L, r, cD)) + '   (' + esc(cell(L, r, cS)) + ' ' + esc(cty) + ')' + (lobInGrid(cell(L, r, cL)) ? '   ✓' : '') + '</div>'; });
-  if (!hits.length) { hintRef.push(''); html = '<div class="no" data-i="' + (hintRef.length - 1) + '">County ' + esc(cty) + ': no LOB saved  -  press + to add</div>'; }
+  let html, n = 0;
+  if (hits.length) {
+    const cols = L[0].map((h, c) => c).filter(c => tr(L[0][c]));
+    html = '<table class="ht hlob"><thead><tr><th></th>' + cols.map(c => '<th>' + esc(L[0][c]) + '</th>').join('') + '</tr></thead><tbody>' +
+      hits.map(r => { hintRef.push('L' + r); const same = st && up(cell(L, r, cS)) === st; if (same) n++;
+        return '<tr class="' + (same ? 'st' : '') + '" data-i="' + (hintRef.length - 1) + '"><td class="ok">' + (lobInGrid(cell(L, r, cL)) ? '✓' : same ? '●' : '') + '</td>' + cols.map(c => '<td>' + esc(cell(L, r, c)) + '</td>').join('') + '</tr>'; }).join('') + '</tbody></table>';
+  } else { hintRef.push(''); html = '<div class="no" data-i="' + (hintRef.length - 1) + '">County ' + esc(cty) + ': no LOB saved  -  press + to add</div>'; }
   box.insertAdjacentHTML('beforeend', html);
-  const t = $('#hintti'); if (t) t.textContent = t.textContent.replace(/\d+ LOB/, hits.length + ' LOB' + (st ? ' (' + n + ' ' + st + ')' : '')) + (/LOB/.test(t.textContent) ? '' : (hits.length ? '  ·  ' + hits.length + ' LOB' : ''));
+  const t = $('#hintti'); if (t) { const base = t.textContent.replace(/\s*·\s*\d+ LOB.*$/, ''); t.textContent = base + (hits.length ? ' · ' + hits.length + ' LOB' + (st ? ' (' + n + ' ' + st + ')' : '') : ''); }
 };
-
 /* ---------- AMARDI floating ---------- */
 const AMF = {min: false};
 function amdFloat() {
