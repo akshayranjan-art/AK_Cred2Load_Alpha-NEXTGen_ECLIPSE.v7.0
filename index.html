@@ -589,7 +589,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
    (LOAD EXCEL reads them: TIN LIST / TIN_List, COUNTY LOB, CSP_LOB ...).
    Fixed layout 1400 x 780 px - nothing moves or scales by itself.
    ===================================================================== */
-const VER = '5.2m';
+const VER = '5.2n';
 const K = 1.25;                    // 1 pt of the Excel frame = 1.25 px
 const OWNER = 'ARANJA14';
 const I_PASS = '763388';
@@ -5424,18 +5424,18 @@ town.build = function () {
    v5.2m  SUPERLOAD COMMAND CENTER = one button only: RUN EXCEL
    (its small frame comes next) · old buttons, settings and ADMIN tab removed
    ===================================================================== */
-TRIG_DEF.push(['RUN EXCEL', 'SUPERLOAD COMMAND CENTER', '', '', '', 'Excel macro that opens the frame']);
+TRIG_DEF.push(['RUN EXCEL', 'SUPERLOAD COMMAND CENTER', 'SLF_Show', '', '', 'opens the SUPERLOAD floating bar']);
 ccBuild = function (S) {
   const R = el('div', 'ccroot cc1', S); CC.root = R;
   const top = el('div', 'cctop', R);
   el('div', 'cctt', top, '<span class="ccs"></span><b>SUPERLOAD COMMAND CENTER</b><i>Practitioner</i>');
   CC.pill = el('span', 'ccpill', top);
   CC.body = el('div', 'cc1b', R);
-  const b = el('div', 'cc1btn', CC.body, '<span class="ccs"></span><b>RUN EXCEL</b><small>open the frame in Excel</small>'); b.id = 'ccRun';
+  const b = el('div', 'cc1btn', CC.body, '<span class="ccs"></span><b>RUN EXCEL</b><small>open the SUPERLOAD bar in Excel</small>'); b.id = 'ccRun';
   b.onclick = () => {
     b.classList.add('on'); setTimeout(() => b.classList.remove('on'), 1500);
     if (!PDIR) return popup('RUN EXCEL', 'Connect PRAC (Practitioner folder) first - bottom bar.', 'red');
-    if (!trig('RUN EXCEL')) popup('RUN EXCEL', 'No Excel macro set yet for RUN EXCEL.\n"i" > ADMIN > BUTTONS → EXCEL > RUN EXCEL: put the macro name.', 'red');
+    if (!trig('RUN EXCEL')) { bridgeAdd('RUN', 'SLF_Show'); linkKick(); say('RUN EXCEL \u2192 the SUPERLOAD bar opens in Excel' + (AUTO.on ? '' : '  (turn PRAC \u21BB ON)'), 'ok'); }
   };
   el('div', 'cc1t', CC.body, 'PRAC ↻ green + Excel ↻ green = it runs in Excel in a few seconds');
 };
