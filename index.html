@@ -536,6 +536,9 @@ table.dt tr.hl td{background:#FFF3C4}
 #hint table.hlob tr.st td{background:#DDF7E8;color:#0B6B33;font-weight:700}
 #hint table.hlob td{color:#4B2C6F;font-weight:500}
 .exh{font-weight:800;color:#9B1B3F;margin:8px 0 3px;font-size:12px}
+.obsw{margin-left:6px !important;gap:5px !important;color:#CFE0FF !important}
+.obsw i{width:30px !important;height:16px !important}.obsw i::after{width:12px !important;height:12px !important}
+.obsw input:checked+i::after{left:16px !important}.obsw b{font-size:9px;letter-spacing:.5px}
 </style>
 </head>
 <body>
@@ -575,7 +578,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
    (LOAD EXCEL reads them: TIN LIST / TIN_List, COUNTY LOB, CSP_LOB ...).
    Fixed layout 1400 x 780 px - nothing moves or scales by itself.
    ===================================================================== */
-const VER = '5.2k';
+const VER = '5.2l';
 const K = 1.25;                    // 1 pt of the Excel frame = 1.25 px
 const OWNER = 'ARANJA14';
 const I_PASS = '763388';
@@ -2828,7 +2831,7 @@ async function syncNow(quiet) {
   if (!(await dirOK(!quiet))) return quiet ? null : popup('SYNC', 'The browser did not allow the folder. Click CONNECTED / RECONNECT and press Allow.', 'red');
   SYNCING = true;
   let pulled = [], pushed = [], errs = [];
-  const items = SYNC_ITEMS.concat([['TRACKER', 'Tracker/Tracker_' + (USER.id || 'HTML') + '.xlsx']]);
+  const items = SYNC_ITEMS.slice();      // TRACKER lives in the PRACTITIONER folder (trkSync)
   for (const [nm, path] of items) {
     try {
       const k = norm(nm), fh = await fileGet(path, false), file = fh ? await fh.getFile() : null, meta = SMETA[k] || {};
@@ -5248,6 +5251,163 @@ setTimeout(() => { const t = $$('.stab')[SCREENS.indexOf('AMARDI')]; if (t) t.st
 const _showScreen5 = showScreen;
 showScreen = function (i) { if (SCREENS[i] === 'AMARDI') { amdFloat(); return; } _showScreen5(i); const s = $('#scr' + SCREENS.indexOf('AMARDI')); if (s && s.closest('#popAMD')) s.classList.add('on'); };
 amSend = (function (prev) { return function () { prev(); const p = $('#popAMD'); if (p) p.style.zIndex = ++showPop.z; }; })(amSend);
+
+/* =====================================================================
+   v5.2l  TRACKER  (file in the PRACTITIONER folder: Tracker\Tracker_<MSID>.xlsx)
+   headings of the file win (add new ones in Excel any time) · MASTER SAVE / + ADD
+   put GD, State, Start Date (today), MPIN, Tax ID, Group Name, PTI Mpin · the rest
+   by hand · same GD = EDIT that row / ADD NEW / CANCEL · hide old data ·
+   tick rows -> MAIL (GD .. Tax ID with headings)
+   ===================================================================== */
+const TRK_HDR = ['GD', 'State', 'Received Date', 'Start Date', 'Complete Date', 'Status', 'MPIN', 'Tax ID', 'Group Name', 'PTI Mpin', 'Comment', 'Extra Comment', 'Other Comment'];
+const TRK_FROM = {'GD': () => FV('GD'), 'STATE': () => up(FV('ST')), 'START DATE': () => todayUS(), 'MPIN': () => FV('M-PIN'), 'TAX ID': () => FV('TIN'), 'GROUP NAME': () => FV('Grp Nm'), 'PTI MPIN': () => FV('PTI MPIN')};
+const todayUS = () => { const d = new Date(), z = n => String(n).padStart(2, '0'); return z(d.getMonth() + 1) + '/' + z(d.getDate()) + '/' + d.getFullYear(); };
+const trkPath = () => 'Tracker/Tracker_' + (USER.id || 'HTML') + '.xlsx';
+const trkRoot = () => PDIR || DIR;
+function trkSheet() {
+  let T = sheet('TRACKER');
+  if (T && T[0] && !T[0].some(h => up(h) === 'GD' && T[0].indexOf(h) === 0) && T[0].some(h => /SAVED BY/i.test(h))) {     // old HTML tracker -> new headings
+    const o = T[0], g = h => o.findIndex(x => up(x) === up(h));
+    const map = {'GD': g('GD'), 'State': g('ST'), 'Start Date': g('Date'), 'MPIN': g('M-PIN'), 'Tax ID': g('TIN'), 'Group Name': g('Grp Nm'), 'PTI Mpin': g('PTI MPIN'), 'Comment': g('Comment')};
+    T = [TRK_HDR.slice()].concat(T.slice(1).map(r => TRK_HDR.map(h => map[h] >= 0 ? (r[map[h]] || '') : '')));
+    DB[norm('TRACKER')] = {name: 'TRACKER', rows: T};
+  }
+  if (!T || !T[0] || !T[0].length) { DB[norm('TRACKER')] = {name: 'TRACKER', rows: [TRK_HDR.slice()]}; T = sheet('TRACKER'); }
+  return T;
+}
+const tcol = (T, h) => T[0].findIndex(x => up(x).replace(/\s+/g, ' ') === h);
+// read / write the tracker file of the Practitioner folder
+async function trkSync(push) {
+  const root = trkRoot(); if (!root || !USER.id) return;
+  if (!(await permOK(root, false))) return;
+  if (!LS.get('trkmig52l', false)) { LS.set('trkmig52l', true); DIRTY.delete(norm('TRACKER')); delete SMETA[norm('TRACKER')]; }   // the file wins the first time
+  try {
+    const fh = await fileGet(trkPath(), false, root), file = fh ? await fh.getFile() : null, k = norm('TRACKER'), meta = SMETA[k] || {};
+    if ((push || DIRTY.has(k)) && sheet('TRACKER')) {
+      let wb = null; if (file && file.size) { try { wb = XLSX.read(await file.arrayBuffer(), {type: 'array'}); } catch (e) {} }
+      if (file) await backupFile(trkPath(), file);
+      if (!wb) wb = XLSX.utils.book_new();
+      const sn = wb.SheetNames.find(x => norm(x) === 'TRACKER') || wb.SheetNames[0];
+      if (sn) wb.Sheets[sn] = XLSX.utils.aoa_to_sheet(trkSheet()); else XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(trkSheet()), 'TRACKER');
+      const wh = await fileGet(trkPath(), true, root), w = await wh.createWritable(); await w.write(XLSX.write(wb, {type: 'array', bookType: 'xlsx'})); await w.close();
+      SMETA[k] = {lm: (await wh.getFile()).lastModified}; DIRTY.delete(k);
+    } else if (file && file.lastModified !== meta.lm) {
+      const rows = readSheetOf(XLSX.read(await file.arrayBuffer(), {type: 'array'}), 'TRACKER');
+      if (rows.length) DB[k] = {name: 'TRACKER', rows};
+      SMETA[k] = {lm: file.lastModified}; if ($('#popTRK') && $('#popTRK').style.display === 'block') trkPaint();
+    }
+    Store.set('smeta', SMETA); Store.set('dirty', [...DIRTY]); Store.set('db', DB);
+  } catch (e) { say('Tracker file: ' + e.message, 'bad'); }
+}
+const _autoLoopT = autoLoop;
+autoLoop = async function () { await _autoLoopT(); try { if (AUTO.on || AUTO.srv) await trkSync(false); } catch (e) {} };
+function trkSave() { markDirty('TRACKER'); Store.set('db', DB); return trkSync(true); }
+
+/* ---------- one row from the frame ---------- */
+function trkFill(row, T, onlyEmpty) { Object.keys(TRK_FROM).forEach(h => { const c = tcol(T, h); if (c < 0) return; while (row.length <= c) row.push(''); const v = TRK_FROM[h](); if (v && (!onlyEmpty || !tr(row[c]) || h !== 'START DATE')) row[c] = h === 'START DATE' && tr(row[c]) ? row[c] : v; }); return row; }
+// same GD? -> popup EDIT / ADD NEW / CANCEL ; returns a promise of 'edit' | 'new' | 'cancel'
+function trkAsk(gd, rows, T) {
+  return new Promise(res => {
+    let p = $('#popTQ'); if (!p) p = makePop('popTQ', '', 450, 220, 520);
+    const c = tcol(T, 'START DATE'), s = tcol(T, 'STATUS');
+    p.head.textContent = '⚠ GD ' + gd + ' is already in the TRACKER';
+    p.body.innerHTML = '<div style="margin-bottom:8px">' + rows.length + ' row(s): ' + rows.map(r => 'row ' + r + (c >= 0 && T[r][c] ? ' · ' + esc(T[r][c]) : '') + (s >= 0 && T[r][s] ? ' · ' + esc(T[r][s]) : '')).join('<br>') + '</div>';
+    const b = el('div', '', p.body); b.style.cssText = 'display:flex;gap:8px';
+    const done = v => { p.style.display = 'none'; res(v); };
+    cbtn(b, '✎ EDIT THIS ROW', C.teal, () => done('edit')).style.flex = '1';
+    cbtn(b, '➕ ADD NEW ROW', C.mari, () => done('new')).style.flex = '1';
+    cbtn(b, '✕ CANCEL', C.maroon, () => done('cancel'), 'lite');
+    p.querySelector('.px').onclick = () => done('cancel');
+    showPop(p);
+  });
+}
+async function trkAdd(quiet) {
+  const T = trkSheet(), gd = up(FV('GD')), gc = tcol(T, 'GD');
+  if (!gd && !FV('M-PIN') && !FV('TIN')) { say('Type GD / M-PIN / TIN in the frame first', 'bad'); return 'cancel'; }
+  const same = []; if (gd && gc >= 0) for (let r = 1; r < T.length; r++) if (up(T[r][gc]) === gd) same.push(r);
+  let act = 'new', at;
+  if (same.length) act = await trkAsk(FV('GD'), same, T);
+  if (act === 'cancel') return act;
+  if (act === 'edit') { at = same[same.length - 1]; trkFill(T[at], T, true); }
+  else { T.push(trkFill(T[0].map(() => ''), T)); at = T.length - 1; }
+  await trkSave(); trkOpen(at);
+  if (!quiet) say(act === 'edit' ? 'Tracker row ' + at + ' updated - fill the rest' : 'Tracker row added - fill the rest', 'ok');
+  return act;
+}
+/* ---------- MASTER SAVE ---------- */
+masterSave = async function () {
+  if (!FV('M-PIN') && !FV('TIN')) return popup('MASTER SAVE', 'Type M-PIN or TIN first.', 'red');
+  const act = await trkAdd(true); if (act === 'cancel') return say('MASTER SAVE cancelled', 'bad');
+  const s = snapshot(); RECORDS.push({when: new Date().toLocaleString(), by: USER.id, f: s.f, g: s.g}); Store.set('records', RECORDS);
+  const cells = cellsOut(); cells.forEach(c => bridgeAdd('CELL', c[0], c[1], c[2]));
+  bridgeAdd('NOTE', 'MASTER SAVE from HTML  -  M-PIN ' + FV('M-PIN') + '  TIN ' + FV('TIN') + '  by ' + USER.id);
+  trig('MASTER SAVE'); linkKick(); logAct('MASTER SAVE', 'GD ' + FV('GD') + ' / ' + cells.length + ' cells');
+  say('MASTER SAVE: tracker ' + (act === 'edit' ? 'row updated' : 'row added') + ' · ' + cells.length + ' Excel cells' + (AUTO.on ? '' : ' (turn PRAC ↻ ON)'), 'ok');
+};
+msSheetOn = () => true;
+
+/* ---------- TRACKER window ---------- */
+const TK = {q: '', pick: 0, hl: 0, sel: new Set()};
+trkOpen = function (hl) {
+  let p = $('#popTRK');
+  if (p && !p.dataset.v) { p.remove(); p = null; }
+  if (!p) {
+    p = makePop('popTRK', '\u{1F4CB} TRACKER  -  Practitioner folder · Esc closes', 90, 90, 1220, 480); p.dataset.v = '2';
+    const bar = el('div', 'abar', p.body);
+    const q = el('input', 'sin', bar); q.id = 'trkQ'; q.placeholder = 'filter ...'; q.style.width = '170px'; q.oninput = () => { TK.q = q.value; trkPaint(); };
+    abtn(bar, '➕ ADD (from frame)', C.mari, () => trkAdd(false));
+    abtn(bar, '✔ SAVE', C.green, async () => { await trkSave(); say('Tracker saved' + (trkRoot() ? ' in ' + trkRoot().name + '\\Tracker' : ' (connect PRAC)'), 'ok'); });
+    abtn(bar, '✉ MAIL TICKED', C.teal, trkMail);
+    abtn(bar, '✕ DELETE PICKED ROW', C.maroon, async () => { const T = trkSheet(), r = TK.pick; if (!(r > 0)) return say('Click a row number first', 'bad'); if (!confirm('Delete Tracker row ' + r + ' (GD ' + (T[r][0] || '') + ')?')) return; backupOld('TRACKER', 'row ' + r, T[r].join(' | ')); T.splice(r, 1); TK.pick = 0; await trkSave(); trkPaint(); }, true);
+    abtn(bar, '⬇ EXCEL', C.sky, () => exportExcel(['TRACKER']), true);
+    const hd = el('label', 'slide', bar, '<input type="checkbox" id="trkHide"><i></i><b>HIDE OLD DATA</b>'); hd.style.marginLeft = '6px';
+    $('#trkHide', hd).checked = !!LS.get('trkhide', false); $('#trkHide', hd).onchange = e => { LS.set('trkhide', e.target.checked); trkPaint(); };
+    el('span', 'muted', bar).id = 'trkInfo';
+    const w = el('div', 'atw', p.body); w.id = 'trkW'; w.style.height = '400px';
+    w.oninput = e => { const i = e.target, T = trkSheet(); if (i.dataset.r == null) return; const r = +i.dataset.r; while (T[r].length <= +i.dataset.c) T[r].push(''); T[r][+i.dataset.c] = i.value; i.parentNode.classList.add('chg'); markDirty('TRACKER'); clearTimeout(TK.t); TK.t = setTimeout(() => trkSync(true), 1500); };
+    w.onchange = e => { const t = e.target; if (t.dataset.tk != null) { t.checked ? TK.sel.add(+t.dataset.tk) : TK.sel.delete(+t.dataset.tk); } if (t.id === 'tkAll') { $$('#trkW [data-tk]').forEach(x => { x.checked = t.checked; t.checked ? TK.sel.add(+x.dataset.tk) : TK.sel.delete(+x.dataset.tk); }); } };
+    w.onclick = e => { const t = e.target.closest('td.rn'); if (!t) return; TK.pick = +t.dataset.r; $$('#trkW td.rn').forEach(x => x.classList.toggle('sel', x === t)); };
+  }
+  TK.hl = hl || 0; TK.q = ''; $('#trkQ').value = '';
+  showPop(p); trkPaint();
+  trkSync(false).then(() => { trkPaint(); const h = $('#trkW tr.hl'); if (h) h.scrollIntoView({block: 'center'}); });
+  if (!trkRoot()) say('Connect PRAC (Practitioner folder) - the Tracker file is kept there', 'bad');
+};
+function trkPaint() {
+  const w = $('#trkW'); if (!w) return; const T = trkSheet(), f = TK.q.toLowerCase(), hide = $('#trkHide') && $('#trkHide').checked, sd = tcol(T, 'START DATE'), td = todayUS(), idx = [];
+  for (let r = 1; r < T.length; r++) {
+    if (f && !T[r].join(' ').toLowerCase().includes(f)) continue;
+    if (hide && r !== TK.hl && !(sd >= 0 && tr(T[r][sd]) === td)) continue;
+    idx.push(r);
+  }
+  $('#trkInfo').textContent = idx.length + ' of ' + (T.length - 1) + ' row(s)' + (trkRoot() ? '  ·  ' + trkRoot().name + '\\Tracker' : '  ·  PRAC not connected');
+  w.innerHTML = '<table class="dt edt"><thead><tr><th><input type="checkbox" id="tkAll" title="tick all"></th><th>#</th>' + T[0].map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' +
+    idx.map(r => '<tr' + (r === TK.hl ? ' class="hl"' : '') + '><td><input type="checkbox" data-tk="' + r + '"' + (TK.sel.has(r) ? ' checked' : '') + '></td><td class="rn' + (TK.pick === r ? ' sel' : '') + '" data-r="' + r + '">' + r + '</td>' +
+      T[0].map((h, c) => '<td><input data-r="' + r + '" data-c="' + c + '" value="' + esc(T[r][c] == null ? '' : T[r][c]) + '"></td>').join('') + '</tr>').join('') + '</tbody></table>';
+}
+function trkMail() {
+  const T = trkSheet(), rows = Array.from(TK.sel).filter(r => T[r]).sort((a, b) => a - b);
+  if (!rows.length) return say('Tick the rows to mail first', 'bad');
+  let last = tcol(T, 'TAX ID'); if (last < 0) last = Math.min(7, T[0].length - 1);
+  const pick = r => T[r].slice(0, last + 1).concat(Array(Math.max(0, last + 1 - T[r].length)).fill(''));
+  const txt = [T[0].slice(0, last + 1)].concat(rows.map(pick)).map(r => r.join('\t')).join('\n');
+  copyText(txt);
+  location.href = 'mailto:?subject=' + encodeURIComponent('Tracker - ' + rows.length + ' GD(s) - ' + todayUS()) + '&body=' + encodeURIComponent(txt);
+  say('Mail opened (' + rows.length + ' row(s), GD .. Tax ID). Also copied - Ctrl+V in the mail for a table.', 'ok');
+}
+
+/* ---------- AGENTS FILL switch also on the Agent Town bar (next to SHOW TOWN) ---------- */
+function agFillSet(on) { LS.set('agfill', on); $$('#agFill, #agFill2').forEach(x => x.checked = on); say(on ? 'Agents fill the boxes themselves (green)' : 'Agents only make cards - you press FILL / USE', 'ok'); }
+const _townBuildF = town.build.bind(town);
+town.build = function () {
+  _townBuildF();
+  const bar = $('#obar'), eye = $('#atEye'); if (!bar || $('#agFill2')) return;
+  const sw = el('label', 'slide obsw', bar, '<input type="checkbox" id="agFill2"><i></i><b>AGENTS FILL</b>');
+  if (eye) bar.insertBefore(sw, eye.nextSibling);
+  $('#agFill2').checked = !!LS.get('agfill', false);
+  $('#agFill2').onchange = e => agFillSet(e.target.checked);
+  const n = $('#agFill'); if (n) n.onchange = e => agFillSet(e.target.checked);
+};
 
 /* ---------------------------------------------------------------------
    "i"  LAYOUT EDITOR  (password 763388, owner only)
