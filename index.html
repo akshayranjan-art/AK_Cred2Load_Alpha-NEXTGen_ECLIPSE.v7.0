@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Superload v5.2f</title>
+<title>Superload v1.0.7</title>
 <style>
 :root{
   --aub:#2E1A47; --aub2:#4B2C6F; --mari:#F07F1E; --teal:#0E9AA7; --maroon:#9B1B3F; --rose:#D9467A;
@@ -551,6 +551,73 @@ table.dt tr.hl td{background:#FFF3C4}
 .cc1btn.on::after{background:#2EE59D;box-shadow:0 0 14px 3px #2EE59D,0 0 34px 8px #2EE59D}
 .cc1t{color:#8FA0CC;font:12px "Segoe UI"}
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+<style>
+.ecl-logo{--g1:linear-gradient(180deg,#fff0a0,#ff8a1f 45%,#e02a00);--g2:linear-gradient(90deg,#fff0a0,#ff8a1f 50%,#e02a00);--g3:linear-gradient(180deg,#fff0a0,#ff8a1f 45%,#c81e00);--ex:#3a0d00;display:inline-block;font-size:20px;line-height:1;white-space:nowrap}
+.ecl-logo *{box-sizing:border-box}
+.ecl-logo .el-b{display:inline-flex;flex-direction:column;align-items:stretch;gap:.4em;animation:el-lv 5.5s ease-in-out infinite alternate}
+.ecl-logo .el-l1{display:flex;align-items:center}
+.ecl-logo .el-l1 .el-t{margin-left:-.42em}
+.ecl-logo .el-l2{display:flex;justify-content:space-between;align-items:baseline;gap:.5em;font-size:.9em}
+.ecl-logo .el-wd{display:inline-flex;align-items:baseline}
+.ecl-logo .el-A{height:1.12em;width:1.2em;margin-right:.02em;margin-bottom:-.06em;flex:none;overflow:visible;filter:drop-shadow(0 0 .1em rgba(255,170,60,.75));animation:el-ag 3.2s ease-in-out infinite alternate}
+@keyframes el-ag{from{filter:drop-shadow(0 0 .06em rgba(255,150,40,.5)) brightness(1)}to{filter:drop-shadow(0 0 .22em rgba(255,200,90,.95)) brightness(1.18)}}
+.ecl-logo svg.el-O{flex:none;filter:drop-shadow(0 .12em .14em rgba(0,0,0,.55))}
+.ecl-logo .el-sw{animation:el-swp 7s ease-in-out infinite}
+.ecl-logo .el-rr{transform-origin:100px 100px;animation:el-sp 70s linear infinite}
+.ecl-logo .el-ff{transform-box:fill-box;transform-origin:center;animation:el-pl 5s ease-in-out infinite}
+.ecl-logo .el-t{position:relative;display:inline-block;isolation:isolate;line-height:1.05}
+.ecl-logo .el-t::before{content:attr(data-t);position:absolute;left:0;top:0;z-index:-1;color:var(--ex);white-space:pre;text-shadow:.02em .02em var(--ex),.04em .04em var(--ex),.06em .06em var(--ex),.08em .08em var(--ex),.1em .1em var(--ex),.2em .26em .3em rgba(0,0,0,.55)}
+.ecl-logo .el-t b{font-weight:inherit;background-image:linear-gradient(105deg,transparent 33%,rgba(255,255,255,.98) 50%,transparent 67%),var(--g);background-size:260% 100%,100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;animation:el-shn 6.5s linear infinite;animation-delay:var(--d,0s)}
+.ecl-logo .el-pt{font-family:Cinzel,Georgia,serif;font-weight:800;font-size:3.2em;letter-spacing:.05em}
+.ecl-logo .el-pt b{--g:var(--g1)}.ecl-logo .el-nx b,.ecl-logo .el-lp b{--g:var(--g2)}.ecl-logo .el-ec b{--g:var(--g3)}
+.ecl-logo .el-nx,.ecl-logo .el-lp{font-family:Orbitron,system-ui,sans-serif;font-weight:800;letter-spacing:.05em}
+.ecl-logo .el-ec{font-family:Cinzel,Georgia,serif;font-weight:800;letter-spacing:.14em}
+
+.ecl-logo.el-float{animation:el-fl 12s ease-in-out infinite}
+@keyframes el-lv{from{filter:drop-shadow(0 0 .12em rgba(255,110,20,.4)) brightness(.97)}to{filter:drop-shadow(0 0 .3em rgba(255,140,30,.8)) brightness(1.1)}}
+@keyframes el-swp{from{transform:translateX(-70px) skewX(-20deg)}to{transform:translateX(210px) skewX(-20deg)}}
+@keyframes el-sp{to{transform:rotate(360deg)}}
+@keyframes el-pl{50%{transform:scale(1.25);opacity:.75}}
+@keyframes el-shn{from{background-position:140% 0,0 0}to{background-position:-60% 0,0 0}}
+@keyframes el-fl{0%,100%{transform:perspective(700px) rotateY(-5deg) rotateX(1.5deg)}50%{transform:perspective(700px) rotateY(5deg) rotateX(-1.5deg) translateY(-2px)}}
+@media (prefers-reduced-motion: reduce){.ecl-logo,.ecl-logo *{animation:none!important}}
+/* ===== v1.0.7 login (Rate Match look) + header logo ===== */
+#login{background:radial-gradient(900px 600px at 50% 0%,#e6f1ff 0%,#b5d3f3 55%,#93b9e6 100%)!important;overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif}
+#login #lgfish{display:none}
+#login .dr{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 28%,#fff 0 12%,rgba(255,255,255,.35) 22%,rgba(110,180,255,.30) 60%,rgba(70,140,240,.55) 100%);box-shadow:inset -4px -6px 10px rgba(40,110,220,.35),0 8px 14px rgba(70,140,240,.25)}
+#login .bl{position:absolute;background:linear-gradient(135deg,rgba(255,255,255,.85),rgba(110,180,255,.55) 50%,rgba(60,130,235,.8));box-shadow:inset -10px -14px 22px rgba(30,100,220,.35),0 18px 30px rgba(70,140,240,.25)}
+#login .lcard{position:relative;margin:70px auto 0;width:470px;border-radius:32px;background:linear-gradient(160deg,rgba(255,255,255,.88),rgba(235,246,255,.72));border:1.5px solid rgba(255,255,255,.95);box-shadow:0 30px 60px rgba(60,120,220,.25),inset 0 0 40px rgba(255,255,255,.8);padding:34px 40px 22px;text-align:center}
+#login .lcard h1{margin:0;font-size:28px;color:#1d3f87;font-weight:800}
+#login .lcard .s{font-size:12px;color:#5b7299;margin:4px 0 14px}
+#login .lgw{display:flex;justify-content:center}
+#login .lcard .ecl-logo{font-size:17px;margin:0 auto 10px}
+#login .vpill{display:inline-block;padding:2px 11px;border-radius:999px;font-size:10px;font-weight:800;color:#0f6b3a;background:rgba(34,197,94,.14);border:1.5px solid rgba(22,163,74,.6)}
+#login .step{position:static;text-align:left;border-radius:18px;padding:13px 16px;margin-bottom:12px;background:rgba(255,255,255,.55);border:1px solid #d6e7fb;box-shadow:0 4px 12px rgba(70,140,240,.10)}
+#login .step b.h{font-size:10px;letter-spacing:1.4px;color:#3b6bc4}
+#login .lin{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.9);border:1px solid #d6e7fb;border-radius:14px;padding:0 12px;margin-top:9px;box-shadow:inset 0 2px 6px rgba(70,140,240,.08)}
+#login .lin input{flex:1;width:auto;height:auto;margin:0;border:0;background:transparent;padding:12px 0;outline:0;font-size:13px;color:#1d3f87;text-align:left}
+#login .chk{display:flex;gap:8px;align-items:center;font-size:12px;color:#4f6489;margin:10px 2px 0;cursor:pointer}
+#login .chk input{width:auto;height:auto;margin:0}
+#login .lerr{color:#d6364b;font-size:11.5px;margin-top:8px;min-height:14px;text-align:center}
+#login .go{display:block;width:100%;border:0;padding:14px;border-radius:30px;font:800 14px "Segoe UI",system-ui,sans-serif;color:#fff;cursor:pointer;background:linear-gradient(180deg,#58a8ff,#1f6fe8);box-shadow:0 10px 22px rgba(31,111,232,.5),inset 0 2px 0 rgba(255,255,255,.55);margin-top:12px}
+#login .lfoot{font-size:10.5px;color:#6f84a8;margin-top:8px;line-height:1.5;text-align:center}
+#login .lfoot b{color:#1d3f87}
+#login .lfoot.exp b{color:#d6364b}
+#htitle .ecl-logo{font-size:7.6px;--ex:#6b1d00;text-shadow:none;letter-spacing:normal;color:inherit}
+#htitle .ecl-logo .el-t b{display:inline;font-size:inherit;letter-spacing:inherit;color:transparent;margin:0}
+#htitle .ecl-logo .el-t::before{text-shadow:.03em .04em var(--ex),.06em .08em var(--ex),.14em .2em .2em rgba(0,0,0,.28)}
+#htitle .ecl-logo .el-l2,#login .lcard .ecl-logo .el-l2{font-size:1em;gap:.7em}
+#htitle .ecl-logo .el-lp b,#login .lcard .ecl-logo .el-lp b{--g:linear-gradient(90deg,#ffd000,#ff7a00 60%,#ff3d00)}
+#htitle .ecl-logo .el-nx b,#login .lcard .ecl-logo .el-nx b{--g:linear-gradient(90deg,#00c2ff,#3b6bff 50%,#9b3dff)}
+#htitle .ecl-logo .el-ec b,#login .lcard .ecl-logo .el-ec b{--g:linear-gradient(90deg,#ff3d6e,#ff7a00 50%,#ffc400)}
+#htitle .ecl-logo .el-nx,#login .lcard .ecl-logo .el-nx{letter-spacing:.08em}
+#login .lcard .ecl-logo{--ex:#6b1d00}
+#login .lcard .ecl-logo .el-t::before{text-shadow:.03em .04em var(--ex),.06em .08em var(--ex),.14em .2em .2em rgba(0,0,0,.28)}
+#htitle .slbt{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+#htitle .slbt b{font-size:12px;letter-spacing:.24em;margin:0}
+#htitle .slbt .vpill{display:inline-block;padding:1px 10px;border-radius:999px;font-size:9.5px;font-weight:800;letter-spacing:.06em;color:#0f6b3a;background:rgba(34,197,94,.14);border:1.5px solid rgba(22,163,74,.6);text-shadow:none}
+</style>
 </head>
 <body>
 <div id="app"></div>
@@ -589,7 +656,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
    (LOAD EXCEL reads them: TIN LIST / TIN_List, COUNTY LOB, CSP_LOB ...).
    Fixed layout 1400 x 780 px - nothing moves or scales by itself.
    ===================================================================== */
-const VER = '5.2n';
+const VER = '1.0.7';
 const K = 1.25;                    // 1 pt of the Excel frame = 1.25 px
 const OWNER = 'ARANJA14';
 const I_PASS = '763388';
@@ -2725,7 +2792,7 @@ const SYNC_ITEMS = [
   ['SAVE MAP DATA', 'Admin/Transfer_Map.xlsx'], ['GRID SETUP', 'Admin/Grid_Setup.xlsx'], ['ADMIN_RULES', 'Admin/Button_Access.xlsx'],
   ['MNR_HIDE', 'Data/MNR_Hidden_Lines.xlsx'], ['COUNTY LOB', 'Data/County_LOB.xlsx'], ['SPECIALTY', 'Data/Specialty.xlsx'],
   ['COMMERCIAL', 'Data/Commercial.xlsx'], ['MNR A1025', 'Data/MNR_A1025.xlsx'], ['TIN EXCLUSION', 'Data/TIN_Exclusion.xlsx'], ['MNR TIN EXCLUSION', 'Data/TIN_Exclusion.xlsx'], ['HSD TIN EXCLUSION', 'Data/TIN_Exclusion.xlsx'], ['HTML_TRIGGERS', 'Admin/HTML_Triggers.xlsx'], ['HTML_HEADINGS', 'Admin/HTML_Headings.xlsx'],
-  ['CELL MAP', 'Admin/Cell_Map.xlsx'], ['DATABASE ACTIONS', 'Admin/Database_Actions.xlsx'], ['HTML USERS', 'Admin/HTML_Users.xlsx']
+  ['CELL MAP', 'Admin/Cell_Map.xlsx'], ['DATABASE ACTIONS', 'Admin/Database_Actions.xlsx'], ['HTML USERS', 'Admin/HTML_Users.xlsx'], ['HTML LICENCE', 'Admin/HTML_Licence.xlsx']
 ];
 let DIRTY = new Set(), SMETA = {}, DIR = null, PDIR = null, BRQ = [];
 // every change marks the list, SYNC sends only marked lists
@@ -3067,7 +3134,9 @@ function admUsers(B) {
   ahelp(B, 'Users of the HTML. Role <b>Admin</b> sees "i" / ADMIN / JARVIS. Active = N blocks the login. Empty list = everybody can log in (first login sets the PIN). Owner ' + OWNER + ' is always Admin. SYNC shares this list (Admin\\HTML_Users.xlsx).');
   const bar = abar(B);
   abtn(bar, '\u{1F511} RESET PIN OF PICKED USER', C.amber, () => { const v = sheet('HTML USERS'); const r = ADM.pick; if (!(r > 0) || !v) return say('Click a row number first', 'bad'); const p = LS.get('pins', {}); delete p[up(v[r][0])]; LS.set('pins', p); say('PIN reset for ' + v[r][0] + ' - next login sets a new one', 'ok'); });
-  sheetEditor(B, 'HTML USERS', ['MSID', 'Name', 'Role', 'Active'], {h: 440});
+  const lb = abar(B); el('b', '', lb, '\u{1F4C5} LICENCE VALID TILL'); const vd = el('input', 'sin', lb); vd.type = 'date'; vd.value = validTill(); vd.style.width = '150px';
+  abtn(lb, '\u2714 SAVE VALIDITY', C.teal, () => validSet(vd.value)); el('span', 'muted', lb, 'now: ' + validUS(validTill()) + (validExpired() ? '  (EXPIRED - only the owner can log in)' : '') + '  \u00b7 SYNC shares it (Admin\\HTML_Licence.xlsx)');
+  sheetEditor(B, 'HTML USERS', ['MSID', 'Name', 'Role', 'Active'], {h: 400});
 }
 function userRow(id) { const v = sheet('HTML USERS'); if (!v) return null; return v.slice(1).find(r => up(r[0]) === up(id)) || null; }
 
@@ -3868,6 +3937,7 @@ document.addEventListener('keydown', e => {
 
 /* ---------- LOGIN remembered on this PC ---------- */
 function loginAuto() {
+  validPaint();
   const id = LS.get('remember', ''); if (!id) return;
   if (!LS.get('pins', {})[id]) return;
   loginAuto.on = true;
@@ -5575,7 +5645,7 @@ function agSettings() {
 function buildHeader() {
   const h = el('div', 'abs', APP); h.id = 'hdr';
   const s = el('div', 'abs', h); s.id = 'hsky'; s.style.backgroundImage = 'url(' + ART.header + ')';
-  el('div', 'abs', h, '<span class="globe" id="hGlobe" title="JARVIS - click"><i class="orb o1"></i><i class="orb o2"></i><img class="logo" id="hEarth" src="' + ART.earth_0 + '"><i class="sat"></i></span><div><b>ALPHA NEXTGEN ECLIPSE</b><small>SUPERLOAD v' + VER + ' · HTML</small></div>').id = 'htitle';
+  el('div', 'abs', h, '<span class="globe" id="hGlobe" title="JARVIS - click"><i class="orb o1"></i><i class="orb o2"></i><img class="logo" id="hEarth" src="' + ART.earth_0 + '"><i class="sat"></i></span>' + LOGO_H + '<div class="slbt"><b>SUPERLOAD</b><span class="vpill">v' + VER + ' · HTML</span></div>').id = 'htitle';
   $('#hGlobe', h).onclick = () => onClick('B_EARTH');
   const r = el('div', 'abs', h); r.id = 'hright';
   el('span', '', r).id = 'huser';
@@ -5796,17 +5866,51 @@ function buildPops() {
   const rw = el('div', 'atw', p.body); rw.id = 'resw'; rw.style.height = '400px';
   el('div', '', APP).id = 'toast';
 }
+const LOGO_L = "<div class=\"ecl-logo el-float\" role=\"img\" aria-label=\"OPTUM Alpha NEXTgeN Eclipse\"><div class=\"el-b\"><div class=\"el-l1\"><svg class=\"el-O\" style=\"width:4.2em;height:4.2em\" viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"O\"><defs><linearGradient id=\"ecloaL\" x1=\"0\" y1=\"1\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#d63a00\"/><stop offset=\"1\" stop-color=\"#ffc94a\"/></linearGradient><linearGradient id=\"eclolL\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\".75\"/><stop offset=\".55\" stop-color=\"#fff\" stop-opacity=\"0\"/></linearGradient><linearGradient id=\"eclosL\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\".5\" stop-color=\"#fff\" stop-opacity=\".95\"/><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"0\"/></linearGradient><mask id=\"eclokL\"><rect width=\"120\" height=\"120\" fill=\"#000\"/><circle cx=\"60\" cy=\"60\" r=\"50\" fill=\"#fff\"/><circle cx=\"74\" cy=\"52\" r=\"44\" fill=\"#000\"/></mask><mask id=\"eclojL\"><rect width=\"120\" height=\"120\" fill=\"#000\"/><circle cx=\"68\" cy=\"54\" r=\"36\" fill=\"#fff\"/><circle cx=\"58\" cy=\"64\" r=\"33\" fill=\"#000\"/></mask></defs><rect class=\"el-dp\" width=\"120\" height=\"120\" fill=\"#3a0d00\" mask=\"url(#eclokL)\" transform=\"translate(3 4.5)\"/><rect class=\"el-dp\" width=\"120\" height=\"120\" fill=\"#3a0d00\" mask=\"url(#eclokL)\" transform=\"translate(1.5 2.2)\"/><rect width=\"120\" height=\"120\" fill=\"url(#ecloaL)\" mask=\"url(#eclokL)\"/><rect width=\"120\" height=\"120\" fill=\"url(#eclolL)\" mask=\"url(#eclokL)\"/><g mask=\"url(#eclokL)\"><rect class=\"el-sw\" x=\"-40\" y=\"-10\" width=\"26\" height=\"140\" fill=\"url(#eclosL)\"/></g><rect width=\"120\" height=\"120\" fill=\"#3a2218\" mask=\"url(#eclojL)\"/><rect width=\"120\" height=\"120\" fill=\"url(#eclolL)\" opacity=\".45\" mask=\"url(#eclojL)\"/><g transform=\"translate(66 58) scale(.4) translate(-100 -100)\"><defs><linearGradient id=\"ecloz1L\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff0a0\"/><stop offset=\".55\" stop-color=\"#ff8a1f\"/><stop offset=\"1\" stop-color=\"#e02a00\"/></linearGradient><radialGradient id=\"eclozmL\" cx=\".5\" cy=\".4\" r=\".7\"><stop offset=\"0\" stop-color=\"#16256a\"/><stop offset=\"1\" stop-color=\"#04071a\"/></radialGradient><radialGradient id=\"eclozoL\"><stop offset=\".55\" stop-color=\"#ff8a1f\" stop-opacity=\".6\"/><stop offset=\"1\" stop-color=\"#ff8a1f\" stop-opacity=\"0\"/></radialGradient><radialGradient id=\"eclozxL\"><stop offset=\"0\" stop-color=\"#fff\"/><stop offset=\".4\" stop-color=\"#fff0a0\"/><stop offset=\"1\" stop-color=\"#fff0a0\" stop-opacity=\"0\"/></radialGradient></defs><circle cx=\"100\" cy=\"100\" r=\"92\" fill=\"url(#eclozoL)\"/><g class=\"el-rr\" stroke=\"url(#ecloz1L)\" stroke-width=\"3\" stroke-linecap=\"round\" opacity=\".8\"><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(0 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(30 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(60 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(90 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(120 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(150 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(180 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(210 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(240 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(270 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(300 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(330 100 100)\"/></g><circle cx=\"100\" cy=\"100\" r=\"64\" fill=\"url(#eclozmL)\" stroke=\"url(#ecloz1L)\" stroke-width=\"6\"/><ellipse cx=\"100\" cy=\"66\" rx=\"46\" ry=\"24\" fill=\"#fff\" opacity=\".13\"/><g class=\"el-ff\"><path d=\"M138 34L143 58L167 64L143 70L138 94L133 70L109 64L133 58Z\" fill=\"url(#eclozxL)\"/><circle cx=\"138\" cy=\"64\" r=\"4\" fill=\"#fff\"/></g><circle r=\"3.5\" fill=\"#fff\"><animateMotion dur=\"16s\" repeatCount=\"indefinite\" path=\"M100 30A70 70 0 1 1 99.9 30\"/></circle></g></svg><span class=\"el-t el-pt\" data-t=\"PTUM\" style=\"--d:0s\"><b>PTUM</b></span></div><div class=\"el-l2\"><span class=\"el-wd\"><svg class=\"el-A\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMax meet\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><defs><linearGradient id=\"eclaaL\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff0a0\"/><stop offset=\".55\" stop-color=\"#ff8a1f\"/><stop offset=\"1\" stop-color=\"#e02a00\"/></linearGradient><linearGradient id=\"eclashL\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\" gradientUnits=\"objectBoundingBox\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\".45\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\".5\" stop-color=\"#fff\" stop-opacity=\".95\"/><stop offset=\".55\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"0\"/><animateTransform attributeName=\"gradientTransform\" type=\"translate\" values=\"-1 0;1 0;1 0\" keyTimes=\"0;.55;1\" dur=\"3.5s\" repeatCount=\"indefinite\"/></linearGradient><radialGradient id=\"eclaxL\"><stop offset=\"0\" stop-color=\"#fff\"/><stop offset=\".45\" stop-color=\"#fff0a0\"/><stop offset=\"1\" stop-color=\"#fff0a0\" stop-opacity=\"0\"/></radialGradient></defs><path d=\"M10 98L50 8L90 98\" fill=\"none\" stroke=\"#3a0d00\" stroke-width=\"15\" stroke-miterlimit=\"8\" transform=\"translate(3 4)\"/><path d=\"M10 98L50 8L90 98\" fill=\"none\" stroke=\"url(#eclaaL)\" stroke-width=\"15\" stroke-miterlimit=\"8\"/><path d=\"M10 98L50 8L90 98\" fill=\"none\" stroke=\"url(#eclashL)\" stroke-width=\"15\" stroke-miterlimit=\"8\"/><polygon points=\"0,72 104,36 52,68\" fill=\"#fff\" opacity=\".95\"/><g class=\"el-ff\"><path d=\"M84 8L87 24L103 28L87 32L84 48L81 32L65 28L81 24Z\" fill=\"url(#eclaxL)\"/></g></svg><span class=\"el-t el-lp\" data-t=\"LPHA\" style=\"--d:0s\"><b>LPHA</b></span></span><span class=\"el-t el-nx\" data-t=\"NEXTgeN\" style=\"--d:0s\"><b>NEXTgeN</b></span><span class=\"el-t el-ec\" data-t=\"ECLIPSE\" style=\"--d:0.4s\"><b>ECLIPSE</b></span></div></div></div>";
+const LOGO_H = "<div class=\"ecl-logo\" role=\"img\" aria-label=\"OPTUM Alpha NEXTgeN Eclipse\"><div class=\"el-b\"><div class=\"el-l1\"><svg class=\"el-O\" style=\"width:4.2em;height:4.2em\" viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"O\"><defs><linearGradient id=\"ecloaH\" x1=\"0\" y1=\"1\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#d63a00\"/><stop offset=\"1\" stop-color=\"#ffc94a\"/></linearGradient><linearGradient id=\"eclolH\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\".75\"/><stop offset=\".55\" stop-color=\"#fff\" stop-opacity=\"0\"/></linearGradient><linearGradient id=\"eclosH\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\".5\" stop-color=\"#fff\" stop-opacity=\".95\"/><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"0\"/></linearGradient><mask id=\"eclokH\"><rect width=\"120\" height=\"120\" fill=\"#000\"/><circle cx=\"60\" cy=\"60\" r=\"50\" fill=\"#fff\"/><circle cx=\"74\" cy=\"52\" r=\"44\" fill=\"#000\"/></mask><mask id=\"eclojH\"><rect width=\"120\" height=\"120\" fill=\"#000\"/><circle cx=\"68\" cy=\"54\" r=\"36\" fill=\"#fff\"/><circle cx=\"58\" cy=\"64\" r=\"33\" fill=\"#000\"/></mask></defs><rect class=\"el-dp\" width=\"120\" height=\"120\" fill=\"#3a0d00\" mask=\"url(#eclokH)\" transform=\"translate(3 4.5)\"/><rect class=\"el-dp\" width=\"120\" height=\"120\" fill=\"#3a0d00\" mask=\"url(#eclokH)\" transform=\"translate(1.5 2.2)\"/><rect width=\"120\" height=\"120\" fill=\"url(#ecloaH)\" mask=\"url(#eclokH)\"/><rect width=\"120\" height=\"120\" fill=\"url(#eclolH)\" mask=\"url(#eclokH)\"/><g mask=\"url(#eclokH)\"><rect class=\"el-sw\" x=\"-40\" y=\"-10\" width=\"26\" height=\"140\" fill=\"url(#eclosH)\"/></g><rect width=\"120\" height=\"120\" fill=\"#3a2218\" mask=\"url(#eclojH)\"/><rect width=\"120\" height=\"120\" fill=\"url(#eclolH)\" opacity=\".45\" mask=\"url(#eclojH)\"/><g transform=\"translate(66 58) scale(.4) translate(-100 -100)\"><defs><linearGradient id=\"ecloz1H\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff0a0\"/><stop offset=\".55\" stop-color=\"#ff8a1f\"/><stop offset=\"1\" stop-color=\"#e02a00\"/></linearGradient><radialGradient id=\"eclozmH\" cx=\".5\" cy=\".4\" r=\".7\"><stop offset=\"0\" stop-color=\"#16256a\"/><stop offset=\"1\" stop-color=\"#04071a\"/></radialGradient><radialGradient id=\"eclozoH\"><stop offset=\".55\" stop-color=\"#ff8a1f\" stop-opacity=\".6\"/><stop offset=\"1\" stop-color=\"#ff8a1f\" stop-opacity=\"0\"/></radialGradient><radialGradient id=\"eclozxH\"><stop offset=\"0\" stop-color=\"#fff\"/><stop offset=\".4\" stop-color=\"#fff0a0\"/><stop offset=\"1\" stop-color=\"#fff0a0\" stop-opacity=\"0\"/></radialGradient></defs><circle cx=\"100\" cy=\"100\" r=\"92\" fill=\"url(#eclozoH)\"/><g class=\"el-rr\" stroke=\"url(#ecloz1H)\" stroke-width=\"3\" stroke-linecap=\"round\" opacity=\".8\"><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(0 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(30 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(60 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(90 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(120 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(150 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(180 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(210 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(240 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(270 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(300 100 100)\"/><line x1=\"100\" y1=\"10\" x2=\"100\" y2=\"-4\" transform=\"rotate(330 100 100)\"/></g><circle cx=\"100\" cy=\"100\" r=\"64\" fill=\"url(#eclozmH)\" stroke=\"url(#ecloz1H)\" stroke-width=\"6\"/><ellipse cx=\"100\" cy=\"66\" rx=\"46\" ry=\"24\" fill=\"#fff\" opacity=\".13\"/><g class=\"el-ff\"><path d=\"M138 34L143 58L167 64L143 70L138 94L133 70L109 64L133 58Z\" fill=\"url(#eclozxH)\"/><circle cx=\"138\" cy=\"64\" r=\"4\" fill=\"#fff\"/></g><circle r=\"3.5\" fill=\"#fff\"><animateMotion dur=\"16s\" repeatCount=\"indefinite\" path=\"M100 30A70 70 0 1 1 99.9 30\"/></circle></g></svg><span class=\"el-t el-pt\" data-t=\"PTUM\" style=\"--d:0s\"><b>PTUM</b></span></div><div class=\"el-l2\"><span class=\"el-wd\"><svg class=\"el-A\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMax meet\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><defs><linearGradient id=\"eclaaH\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff0a0\"/><stop offset=\".55\" stop-color=\"#ff8a1f\"/><stop offset=\"1\" stop-color=\"#e02a00\"/></linearGradient><linearGradient id=\"eclashH\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\" gradientUnits=\"objectBoundingBox\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\".45\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\".5\" stop-color=\"#fff\" stop-opacity=\".95\"/><stop offset=\".55\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"0\"/><animateTransform attributeName=\"gradientTransform\" type=\"translate\" values=\"-1 0;1 0;1 0\" keyTimes=\"0;.55;1\" dur=\"3.5s\" repeatCount=\"indefinite\"/></linearGradient><radialGradient id=\"eclaxH\"><stop offset=\"0\" stop-color=\"#fff\"/><stop offset=\".45\" stop-color=\"#fff0a0\"/><stop offset=\"1\" stop-color=\"#fff0a0\" stop-opacity=\"0\"/></radialGradient></defs><path d=\"M10 98L50 8L90 98\" fill=\"none\" stroke=\"#3a0d00\" stroke-width=\"15\" stroke-miterlimit=\"8\" transform=\"translate(3 4)\"/><path d=\"M10 98L50 8L90 98\" fill=\"none\" stroke=\"url(#eclaaH)\" stroke-width=\"15\" stroke-miterlimit=\"8\"/><path d=\"M10 98L50 8L90 98\" fill=\"none\" stroke=\"url(#eclashH)\" stroke-width=\"15\" stroke-miterlimit=\"8\"/><polygon points=\"0,72 104,36 52,68\" fill=\"#fff\" opacity=\".95\"/><g class=\"el-ff\"><path d=\"M84 8L87 24L103 28L87 32L84 48L81 32L65 28L81 24Z\" fill=\"url(#eclaxH)\"/></g></svg><span class=\"el-t el-lp\" data-t=\"LPHA\" style=\"--d:0s\"><b>LPHA</b></span></span><span class=\"el-t el-nx\" data-t=\"NEXTgeN\" style=\"--d:0s\"><b>NEXTgeN</b></span><span class=\"el-t el-ec\" data-t=\"ECLIPSE\" style=\"--d:0.4s\"><b>ECLIPSE</b></span></div></div></div>";
+const LG_BUB = " <div class=\"bl\" style=\"left:calc(50% - 560px);top:260px;width:200px;height:290px;border-radius:55% 45% 60% 40%\"></div> <div class=\"bl\" style=\"left:calc(50% + 360px);top:290px;width:210px;height:290px;border-radius:45% 55% 40% 60%\"></div> <i class=\"dr\" style=\"left:8%;top:12%;width:44px;height:44px\"></i><i class=\"dr\" style=\"left:16%;top:70%;width:28px;height:28px\"></i><i class=\"dr\" style=\"left:86%;top:16%;width:36px;height:36px\"></i><i class=\"dr\" style=\"left:90%;top:62%;width:58px;height:58px\"></i><i class=\"dr\" style=\"left:5%;top:56%;width:66px;height:66px\"></i><i class=\"dr\" style=\"left:76%;top:84%;width:24px;height:24px\"></i>";
 function buildLogin() {
-  const L = el('div', '', APP); L.id = 'login'; L.style.backgroundImage = 'url(' + ART.scene_8 + ')';
+  const L = el('div', '', APP); L.id = 'login';
   el('div', 'abs', L).id = 'lgfish';
-  const b = el('div', '', L); b.id = 'lgbox';
-  b.innerHTML = '<h1>\u2726 SUPERLOAD</h1><h2>ALPHA NEXTGEN ECLIPSE \u00b7 v' + VER + ' \u00b7 HTML</h2>' +
-    '<input id="lgid" placeholder="MSID" autocomplete="off"><input id="lgpin" type="password" maxlength="4" placeholder="4 digit PIN" autocomplete="off">' +
-    '<label id="lgrem"><input type="checkbox" id="lgremc" checked> Remember me on this PC (no login next time)</label>' +
-    '<div class="btn" id="lgok" style="--b:#F07F1E;width:100%">LOGIN</div><div id="lgmsg"></div>' +
-    '<div id="lgwel">Welcome \u00b7 Licence: internal use \u00b7 first login on this PC sets your PIN</div>';
+  L.insertAdjacentHTML('beforeend', LG_BUB);
+  const b = el('div', 'lcard', L);
+  b.innerHTML = '<div class="lgw">' + LOGO_L + '</div><h1>Superload</h1><p class="s"><b style="color:#c2410c">®®</b> <span class="vpill">v' + VER + '</span> · Welcome back! Please log in to continue.</p>' +
+    '<div class="step"><b class="h">LOGIN</b>' +
+    '<div class="lin" style="margin-top:10px">\u{1F464}<input id="lgid" placeholder="MSID  (e.g. aranja14)" autocomplete="off"></div>' +
+    '<div class="lin">\u{1F512}<input id="lgpin" type="password" maxlength="4" placeholder="4 digit PIN" autocomplete="off"><span id="lgeye" style="cursor:pointer">\u{1F441}</span></div>' +
+    '<label class="chk" id="lgrem"><input type="checkbox" id="lgremc" checked> Remember me on this PC (no login next time)</label>' +
+    '<div class="lerr" id="lgmsg"></div><button class="go" id="lgok">⇥ &nbsp;LOGIN</button></div>' +
+    '<div class="lfoot" id="lgwel">Welcome · first login on this PC sets your PIN<br>Licence valid till <b id="lgvalid"></b></div>';
   const go = () => login($('#lgid').value, $('#lgpin').value);
   $('#lgok').onclick = go; $('#lgpin').onkeydown = e => { if (e.key === 'Enter') go(); }; $('#lgid').onkeydown = e => { if (e.key === 'Enter') $('#lgpin').focus(); };
+  $('#lgeye').onclick = () => { const p = $('#lgpin'); p.type = p.type === 'password' ? 'text' : 'password'; };
+  validPaint();
+}
+/* ---------- LICENCE validity (default 12/31/2027 - ADMIN > USERS can extend, SYNC shares it) ---------- */
+const VALID_DEF = '2027-12-31';
+function validIso(x) {
+  if (x == null || x === '') return '';
+  if (typeof x === 'number' && x > 20000) { const d = new Date(Math.round((x - 25569) * 864e5)); return d.toISOString().slice(0, 10); }
+  if (x instanceof Date && !isNaN(x)) return x.toISOString().slice(0, 10);
+  const t = String(x).trim(); let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0');
+  m = t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if (m) return m[3] + '-' + m[1].padStart(2, '0') + '-' + m[2].padStart(2, '0');
+  return '';
+}
+function validTill() {
+  const v = typeof sheet === 'function' && DB ? sheet('HTML LICENCE') : null;
+  const d = v && v[1] ? validIso(v[1][0]) : '';
+  if (d) { LS.set('validTill', d); return d; }
+  return validIso(LS.get('validTill', '')) || VALID_DEF;
+}
+function validUS(d) { const p = d.split('-'); return p[1] + '/' + p[2] + '/' + p[0]; }
+function validExpired() { const n = new Date(), t = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0'); return t > validTill(); }
+function validPaint() { const b = $('#lgvalid'); if (!b) return; b.textContent = validUS(validTill()); $('#lgwel').classList.toggle('exp', validExpired()); }
+function validSet(iso) {
+  iso = validIso(iso); if (!iso) return say('Pick a valid date', 'bad');
+  const v = ensureSheet('HTML LICENCE', ['Valid Till']); v.length = 1; v.push([iso]);
+  LS.set('validTill', iso); saveDB('HTML LICENCE'); validPaint(); say('Licence valid till ' + validUS(iso) + '  -  press ↻ SYNC to share it with everyone');
 }
 let USER = {id: '', owner: false, admin: false};
 async function sha(s) { try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('sl52|' + s)); return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join(''); } catch (e) { return 'p' + s.split('').reverse().join(''); } }
@@ -5815,6 +5919,8 @@ async function login(id, pin) {
   if (!id) return $('#lgmsg').textContent = 'Type your MSID';
   if (pin.length !== 4 && !loginAuto.on) return $('#lgmsg').textContent = 'PIN = 4 digits';
   const U = sheet('HTML USERS'), row = userRow(id);
+  validPaint();
+  if (id !== OWNER && validExpired()) return $('#lgmsg').textContent = 'Licence expired on ' + validUS(validTill()) + ' - ask the Admin to extend it';
   if (id !== OWNER && U && U.length > 1 && (!row || up(row[3]) === 'N')) return $('#lgmsg').textContent = 'MSID not allowed - ask the Admin (ADMIN > USERS)';
   const pins = LS.get('pins', {}); const h = await sha(id + pin);
   if (loginAuto.on) { if (!pins[id]) return; }
