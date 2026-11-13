@@ -681,6 +681,18 @@ table.dt tr.hl td{background:#FFF3C4}
 .slmlog div{font:11.5px Consolas,monospace;color:#9EE7FF}.slmlog div.bad{color:#ff8da6}
 .slmhelp{margin-top:12px;font:11px "Segoe UI";color:#8fa0cc;line-height:1.55}
 </style>
+<style>
+/* v1.1.0b  taller app: +120px at the bottom */
+#app{height:900px}
+#login{height:900px}
+#bot{top:864px}
+.scr{height:769px}
+.amdw .scr{height:649px}
+.ccroot{height:757px}
+.slmp{height:680px}
+.slmrow .x{margin-left:6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font:800 10px "Segoe UI";color:#fff;background:#e0325f;box-shadow:0 0 0 1px #fff8}
+.slmrow .x:hover{background:#ff1744}
+</style>
 </head>
 <body>
 <div id="app"></div>
@@ -2054,16 +2066,17 @@ const CSP_H = {L: ['State', 'LOB', 'LOB Description', 'NWPR', 'AGAG', 'Market Nu
   E: ['State', 'LOB', 'Enrollment Limit', 'Provider Specialty', 'Age Limit of Patient', 'Accept Gender', 'Auto Assign', 'Accept New Patients', 'Accept Existing Patients'],
   I: ['State', 'Loading Information', 'Enrollment Notes', 'Other Sections']};
 function cspBuild(S) {
-  const c1 = scard(S, 'CSP STATE GRID', 8, 6, 312, 637);
-  cbtn(c1.body, '⚡  LOAD STATE FILE(S)', C.gold, cspLoad, 'lite big');
-  CS.stat = el('div', 'tip', c1.body, 'Nothing loaded yet. Click LOAD STATE FILE(S).');
-  lab(c1.body, 'STATE');
-  CS.tz = el('div', 'tilez', c1.body); CS.tz.style.cssText = 'position:relative;height:282px';
-  lab(c1.body, 'LOB'); CS.lob = selBox(c1.body, [], () => { cspSpec(); cspShow(); });
-  lab(c1.body, 'Provider Specialty'); CS.spec = selBox(c1.body, ['(all)'], cspShow);
-  const b = cbtn(c1.body, 'SHOW', C.teal, cspShow, 'big'); b.style.marginTop = '8px';
-  el('div', 'tip', c1.body, 'Load one state or many, one by one or together. Only the states in the file are replaced, the rest stay.');
-  const c2 = scard(S, 'CSP', 328, 6, 700, 637); CS.c2 = c2;
+  const c1 = scard(S, 'CSP STATE GRID', 8, 6, 1384, 132);
+  const row = el('div', '', c1.body); row.style.cssText = 'display:flex;gap:14px;align-items:flex-start';
+  CS.tz = el('div', 'tilez', row); CS.tz.style.cssText = 'position:relative;flex:none;width:' + (Math.ceil(STATES.length / 3) * 47) + 'px;height:92px';
+  const rc = el('div', '', row); rc.style.cssText = 'flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;align-items:end;min-width:0';
+  const w1 = el('div', '', rc); lab(w1, 'LOB'); CS.lob = selBox(w1, [], () => { cspSpec(); cspShow(); });
+  const w2 = el('div', '', rc); lab(w2, 'Provider Specialty'); CS.spec = selBox(w2, ['(all)'], cspShow);
+  cbtn(rc, '⚡  LOAD STATE FILE(S)', C.gold, cspLoad, 'lite');
+  cbtn(rc, 'SHOW', C.teal, cspShow);
+  CS.stat = el('div', 'tip', rc, 'Nothing loaded yet. Click LOAD STATE FILE(S).'); CS.stat.style.cssText = 'grid-column:1 / 3;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+  const H = 649 + 120 - 146 - 6;
+  const c2 = scard(S, 'CSP', 8, 146, 760, H); CS.c2 = c2;
   CS.LT = tbl(c2.body); CS.LT.style.height = '150px';
   CS.rt = lab(c2.body, '✦  PCP ENROLLMENT RULES  (pick a specialty)');
   const kv = el('div', 'kvg six', c2.body);
@@ -2071,18 +2084,18 @@ function cspBuild(S) {
   const r = el('div', '', c2.body); r.style.cssText = 'display:flex;gap:8px;align-items:center;margin:6px 0';
   el('b', 'kk', r, 'SHOW HERE'); CS.v2 = selBox(r, ['ALL SPECIALTIES  (table)'], cspView2); CS.v2.style.flex = '1';
   cbtn(r, '✔  UPDATE  (save)', C.teal, cspUpdate2);
-  CS.ET = tbl(c2.body); CS.ET.style.height = '330px';
-  CS.t2 = el('textarea', 'stx hidden', c2.body); CS.t2.style.height = '330px';
-  const c3 = scard(S, 'LOADING INFORMATION', 1036, 6, 356, 637); CS.c3 = c3;
+  CS.ET = tbl(c2.body); CS.ET.style.height = (H - 320) + 'px';
+  CS.t2 = el('textarea', 'stx hidden', c2.body); CS.t2.style.height = (H - 320) + 'px';
+  const c3 = scard(S, 'LOADING INFORMATION', 776, 146, 616, H); CS.c3 = c3;
   hbtn(c3, '✔  UPDATE  (save)', C.teal, cspUpdate);
   CS.tp = selBox(c3.body, ['(All information)'], cspTopic);
-  CS.info = el('textarea', 'stx', c3.body); CS.info.style.height = '520px'; CS.info.style.marginTop = '6px';
+  CS.info = el('textarea', 'stx', c3.body); CS.info.style.height = (H - 120) + 'px'; CS.info.style.marginTop = '6px';
   el('div', 'tip', c3.body, 'You can type here. UPDATE keeps your text (old text goes to UPDATE BACKUP). Empty + UPDATE = back to file text.');
   cspStates();
 }
 function cspHave() { const h = new Set(); ['CSP_LOB', 'CSP_ENR', 'CSP_INFO'].forEach(n => { const v = sheet(n); if (v) v.slice(1).forEach(r => h.add(up(r[0]))); }); return h; }
 function cspStates() {
-  const h = cspHave(); tiles(CS.tz, CS.st, h, cspPick, 6, 44, 26);
+  const h = cspHave(); tiles(CS.tz, CS.st, h, cspPick, Math.ceil(STATES.length / 3), 44, 26);
   CS.stat.textContent = h.size ? '✔ ' + h.size + ' state(s) saved  ·  green = loaded\n' + LS.get('csp_last', '') : 'Nothing loaded yet. Click LOAD STATE FILE(S).';
 }
 function cspPick(st) {
@@ -5646,13 +5659,13 @@ ccPaint = function () {
   const adm = !!USER.admin;
   P.innerHTML =
     '<div class="slml">' +
-      '<div class="slmhd"><div class="slmlogo">' + LOGO_H + '</div><div class="slmhr"><span class="slmv">v' + esc(h[0] || '7.0.7') + '</span>' +
+      '<div class="slmhd"><div class="slmlogo">' + LOGO_H + '</div><div class="slmhr"><span class="slmv">v' + '7.0.7' + '</span>' +
         '<b style="color:' + SLM_CATC[SLM.cat - 1] + '">' + esc(SLM.q ? 'SEARCH' : cr ? up(cr.cap) : 'SUPERLOAD') + '</b><small id="slmCnt"></small></div></div>' +
       '<div class="slmsr"><i></i><input id="slmQ" placeholder="search an item / button ..." value="' + esc(SLM.q) + '"></div>' +
       '<div class="slmit" id="slmIt"></div>' +
       '<div class="slmsec">SUPERLOAD · <span id="slmBn"></span></div><div class="slmbt" id="slmBt"></div>' +
       '<div class="slmst' + (SLM.bad ? ' bad' : '') + '">' + esc(SLM.status) + '</div>' +
-      '<div class="slmft">' + esc((USER.id || '') + ' · HTML · v' + (h[0] || '7.0.7') + ' · licence 2028') + '</div>' +
+      '<div class="slmft">' + esc((USER.id || '') + ' · HTML · v' + '7.0.7' + ' · licence 2028') + '</div>' +
     '</div>' +
     '<div class="slmr">' +
       '<div class="slmS" data-r="logo" title="RUN EXCEL - the panel opens in Excel">S</div>' +
@@ -5735,6 +5748,62 @@ async function slmClear() {
 }
 const _autoLoopM = autoLoop;
 autoLoop = async function () { await _autoLoopM(); try { if (AUTO.on && USER.id) await slmRefresh(false); } catch (e) {} };
+
+/* =====================================================================
+   v1.1.0b  taller app (+120 px) · MASTER SAVE = only cells (no tracker)
+   · CLOSE FRAME (X) from the Command Center · panel always v7.0.7
+   ===================================================================== */
+const GROW = 120;
+function growApp() {
+  const px = v => parseFloat(v) || 0;
+  const pg = $('#pg0'); if (pg) pg.style.height = (649 + GROW) + 'px';
+  if (pg) [...pg.children].forEach(c => {
+    const t = px(c.style.top), h = px(c.style.height), l = px(c.style.left);
+    if (c.id === 'office') { c.style.top = (t + GROW) + 'px'; return; }
+    if (c.id === 'hint' || (c.classList.contains('card') && t > 400 && h > 100)) { c.style.height = (h + GROW) + 'px'; return; }
+    if ((c.classList.contains('card') && l > 700 && t < 10 && h > 200) || c.classList.contains('gp')) c.style.height = (h + GROW) + 'px';
+  });
+  // the other screens (not CSP - it has its own layout, not AMARDI - small window)
+  ['scr1', 'scr2', 'scr3', 'scr4'].forEach(id => {
+    const S = document.getElementById(id); if (!S) return;
+    $$('.scard', S).forEach(c => {
+      if (px(c.style.height) !== 637) return; c.style.height = (637 + GROW) + 'px';
+      let big = null, bh = 0; c.querySelectorAll('.stw, textarea, .tilez').forEach(x => { const h = px(x.style.height); if (h > bh && !x.classList.contains('tilez')) { bh = h; big = x; } });
+      if (big && bh > 150) big.style.height = (bh + GROW) + 'px';
+    });
+  });
+}
+{ const gi = setInterval(() => { if ($('#pg0') && $('#office') && $('#scr5')) { clearInterval(gi); try { growApp(); } catch (e) {} } }, 150); }
+
+masterSave = async function () {
+  if (!FV('M-PIN') && !FV('TIN')) return popup('MASTER SAVE', 'Type M-PIN or TIN first.', 'red');
+  const s = snapshot(); RECORDS.push({when: new Date().toLocaleString(), by: USER.id, f: s.f, g: s.g}); Store.set('records', RECORDS);
+  const cells = cellsOut(); cells.forEach(c => bridgeAdd('CELL', c[0], c[1], c[2]));
+  const sh = [...new Set(cells.map(c => c[0]))];
+  bridgeAdd('NOTE', 'MASTER SAVE from HTML  -  M-PIN ' + FV('M-PIN') + '  TIN ' + FV('TIN') + '  by ' + USER.id);
+  trig('MASTER SAVE'); linkKick(); logAct('MASTER SAVE', 'GD ' + FV('GD') + ' / ' + cells.length + ' cells');
+  say('MASTER SAVE: ' + cells.length + ' Excel cells → ' + (sh.join(', ') || 'no CELL MAP yet') + (AUTO.on ? '' : '  (turn PRAC ↻ ON)'), 'ok');
+};
+
+function slmCloseFrames() { slmCmd(['RUN', 'modBridgeX.XL_CloseFrames'], '✕ Closing the open frame(s) in Excel'); }
+{
+  const _pl = slmPaintList;
+  slmPaintList = function () {
+    _pl();
+    const sel = $('#slmIt .slmrow.on'); if (!sel) return;
+    const r = SLM.rows.find(x => x.row === +sel.dataset.row && x.t === sel.dataset.t);
+    if (r && r.kind === 'FRAME') { const x = el('span', 'x', sel, '✕'); x.title = 'close the frame in Excel'; x.dataset.close = '1'; }
+  };
+  const _cl = slmClick;
+  slmClick = function (e) { if (e.target.dataset && e.target.dataset.close) { e.stopPropagation(); SLM.sel = ''; slmCloseFrames(); return; } _cl(e); };
+  const _cb = ccBuild;
+  ccBuild = function (S) {
+    _cb(S);
+    SLM.panel.removeEventListener('click', slmClick);
+    SLM.panel.addEventListener('click', e => slmClick(e));
+    const A = $('.slmacts', S); if (A) { const b = el('div', 'slmab', A, '✕ CLOSE FRAME'); b.style.setProperty('--a', '#c2410c'); b.onclick = slmCloseFrames; A.insertBefore(b, SLM.clrBtn); }
+  };
+}
 
 
 /* ---------------------------------------------------------------------
