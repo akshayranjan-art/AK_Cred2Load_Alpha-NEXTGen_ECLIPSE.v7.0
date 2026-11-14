@@ -5900,20 +5900,20 @@ comSaveGrid = function () {
 function tinEdit(r) {
   const v = tinData(); if (!v || !v[r]) return;
   const hdr = v[0], sn = v[r][hdr.length - 2], sr = +v[r][hdr.length - 1], S = DB[norm(sn)]; if (!S) return;
-  let p = $('#popTE');
-  if (!p) { p = makePop('popTE', '✎ TIN LIST - edit this line', 330, 110, 640); el('div', '', p.body).id = 'teBody'; }
+  let p = $('#popTL');
+  if (!p) { p = makePop('popTL', '✎ TIN LIST - edit this line', 330, 110, 640); el('div', '', p.body).id = 'tlBody'; }
   p.head.textContent = '✎ TIN LIST  -  ' + sn + '  row ' + sr + '   (Esc closes)';
   const H = S.rows[0], row = S.rows[sr] || [];
-  $('#teBody').innerHTML = '<div style="display:grid;grid-template-columns:130px 1fr 130px 1fr;gap:5px 8px;align-items:center">' +
-    H.map((h, c) => tr(h) ? '<b class="kk">' + esc(h) + '</b><input class="sin" data-te="' + c + '" value="' + esc(row[c] == null ? '' : row[c]) + '">' : '').join('') + '</div>' +
-    '<div style="display:flex;gap:8px;margin-top:10px"><div class="btn st" id="teSave" style="--b:#0E9AA7;flex:1">✔ SAVE</div><div class="btn st lite" id="teDel" style="--b:#A3123A;width:120px">✖ DELETE LINE</div></div>';
-  $('#teSave').onclick = () => {
+  $('#tlBody').innerHTML = '<div style="display:grid;grid-template-columns:130px 1fr 130px 1fr;gap:5px 8px;align-items:center">' +
+    H.map((h, c) => tr(h) ? '<b class="kk">' + esc(h) + '</b><input class="sin" data-tl="' + c + '" value="' + esc(row[c] == null ? '' : row[c]) + '">' : '').join('') + '</div>' +
+    '<div style="display:flex;gap:8px;margin-top:10px"><div class="btn st" id="tlSave" style="--b:#0E9AA7;flex:1">✔ SAVE</div><div class="btn st lite" id="tlDel" style="--b:#A3123A;width:120px">✖ DELETE LINE</div></div>';
+  $('#tlSave').onclick = () => {
     const old = (S.rows[sr] || []).join(' | ');
-    $$('[data-te]', p).forEach(x => { const c = +x.dataset.te; while (S.rows[sr].length <= c) S.rows[sr].push(''); S.rows[sr][c] = x.value.trim(); });
+    $$('[data-tl]', p).forEach(x => { const c = +x.dataset.tl; while (S.rows[sr].length <= c) S.rows[sr].push(''); S.rows[sr][c] = x.value.trim(); });
     try { backupOld(sn, 'row ' + sr, old); } catch (e) {}
     saveDB(sn); cacheClear(); hintPaint(); p.style.display = 'none'; say('TIN line saved in ' + sn, 'ok');
   };
-  $('#teDel').onclick = () => {
+  $('#tlDel').onclick = () => {
     if (!confirm('Delete this line from ' + sn + '?')) return;
     try { backupOld(sn, 'row ' + sr, S.rows[sr].join(' | ')); } catch (e) {}
     S.rows.splice(sr, 1); saveDB(sn); cacheClear(); hintPaint(); p.style.display = 'none'; say('TIN line deleted', 'ok');
@@ -5981,8 +5981,143 @@ function fitGrids() {
   const H = px(pg.style.height) || 769, ot = cardH + 5, oh = H - ot - 4;
   of.style.top = ot + 'px'; of.style.height = oh + 'px';
   const cv = $('#ocv'), bar = $('#obar');
-  if (cv) { const ch = oh - (bar ? bar.offsetHeight || 24 : 24) - 2, cw = Math.round(670 * ch / 308); cv.style.height = ch + 'px'; cv.style.width = cw + 'px'; cv.style.marginLeft = Math.max(0, Math.round((px(of.style.width) - cw) / 2)) + 'px'; }
+  if (cv) { const ch = oh - (bar ? bar.offsetHeight || 24 : 24) - 2, cw = of.clientWidth || px(of.style.width); cv.style.height = ch + 'px'; cv.style.width = cw + 'px'; cv.style.marginLeft = '0px'; }
 }
+/* ===== v1.0.7 · town stretched · TIN list tick + delete rows · big E&I note · Excel-like select / copy / paste / delete in every table ===== */
+// town clicks follow the stretched canvas
+{ const _h = town.hit; town.hit = function (x, y) { const r = this.cv.getBoundingClientRect(); return _h.call(this, x * this.W / (r.width || this.W), y * this.H / (r.height || this.H)); }; }
+
+// E&I NOTE: big - half the screen and down to the bottom
+{ const _cn = comNoteShow; comNoteShow = function () {
+    const p = $('#popCN'), ta = $('#cntx');
+    if (p && ta) { const H = APP.clientHeight || 900; p.style.left = '300px'; p.style.top = '70px'; p.style.width = '1080px'; p.style.height = '';
+      ta.style.height = Math.max(300, H - 70 - 120) + 'px'; ta.style.fontSize = '13px'; ta.style.lineHeight = '1.45'; ta.style.padding = '8px 10px'; ta.style.resize = 'vertical'; }
+    _cn();
+  }; }
+
+// TIN LIST: tick box on every row + DELETE TICKED ROWS
+{ const _tb = tinEdBuild; tinEdBuild = function () {
+    _tb();
+    const bar = $('#popTE .abar'), b = abtn(bar, '\u{1F5D1} DELETE TICKED ROWS', C.maroon, tinEdDelTicked); bar.insertBefore(b, $('#teInfo'));
+    $('#teW').addEventListener('change', e => {
+      if (e.target.id === 'teAll') $$('#teW input.tedel').forEach(x => x.checked = e.target.checked);
+      if (e.target.id === 'teAll' || e.target.classList.contains('tedel')) { const n = $$('#teW input.tedel').filter(x => x.checked).length; $('#teInfo').textContent = TE.rows.length + ' row(s)' + (n ? dot + n + ' ticked' : ''); }
+    });
+  }; }
+{ const _tp = tinEdPaint; tinEdPaint = function () {
+    _tp(); const t = $('#teW table'); if (!t) return;
+    const hr = t.tHead.rows[0], th = document.createElement('th'); th.innerHTML = '<input type="checkbox" id="teAll" title="tick all">'; hr.insertBefore(th, hr.firstChild);
+    [...t.tBodies[0].rows].forEach((row, i) => { const td = document.createElement('td'); td.className = 'tdl'; td.innerHTML = '<input type="checkbox" class="tedel" data-k="' + i + '" title="tick = delete this row">'; row.insertBefore(td, row.firstChild); });
+  }; }
+function tinEdDelTicked() {
+  const pick = $$('#teW input.tedel').filter(x => x.checked).map(x => TE.rows[+x.dataset.k]).filter(Boolean);
+  if (!pick.length) return say('Tick the rows to delete first (box on the left)', 'bad');
+  if (TE.rows.some(x => x.dirty && x.ref != null && !pick.includes(x))) return popup('TIN LIST', 'Some changed rows are not saved yet.\nPress SAVE CHANGES first, then delete.', 'red');
+  if (!confirm('Delete ' + pick.length + ' row(s) from the TIN list?\n(a copy goes to Backup)')) return;
+  const by = {}; let n = 0;
+  pick.filter(x => x.ref != null).forEach(x => { const nm = x.sheet || 'TIN LIST'; (by[nm] = by[nm] || []).push(+x.srow); });
+  Object.keys(by).forEach(nm => {
+    const S = sheet(nm); if (!S) return;
+    by[nm].sort((a, b) => b - a).forEach(r => { if (r < 1 || !S[r]) return; try { backupOld(nm, 'row ' + r, S[r].join(' | ')); } catch (e) {} S.splice(r, 1); n++; });
+    saveDB(nm);
+  });
+  TE.rows = TE.rows.filter(x => !pick.includes(x)); TE.pick = null;
+  cacheClear(); try { logAct('TIN LIST delete', n + ' row(s)'); } catch (e) {}
+  tinEdSearch(); hintPaint(); try { tinMark(); } catch (e) {} linkKick();
+  say(pick.length + ' row(s) deleted from the TIN list' + (n ? '  (old copy in Backup)' : ''), 'ok');
+}
+
+/* ---------- every table (popups, lists, admin): drag / shift-click / row number = pick like Excel
+              Ctrl+C = copy · Ctrl+V = paste (Excel rows too) · Delete = clear ---------- */
+const XS = {tb: null, on: false, drag: false};
+function xsMeta(td) { return !td || td.classList.contains('rn') || td.classList.contains('tdl') || !!td.querySelector('input[type=checkbox],[data-qa]'); }
+function xsCell(e) {
+  const td = e.target.closest ? e.target.closest('td') : null, tb = td && td.closest('table.dt');
+  if (!tb || tb.classList.contains('g') || !td.parentNode.parentNode || td.parentNode.parentNode.tagName !== 'TBODY') return null;
+  return {tb, td, r: td.parentNode.sectionRowIndex, c: td.cellIndex};
+}
+function xsRange() { return {r0: Math.min(XS.r0, XS.r1), r1: Math.max(XS.r0, XS.r1), c0: Math.min(XS.c0, XS.c1), c1: Math.max(XS.c0, XS.c1)}; }
+function xsTds(R) { const out = [], B = XS.tb.tBodies[0]; for (let r = R.r0; r <= R.r1; r++) { const row = B.rows[r]; if (!row) continue; const a = []; for (let c = R.c0; c <= R.c1; c++) { const td = row.cells[c]; if (td && !xsMeta(td)) a.push(td); } out.push(a); } return out; }
+function xsPaint() {
+  $$('td.xsel').forEach(x => x.classList.remove('xsel'));
+  if (!XS.on || !XS.tb || !document.contains(XS.tb)) return;
+  const T = xsTds(xsRange()); T.forEach(a => a.forEach(td => td.classList.add('xsel')));
+  say((xsRange().r1 - xsRange().r0 + 1) + ' row(s) x ' + (T[0] ? T[0].length : 0) + ' col(s) picked  -  Ctrl+C = copy · Ctrl+V = paste · Delete = clear · Esc = off');
+}
+function xsClear() { XS.on = false; XS.drag = false; xsPaint(); }
+function xsVal(td) { const i = td.querySelector('input,select,textarea'); return i ? i.value : td.textContent.trim(); }
+function xsSet(td, v) {
+  const i = td.querySelector('input:not([type=checkbox]),textarea,select'); if (!i || i.readOnly || i.disabled) return 0;
+  if (i.value === v) return 0; i.value = v; i.dispatchEvent(new Event('input', {bubbles: true})); i.dispatchEvent(new Event('change', {bubbles: true})); return 1;
+}
+document.addEventListener('mousedown', e => {
+  const p = xsCell(e);
+  if (!p) { if (XS.on && !(e.target.closest && e.target.closest('.btn'))) xsClear(); return; }
+  if (e.target.type === 'checkbox' || (e.target.closest && e.target.closest('[data-qa]'))) return;
+  if (p.td.classList.contains('rn') && e.target === p.td) {                    // row number = whole row(s)
+    const n = p.td.parentNode.cells.length - 1;
+    if (e.shiftKey && XS.on && XS.tb === p.tb) XS.r1 = p.r; else Object.assign(XS, {tb: p.tb, r0: p.r, r1: p.r, c0: 0, c1: n, on: true});
+    XS.drag = true; XS.row = true; xsPaint(); return;
+  }
+  if (e.shiftKey && XS.tb === p.tb && XS.r0 != null) { e.preventDefault(); Object.assign(XS, {r1: p.r, c1: p.c, on: true}); xsPaint(); return; }
+  if (XS.on) xsClear();
+  Object.assign(XS, {tb: p.tb, r0: p.r, c0: p.c, r1: p.r, c1: p.c, on: false, drag: true, row: false});
+});
+document.addEventListener('mouseover', e => {
+  if (!XS.drag) return; const p = xsCell(e); if (!p || p.tb !== XS.tb) return;
+  if (XS.row) { XS.r1 = p.r; xsPaint(); return; }
+  if (p.r === XS.r0 && p.c === XS.c0 && !XS.on) return;
+  XS.on = true; XS.r1 = p.r; XS.c1 = p.c;
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  const s = window.getSelection(); if (s) s.removeAllRanges();
+  xsPaint();
+});
+document.addEventListener('mouseup', () => { XS.drag = false; });
+document.addEventListener('keydown', e => {
+  if (!XS.on || !XS.tb || !document.contains(XS.tb)) return;
+  const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+  const T = xsTds(xsRange());
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+    e.preventDefault(); copyText(T.map(a => a.map(xsVal).join('\t')).join('\n')); say(T.length + ' row(s) copied - paste in Excel / anywhere', 'ok');
+  } else if (e.key === 'Delete' || e.key === 'Backspace') {
+    e.preventDefault(); let n = 0; T.forEach(a => a.forEach(td => n += xsSet(td, ''))); say(n + ' cell(s) cleared  -  press SAVE to keep it');
+  } else if (e.key === 'Escape') xsClear();
+});
+function xsPut(tb, r0, c0, txt, multi) {
+  const L = txt.replace(/\r/g, '').replace(/\n$/, '').split('\n').map(l => l.split('\t').map(tr)); let n = 0;
+  if (multi && L.length === 1 && L[0].length === 1) { xsTds(xsRange()).forEach(a => a.forEach(td => n += xsSet(td, L[0][0]))); }
+  else {
+    const B = tb.tBodies[0];
+    L.forEach((vals, i) => {
+      const row = B.rows[r0 + i]; if (!row) return; let c = c0;
+      vals.forEach(v => { while (row.cells[c] && xsMeta(row.cells[c])) c++; const td = row.cells[c]; if (td) n += xsSet(td, v); c++; });
+    });
+  }
+  say(n + ' cell(s) pasted  -  press SAVE to keep it', 'ok');
+}
+document.addEventListener('paste', e => {
+  const txt = (e.clipboardData || window.clipboardData).getData('text'); if (txt == null || txt === '') return;
+  const a = document.activeElement, typing = a && /INPUT|TEXTAREA/.test(a.tagName);
+  // main grids (Medicaid / Commercial / Medicare): a picked range + Ctrl+V
+  if (GS.on && GS.t >= 0 && !typing) {
+    e.preventDefault(); const R = gsRange(), L = txt.replace(/\r/g, '').replace(/\n$/, '');
+    if (!/[\t\n]/.test(L) && (R.r1 > R.r0 || R.c1 > R.c0)) {
+      const grp = []; for (let r = R.r0; r <= R.r1; r++) for (let c = R.c0; c <= R.c1; c++) if (!(GS.t === 1 && r === 22)) setGV(GS.t, r, c, tr(L), grp);
+      undoPush(grp); gridRender(GS.t); persist(); say(grp.length + ' cell(s) filled  (Ctrl+Z = back)', 'ok');
+    } else gridPaste(GS.t, R.r0, R.c0, txt);
+    return;
+  }
+  // every other table
+  if (XS.on && XS.tb && document.contains(XS.tb) && !typing) { e.preventDefault(); const R = xsRange(); xsPut(XS.tb, R.r0, R.c0, txt, true); return; }
+  if (!typing || !/[\t\n]/.test(txt.replace(/\r/g, '').replace(/\n$/, ''))) return;
+  const td = a.closest('td'), tb = td && td.closest('table.dt'); if (!tb || tb.classList.contains('g') || td.parentNode.parentNode.tagName !== 'TBODY') return;
+  e.preventDefault(); xsPut(tb, td.parentNode.sectionRowIndex, td.cellIndex, txt, false);
+});
+{ const st = document.createElement('style'); st.textContent =
+  'table.dt td.xsel{background:#CFE0FF !important;box-shadow:inset 0 0 0 1px #6E9BFF}table.dt td.xsel input{background:transparent !important}' +
+  'table.edt td.tdl{text-align:center;padding:0 4px;background:#FFF1F1}table.edt td.tdl input,table.edt th input{width:auto;min-width:0;cursor:pointer}';
+  document.head.appendChild(st); }
+
 { const _al = atLayout; atLayout = function () { _al(); try { fitGrids(); if (typeof stripBuild === 'function' && AT.hide) stripBuild(); } catch (e) {} }; }
 { const gi = setInterval(() => { if ($('#pg0') && $('#office') && $('#ocv') && $('#scr5')) { clearInterval(gi); setTimeout(() => { try { fitGrids(); } catch (e) {} }, 400); } }, 200); }
 
