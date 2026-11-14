@@ -6385,6 +6385,142 @@ function mdDraw() {
 { const gi = setInterval(() => { const S = $('#scr' + SCREENS.indexOf('AMARDI')); if (S && AMX.c1 && AMX.c2) { clearInterval(gi);
   [AMX.c1, AMX.c2].forEach(c => c.style.height = (637 + Math.round(AMG / .843)) + 'px'); if (AMX.T) AMX.T.style.height = (596 + Math.round(AMG / .843)) + 'px'; } }, 300); }
 
+/* ===== v1.0.7 · AMARDI: tick-box filters (pick 2-3 values) · heading in the filter box · HEADERS one line · remove columns by heading · CLEAR keeps its size + clears chips · details = only the shown columns ===== */
+const amOK = (x, fv) => Array.isArray(fv) ? fv.includes(tr(x)) : amFM(x, fv);
+amRender = function () {
+  const h = AMX.fullHdr, vis = AMX.vis, f = AMX.flt || {}, cfg = amCfg();
+  let rows = AMX.base.filter(r => vis.every(c => amOK(r[c], f[c])));
+  const s = AMX.srt || (amCol(h, cfg.sort) >= 0 ? {c: amCol(h, cfg.sort), d: cfg.dir || 1} : null);
+  if (s) rows = rows.slice().sort((a, b) => { const p = tr(a[s.c]), q = tr(b[s.c]), n1 = parseFloat(p), n2 = parseFloat(q); return (isNaN(n1) || isNaN(n2) ? p.localeCompare(q) : n1 - n2) * s.d; });
+  const show = rows.slice(0, 1500);
+  AMX.full = show; AMX.hdr = vis.map(c => h[c]); AMX.T.rows = show.map(r => vis.map(c => r[c]));
+  const cellF = c => { const fv = f[c], arr = Array.isArray(fv), txt = arr ? fv.length + ' picked: ' + fv.join(', ') : (fv || '');
+    return '<div class="amfw"><input data-f="' + c + '" class="amf2' + (fv && (!arr || fv.length) ? ' on' : '') + '" placeholder="' + esc(h[c]) + '" title="' + esc(txt || 'type + Enter = contains · ▾ = tick values') + '" value="' + esc(txt) + '"' + (arr ? ' data-arr="1"' : '') + '><b class="amdd" data-f="' + c + '" title="tick 1, 2, 3 ... values">▾</b></div>'; };
+  AMX.T.t.innerHTML = '<thead><tr>' + vis.map(c => '<th data-s="' + c + '" title="click = sort">' + esc(h[c]) + (s && s.c === c ? (s.d > 0 ? ' ▲' : ' ▼') : '') + '</th>').join('') + '</tr>' +
+    '<tr class="amfr">' + vis.map(c => '<th>' + cellF(c) + '</th>').join('') + '</tr></thead><tbody>' +
+    show.map((r, i) => '<tr data-i="' + i + '">' + vis.map(c => '<td>' + esc(r[c] == null ? '' : r[c]) + '</td>').join('') + '</tr>').join('') + '</tbody>';
+  const nf = Object.values(f).filter(x => Array.isArray(x) ? x.length : x).length, v = sheet(AMX.cur);
+  AMX.c2.ti.textContent = '✦  RESULT  ·  ' + rows.length + ' of ' + (v ? v.length - 1 : 0) + ' rows' + (AMX.what ? '  ·  ' + AMX.what : '') + (nf ? '  ·  ' + nf + ' filter(s)' : '') + (rows.length > 1500 ? '  ·  first 1500 shown' : '');
+  amChips(rows);
+};
+// typed filter = contains (Enter or leaving the box)
+function amTyped(t) { const c = t.dataset.f; if (t.dataset.arr && /^\d+ picked: /.test(t.value)) return; AMX.flt[c] = tr(t.value); if (!AMX.flt[c]) delete AMX.flt[c]; amRender(); }
+document.addEventListener('keydown', e => { const t = e.target; if (e.key === 'Enter' && t.classList && t.classList.contains('amf2')) amTyped(t); });
+document.addEventListener('change', e => { const t = e.target; if (t.classList && t.classList.contains('amf2')) amTyped(t); });
+// ▾ = tick-box list (like Excel)
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('.amdd'); if (!b) return;
+  e.stopPropagation(); amPickOpen(+b.dataset.f, b);
+}, true);
+function amPickOpen(c, anchor) {
+  const f = AMX.flt || {}, vis = AMX.vis;
+  const vals = Array.from(new Set(AMX.base.filter(r => vis.every(k => k === c || amOK(r[k], f[k]))).map(r => tr(r[c])))).sort((a, b) => { const x = parseFloat(a), y = parseFloat(b); return isNaN(x) || isNaN(y) ? a.localeCompare(b) : x - y; });
+  const cur = Array.isArray(f[c]) ? f[c] : null;
+  let p = $('#amPick'); if (p) p.remove();
+  p = el('div', '', document.body); p.id = 'amPick';
+  const r = anchor.getBoundingClientRect();
+  p.style.cssText = 'position:fixed;z-index:99999;left:' + Math.min(r.left - 150, innerWidth - 270) + 'px;top:' + (r.bottom + 2) + 'px;width:250px;background:#fff;border:1px solid #B9A6D6;border-radius:8px;box-shadow:0 10px 30px -8px #2E1A4788;padding:7px;font:11px "Segoe UI"';
+  p.innerHTML = '<b style="color:#2E1A47">' + esc(AMX.fullHdr[c]) + '</b>' +
+    '<input class="sin" id="ampQ" placeholder="search ..." style="width:100%;margin:5px 0;height:22px">' +
+    '<div style="display:flex;gap:6px;margin-bottom:4px"><a href="#" id="ampAll">tick all</a><a href="#" id="ampNone">untick all</a></div>' +
+    '<div id="ampL" style="max-height:230px;overflow:auto;border:1px solid #EEE6F7;border-radius:5px;padding:3px">' +
+      vals.map((x, i) => '<label style="display:flex;gap:6px;align-items:center;padding:1px 2px;cursor:pointer;white-space:nowrap"><input type="checkbox" data-v="' + i + '"' + (cur ? (cur.includes(x) ? ' checked' : '') : '') + '> ' + (x === '' ? '<i style="color:#998">(blank)</i>' : esc(x)) + '</label>').join('') + '</div>' +
+    '<div style="display:flex;gap:6px;margin-top:6px"><div class="btn st" id="ampOk" style="--b:#C2410C;flex:1">✔ OK</div><div class="btn st lite" id="ampClr" style="--b:#A3123A;width:80px">CLEAR</div></div>';
+  const L = $('#ampL', p);
+  $('#ampQ', p).oninput = e => { const q = e.target.value.toLowerCase(); $$('label', L).forEach((l, i) => l.style.display = vals[i].toLowerCase().includes(q) ? '' : 'none'); };
+  $('#ampAll', p).onclick = e => { e.preventDefault(); $$('label', L).forEach(l => { if (l.style.display !== 'none') $('input', l).checked = true; }); };
+  $('#ampNone', p).onclick = e => { e.preventDefault(); $$('input', L).forEach(x => x.checked = false); };
+  $('#ampOk', p).onclick = () => { const pick = $$('input', L).filter(x => x.checked).map(x => vals[+x.dataset.v]); if (!pick.length || pick.length === vals.length) delete AMX.flt[c]; else AMX.flt[c] = pick; p.remove(); amRender(); };
+  $('#ampClr', p).onclick = () => { delete AMX.flt[c]; p.remove(); amRender(); };
+  setTimeout(() => $('#ampQ', p).focus(), 30);
+}
+document.addEventListener('mousedown', e => { const p = $('#amPick'); if (p && !p.contains(e.target) && !(e.target.closest && e.target.closest('.amdd'))) p.remove(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { const p = $('#amPick'); if (p) p.remove(); } });
+// remove columns: letters (B, D, F:H) or headings (Tax Id Prefix, Gender)
+{
+  const _sv = amSave;
+  amSave = function (grid) { const first = Math.max(0, grid.findIndex(r => r.filter(x => tr(x)).length >= 2)); AMX._hdr = grid[first] || []; return _sv(grid); };
+  parseCols = function (spec) {
+    const set = new Set(), H = AMX._hdr || [];
+    String(spec || '').split(/[,;]/).map(tr).filter(Boolean).forEach(p => {
+      const parts = /^[A-Za-z]{1,3}(\s+[A-Za-z]{1,3})+$/.test(p) && !H.some(h => hdrMatch(h, p)) ? p.split(/\s+/) : [p];
+      parts.forEach(q => {
+        const hi = H.findIndex(h => hdrMatch(h, q));
+        if (hi >= 0) { set.add(hi); return; }
+        if (/^[A-Za-z]{1,3}\s*[:\-]\s*[A-Za-z]{1,3}$/.test(q)) { const [a, b] = q.split(/[:\-]/).map(colNum); for (let i = a; i <= b; i++) if (i > 0) set.add(i - 1); }
+        else if (/^[A-Za-z]{1,3}$/.test(q)) { const a = colNum(q); if (a > 0) set.add(a - 1); }
+      });
+    });
+    return set;
+  };
+}
+// CLEAR THIS DATA: PTI MPIN chips + result go too
+{
+  const _cl = amClear;
+  amClear = function () {
+    _cl();
+    const v = sheet(AMX.cur);
+    if (!v || v.length < 2) { AMX.base = []; AMX.flt = {}; if (AMX.chips) AMX.chips.innerHTML = ''; if (AMX.chipT) AMX.chipT.textContent = ''; if (AMX.T) { AMX.T.t.innerHTML = '<tbody><tr><td class="muted" style="padding:10px">(no data - drop the Excel file in DUMP)</td></tr></tbody>'; AMX.T.rows = []; } if (AMX.c2) AMX.c2.ti.textContent = '✦  RESULT'; say('Data cleared', 'ok'); }
+  };
+}
+// double-click on a PTI MPIN = only the columns that show in RESULT (COLUMNS ticks)
+{
+  const _md = amMpinDetail;
+  amMpinDetail = function (m) {
+    _md(m);
+    const v = sheet(AMX.cur); if (!v || !window.AMD_) return;
+    const h = v[0], c = amCol(h, 'MPIN') >= 0 ? amCol(h, 'MPIN') : amMpinCol(), all = v.slice(1).filter(r => tr(r[c]) === m);
+    const vis = (AMX.vis && AMX.vis.length ? AMX.vis : amVis(h)).filter(i => tr(h[i]));
+    AMD_.hdr = vis.map(i => h[i]); AMD_.rows = all.map(r => vis.map(i => r[i] == null ? '' : r[i]));
+    $('#mdC').innerHTML = '<option value="">(column)</option>' + AMD_.hdr.map((x, i) => '<option value="' + i + '">' + esc(x) + '</option>').join('');
+    mdDraw();
+  };
+}
+{ const gi = setInterval(() => { if (!AMX.c1 || !AMX.rem || !AMX.hl) return; clearInterval(gi);
+    const lb = AMX.rem.previousElementSibling; if (lb) lb.textContent = 'Remove columns before saving  (letters or headings)';
+    AMX.rem.placeholder = 'e.g.  Tax Id Prefix, Gender   or   B, D, F:H';
+    const st = document.createElement('style');
+    st.textContent = '#popAMD .btn{flex-shrink:0}#popAMD .tip{flex-shrink:0}' +
+      '.amfw{display:flex;align-items:center;gap:2px}.amfw .amf2{flex:1;min-width:50px;height:19px;font:10.5px "Segoe UI";border:1px solid #CBBFDB;border-radius:4px;padding:0 4px;background:#fff;color:#4A3D5C}' +
+      '.amfw .amf2::placeholder{color:#9A8AB3;font-weight:600}.amfw .amf2.on{background:#FFF0D6;border-color:#F07F1E;color:#9A4A00;font-weight:700}' +
+      '.amdd{width:16px;height:19px;display:grid;place-items:center;border-radius:4px;background:#5B2F99;color:#fff;font-size:10px;cursor:pointer;flex-shrink:0}.amdd:hover{background:#F07F1E}';
+    document.head.appendChild(st);
+    AMX.hl.style.cssText += ';white-space:nowrap;overflow-x:auto;overflow-y:hidden;max-height:none;height:18px;line-height:16px';
+  }, 300); }
+
+/* ===== v1.0.7 · HINT: another TIN row = boxes follow that row (empty heading = empty box) + E&I refills by TIN + PTI + EI-FS ===== */
+hintFillGroup = function (r) {
+  const v = tinData(); if (!v || !v[r]) return;
+  const grp = []; let n = 0;
+  headSheet().slice(1).forEach(([box]) => {
+    const f = Object.keys(FX).find(k => up(k) === up(box)); if (!f || FX[f].kind === 'K') return;
+    const cs = headCols(v, box); if (!cs.length) return;                  // heading not in the TIN list = box untouched
+    const c = cs.find(c => tr(v[r][c])), val = c == null ? '' : tr(v[r][c]);
+    if (FV(f) !== val) { setFV(f, val, true, grp); n++; }
+  });
+  undoPush(grp);
+  if (flagOn('J1400') || flagOn('CS County')) lobAddAll(false);
+  if (flagOn('MNR A1025')) a1025Fill(false);
+  persist(); hintPaint(); tinMark(); mkMarks();
+  comAuto(true);
+  say('Group filled from the TIN list (' + n + ' boxes changed, by heading)  -  Ctrl+Z = back', 'ok');
+};
+// E&I follows TIN + PTI MPIN + EI-FS: match = fill, no match = the old list set goes out of the grid
+let COM_LASTKEY = null;
+function comAuto(fromHint) {
+  const k = comKeys(); COM_LASTKEY = k.pti + '|' + k.tin + '|' + k.fs;
+  if (!flagOn('E&I')) { try { if (town.watch) town.kick('COMMERCIAL'); } catch (e) {} return; }   // E&I tick off = no auto fill (agent only checks)
+  const s = comFind('');
+  if (s.length === 1) { if (!comCur || comCur.join() !== s[0].join()) comApply(s[0]); return; }
+  if (s.length > 1) { comSets = s; comPickShow(); return; }
+  if (comCur) {
+    const grp = []; for (let r = 0; r < G[1].rows - 1; r++) for (let c = 1; c < G[1].cols.length; c++) if (G[1].data[r][c] !== '') setGV(1, r, c, '', grp);
+    comCur = null; undoPush(grp); gridRender(1); persist(); say('E&I: TIN + PTI MPIN + EI - FS do not match a saved set - grid emptied (Product Info stays) · Ctrl+Z = back', 'bad');
+  }
+  if (fromHint && comTinSets().length && k.tin && k.pti && k.fs) { COM_ASKED = COM_LASTKEY; qkOpen('C'); }
+}
+{ const _cm = comMarks; comMarks = function () { _cm(); const k = comKeys(), key = k.pti + '|' + k.tin + '|' + k.fs; if (COM_LASTKEY === null) { COM_LASTKEY = key; return; } if (key !== COM_LASTKEY && k.pti && k.tin && k.fs) comAuto(false); else COM_LASTKEY = key; }; }
+
 // ---- NOTES: own screen (popup), topics + screens, its own Excel ----
 const NT_HDR = ['Topic', 'Screen', 'Title', 'Note', 'Updated', 'By'];
 const NT_TOPICS = ['General', 'SOP', 'State Rules', 'Agreement', 'CSP', 'MNR / Cosmos', 'Commercial E&I', 'Medicaid C&S', 'Medicare M&R', 'Amardi', 'NDB', 'Excel / Macros', 'Links / Portals', 'Contacts', 'Escalation', 'Training', 'Daily Checklist', 'Ideas'];
