@@ -6118,6 +6118,162 @@ document.addEventListener('paste', e => {
   'table.edt td.tdl{text-align:center;padding:0 4px;background:#FFF1F1}table.edt td.tdl input,table.edt th input{width:auto;min-width:0;cursor:pointer}';
   document.head.appendChild(st); }
 
+/* ===== v1.0.7 · E&I = TIN + PTI MPIN + EI-FS (all 3) · EI-FS tick · C popup big (all sets of TIN/PTI, MATCH, NEW SET) · note per set + NOTE glows · grid Erase · MID/PHY/SPC in TIN list ===== */
+// set = block of rows with same PTI/TIN/EMP; a new set starts after ENW or when the first product repeats. FS of the set = FS of its FIRST line
+function comBlocks() {
+  const v = sheet('COMMERCIAL'); if (!v) return [];
+  const cP = hdrC(v, 'PTI'), cT = hdrC(v, 'TIN'), cE = hdrC(v, 'EMP'), cF = hdrC(v, 'Fee'), cPr = hdrC(v, 'Product');
+  const out = []; let cur = null, k3o = null, prevEnw = false;
+  for (let r = 1; r < v.length; r++) {
+    const k3 = [cP, cT, cE].map(c => digits(cell(v, r, c))).join('|'), pr = up(cell(v, r, cPr));
+    if (!cur || k3 !== k3o || prevEnw || (pr && cur.first && pr === cur.first)) {
+      cur = {rows: [], pti: digits(cell(v, r, cP)), tin: digits(cell(v, r, cT)), emp: digits(cell(v, r, cE)), fs: cF >= 0 ? cell(v, r, cF) : '', first: pr}; out.push(cur);
+    }
+    cur.rows.push(r); if (!cur.fs && cF >= 0 && cell(v, r, cF)) cur.fs = cell(v, r, cF);
+    k3o = k3; prevEnw = pr.startsWith('ENW');
+  }
+  return out;
+}
+function comKeys() { return {pti: digits(FV('PTI MPIN')), tin: digits(FV('TIN')), fs: fsKey(FV('EI - FS'))}; }
+function comTinSets() { const k = comKeys(); if (!k.pti && !k.tin) return []; return comBlocks().filter(b => (k.pti && b.pti === k.pti) || (k.tin && b.tin === k.tin)); }
+function comMatch(b, k) { k = k || comKeys(); return !!(k.pti && k.tin && k.fs && b.pti === k.pti && b.tin === k.tin && fsKey(b.fs) === k.fs); }
+comFind = function (onlyKey) {
+  if (onlyKey) { const d = digits(onlyKey); return comBlocks().filter(b => b.pti === d || b.tin === d).map(b => b.rows); }
+  const k = comKeys(); if (!k.pti || !k.tin || !k.fs) return [];
+  return comBlocks().filter(b => comMatch(b, k)).map(b => b.rows);
+};
+// why it did not fill (shown in the C popup + EI-FS tick)
+function comWhy() {
+  const k = comKeys(), all = comTinSets();
+  if (!k.tin || !k.pti || !k.fs) return {st: '', msg: 'E&I fills only when TIN + PTI MPIN + EI - FS are all in the frame' + ' (missing: ' + [!k.tin && 'TIN', !k.pti && 'PTI MPIN', !k.fs && 'EI - FS'].filter(Boolean).join(', ') + ')'};
+  const m = all.filter(b => comMatch(b, k));
+  if (m.length) return {st: 'ok', msg: '✓ MATCH  -  TIN ' + k.tin + ' + PTI ' + k.pti + ' + FS ' + FV('EI - FS') + (m.length > 1 ? '  (' + m.length + ' sets - pick one)' : '')};
+  if (!all.length) return {st: 'no', msg: '✕ No set in the COMMERCIAL list for this TIN / PTI MPIN  -  fill the grid and SAVE GRID TO LIST (or + NEW SET here)'};
+  const tp = all.filter(b => b.tin === k.tin && b.pti === k.pti);
+  if (tp.length) return {st: 'no', msg: '✕ TIN + PTI MPIN match, but EI - FS ' + FV('EI - FS') + ' is not saved  -  saved FS: ' + tp.map(b => b.fs || '(blank)').join(', ') + '  -  pick a set below (FILL FRAME) or + NEW SET'};
+  return {st: 'no', msg: '✕ Only ' + (all.some(b => b.tin === k.tin) ? 'TIN' : 'PTI MPIN') + ' matches  -  the other one is different in the list  -  check the sets below'};
+}
+let COM_ASKED = "";
+comFill = function (manual) {
+  const s = comFind('');
+  if (s.length === 1) return comApply(s[0]);
+  if (s.length > 1) { comSets = s; return comPickShow(); }
+  const k = comKeys(), key = k.pti + '|' + k.tin + '|' + k.fs;
+  if (comTinSets().length) { if (manual || COM_ASKED !== key) { COM_ASKED = key; qkOpen('C'); } return; }
+  if (manual) popup('E&I', comWhy().msg, 'red');
+};
+// save grid: replaces only the SAME set (TIN + PTI + FS) - SET 2 never wipes SET 1
+comSaveGrid = function () {
+  const pti = FV('PTI MPIN'), tin = digits(FV('TIN')), emp = FV('EMP Id'); let fs = FV('EI - FS');
+  if (!digits(pti) || !tin) return popup('E&I', 'Type TIN and PTI MPIN first.', 'red');
+  if (!fs) for (let r = 0; r < 22; r++) { if (GV(1, r, gci(1, 'Fee Sched'))) { fs = GV(1, r, gci(1, 'Fee Sched')); break; } }
+  if (!fs) return popup('E&I', 'Type EI - FS first (the set is saved with TIN + PTI MPIN + EI - FS).', 'red');
+  const v = ensureSheet('COMMERCIAL', COM_HDR), k = {pti: digits(pti), tin, fs: fsKey(fs)};
+  const old = comBlocks().filter(b => comMatch(b, k)); let note = '';
+  if (old.length) {
+    if (!confirm('This set (TIN ' + tin + ' / PTI ' + pti + ' / FS ' + fs + ') is already in the COMMERCIAL list.\n\nOK = replace it with the grid\nCancel = keep the old one')) return;
+    const hc = hdrC(v, 'hint'); old.forEach(b => b.rows.forEach(r => { if (!note && hc >= 0) note = tr(v[r][hc]); try { backupOld('COMMERCIAL', 'row ' + r, v[r].join(' | ')); } catch (e) {} }));
+    old.flatMap(b => b.rows).sort((a, b) => b - a).forEach(r => v.splice(r, 1));
+  }
+  const pop = $('#popCN'); if (pop && pop.style.display === 'block' && tr($('#cntx').value)) note = $('#cntx').value;
+  const rows = [];
+  for (let r = 0; r < 23; r++) {
+    const row = [pti, tin, emp, r === 0 ? fs : ''];
+    if (r === 22) row.push('ENW YES', FV('ENW Yes or No'), '', '', '');
+    else row.push(GV(1, r, gci(1, 'Product Info')), GV(1, r, gci(1, 'Master Name')), GV(1, r, gci(1, 'Master ID')), GV(1, r, gci(1, 'Penalty table')), GV(1, r, gci(1, 'Note')));
+    row.push(r === 0 ? note : ''); v.push(row); rows.push(v.length - 1);
+  }
+  comCur = rows; saveDB('COMMERCIAL'); linkKick(); comMarks();
+  say('E&I saved: TIN ' + tin + ' + PTI ' + pti + ' + FS ' + fs + (old.length ? '  (old one replaced, copy in Backup)' : '  (new set)'), 'ok');
+};
+// C popup: every set of this TIN / PTI MPIN, the matching one on top, + NEW SET
+{
+  const _qd = qkData;
+  qkData = function (k) {
+    if (k !== 'C') return _qd(k);
+    const v = sheet('COMMERCIAL'), K = comKeys(), keys = {'PTI MPIN': FV('PTI MPIN'), 'TIN': digits(FV('TIN')), 'EMP Id': FV('EMP Id'), 'Fee Schedule': FV('EI - FS')};
+    const all = comTinSets().sort((a, b) => comMatch(b, K) - comMatch(a, K));
+    const S = all.map((b, i) => ({sheet: 'COMMERCIAL', rows: b.rows, match: comMatch(b, K),
+      title: 'SET ' + (i + 1) + dot + 'TIN ' + b.tin + dot + 'PTI ' + b.pti + dot + 'FS ' + (b.fs || '(blank)') + (b.emp ? dot + 'EMP ' + b.emp : '') + '   ' +
+        (comMatch(b, K) ? '✓ MATCH' : '✕ ' + [b.tin !== K.tin && 'TIN', b.pti !== K.pti && 'PTI MPIN', fsKey(b.fs) !== K.fs && 'FS'].filter(Boolean).join(' + ') + ' different'),
+      note: 'hint', fill: () => comApply(b.rows), keys}));
+    if (!S.length) S.push({sheet: 'COMMERCIAL', rows: [], title: 'No set for this TIN / PTI MPIN yet - + NEW SET (or fill the grid and SAVE GRID TO LIST)', note: 'hint', keys, hdr: COM_HDR, extra: () => comSaveGrid()});
+    return S;
+  };
+  const _qo = qkOpen;
+  qkOpen = function (k) {
+    _qo(k);
+    const p = $('#popQK'); if (!p) return;
+    const old = $('#qkWhy', p); if (old) old.remove();
+    if (k === 'C') {
+      const H = APP.clientHeight || 900; p.style.left = '40px'; p.style.top = '40px'; p.style.width = '1300px'; p.style.height = (H - 60) + 'px';
+      const bar = $('#qkBar', p); abtn(bar, '➕ NEW SET (new FS)', C.green, comNewSet, true);
+      const w = comWhy(), d = el('div', '', p.body); d.id = 'qkWhy'; p.body.insertBefore(d, bar.nextSibling);
+      d.style.cssText = 'margin:4px 0 6px;padding:6px 10px;border-radius:8px;font:700 12px "Segoe UI";' + (w.st === 'ok' ? 'background:#E3F9EE;color:#0B7A4B;border:1px solid #7CDDB0' : w.st === 'no' ? 'background:#FFE9EC;color:#A3123A;border:1px solid #F3A0AE' : 'background:#FFF6D6;color:#7A5A00;border:1px solid #F0D27A');
+      d.textContent = w.msg;
+    } else { p.style.left = '150px'; p.style.top = '110px'; p.style.width = '1100px'; p.style.height = '500px'; }
+    qkDraw();
+  };
+  const _qdr = qkDraw;
+  qkDraw = function () {
+    _qdr();
+    if (QK.k !== 'C') return;
+    $$('#qkW .qks').forEach((d, i) => { const s = QK.S[i]; if (!s) return; if (s.match) { d.style.boxShadow = '0 0 0 2px #19B46B'; d.style.borderRadius = '8px'; const t = $('.qkt b', d); if (t) t.style.color = '#0B7A4B'; } const a = $('.atw', d); if (a) a.style.maxHeight = '470px'; const n = $('.qkn', d); if (n) n.style.height = '90px'; });
+  };
+}
+function comNewSet() {
+  const pti = digits(FV('PTI MPIN')), tin = digits(FV('TIN'));
+  if (!pti || !tin) return popup('NEW SET', 'Type TIN and PTI MPIN in the frame first.', 'red');
+  const fs = tr(prompt('Fee Schedule for the new set (TIN ' + tin + ' / PTI ' + pti + ')', FV('EI - FS') || '') || ''); if (!fs) return;
+  if (comBlocks().some(b => comMatch(b, {pti, tin, fs: fsKey(fs)}))) return popup('NEW SET', 'This TIN + PTI MPIN + FS ' + fs + ' is already a set - edit it in the list.', 'red');
+  const v = ensureSheet('COMMERCIAL', COM_HDR), emp = FV('EMP Id'), pc = gci(1, 'Product Info');
+  for (let r = 0; r < 23; r++) {
+    const row = [FV('PTI MPIN'), tin, emp, r === 0 ? fs : ''];
+    if (r === 22) row.push('ENW YES', '', '', '', ''); else row.push(GV(1, r, pc), '', '', '', '');
+    row.push(''); v.push(row);
+  }
+  saveDB('COMMERCIAL'); linkKick(); QK.S = qkData('C'); qkDraw(); comMarks(); say('NEW SET made: FS ' + fs + ' - fill it here and press SAVE CHANGES', 'ok');
+}
+// EI-FS tick + NOTE button glows when the matched set has a note
+function comMarks() {
+  const m = $('#mkEi'); const w = comWhy();
+  if (m) { m.className = 'tinmk ' + w.st; m.textContent = w.st === 'ok' ? '✓' : w.st === 'no' ? '✕' : ''; m.title = w.msg + '   (click = C list)'; }
+  const nb = LAYK['B_CNOTE']; if (!nb) return;
+  let note = '';
+  try { const s = comFind(''); if (s.length) { const v = sheet('COMMERCIAL'), c = hdrC(v, 'hint'); if (c >= 0) for (const r of s[0]) if (tr(cell(v, r, c))) { note = tr(cell(v, r, c)); break; } } } catch (e) {}
+  nb.classList.toggle('noteglow', !!note); nb.title = note ? 'NOTE for this TIN + PTI + FS:\n' + note.slice(0, 300) : 'E&I note';
+}
+{ const _qp = qkPaint; qkPaint = function () { _qp(); try { comMarks(); } catch (e) {} }; }
+// grid Erase buttons (Commercial keeps Product Info + ENW)
+function gridErase(t) {
+  const grp = [];
+  for (let r = 0; r < G[t].rows; r++) for (let c = 0; c < G[t].cols.length; c++) {
+    if (t === 1 && (c === 0 || r === G[1].rows - 1)) continue;
+    if (G[t].data[r][c] !== '') setGV(t, r, c, '', grp);
+  }
+  if (t === 1) comCur = null;
+  undoPush(grp); gridRender(t); persist(); say(G[t].name + ' erased (' + grp.length + ' cells' + (t === 1 ? ', Product Info kept' : '') + ')  -  Ctrl+Z = back', 'ok');
+}
+// TIN list: MID / PHY / SPC always shows (to edit)
+{ const _tc = teCols; teCols = function (h) { const o = _tc(h); h.forEach((x, c) => { if (/MID|PHY|SPC/i.test(String(x)) && !o.includes(c)) o.push(c); }); return o; }; }
+{ const gi = setInterval(() => {
+    if (!$('#gt1') || !$('#mkFs') || !FX['EI - FS'] || !LAYK['GP1']) return; clearInterval(gi);
+    const mf = $('#mkFs'), e = FX['EI - FS'].e, em = FX['M&R FS'] && FX['M&R FS'].e;
+    if (em) e.style.width = em.style.width;
+    const m = el('div', 'tinmk', mf.parentNode); m.id = 'mkEi'; m.style.left = mf.style.left; m.style.width = mf.style.width; m.style.height = mf.style.height;
+    m.style.top = (parseFloat(mf.style.top) - (parseFloat(em.style.top) - parseFloat(e.style.top))) + 'px';
+    m.onclick = () => qkOpen('C');
+    [0, 1, 2].forEach(t => {
+      const p = LAYK['GP' + t]; if (!p) return;
+      const b = btn(p, 'B_GERASE' + t, 'Erase', 478, 1, 40, 14, '#A3123A', false, 9); b.title = t === 1 ? 'Erase Commercial (Product Info + ENW stay)' : 'Erase all of ' + G[t].name;
+      b.addEventListener('click', ev => { ev.stopPropagation(); gridErase(t); });
+    });
+    const st = document.createElement('style');
+    st.textContent = '@keyframes ntg{0%,100%{box-shadow:0 0 0 0 rgba(245,197,24,.0),0 0 4px #F5C518}50%{box-shadow:0 0 0 4px rgba(245,197,24,.45),0 0 14px #FFB300}}.noteglow{animation:ntg 1.1s infinite;filter:brightness(1.12)}.noteglow::after{content:"●";position:absolute;right:-4px;top:-6px;color:#E0312F;font-size:11px}';
+    document.head.appendChild(st);
+    comMarks();
+  }, 250); }
+
 { const _al = atLayout; atLayout = function () { _al(); try { fitGrids(); if (typeof stripBuild === 'function' && AT.hide) stripBuild(); } catch (e) {} }; }
 { const gi = setInterval(() => { if ($('#pg0') && $('#office') && $('#ocv') && $('#scr5')) { clearInterval(gi); setTimeout(() => { try { fitGrids(); } catch (e) {} }, 400); } }, 200); }
 
