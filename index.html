@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Superload v1.1.0</title>
+<title>Superload v1.0.7</title>
 <style>
 :root{
   --aub:#2E1A47; --aub2:#4B2C6F; --mari:#F07F1E; --teal:#0E9AA7; --maroon:#9B1B3F; --rose:#D9467A;
@@ -731,7 +731,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
    (LOAD EXCEL reads them: TIN LIST / TIN_List, COUNTY LOB, CSP_LOB ...).
    Fixed layout 1400 x 780 px - nothing moves or scales by itself.
    ===================================================================== */
-const VER = '1.1.0';
+const VER = '1.0.7';
 const K = 1.25;                    // 1 pt of the Excel frame = 1.25 px
 const OWNER = 'ARANJA14';
 const I_PASS = '763388';
@@ -1149,38 +1149,9 @@ function showTab(t) {
   $$('.gp').forEach((x, i) => x.classList.toggle('on', i === t));
 }
 function commercialDefaults() {
-const prod = [
-  'AA-0',
-  'A1 A2 A3 (Core)-CCP',
-  'C0 C1 C2 S0 S1 S2 STDNONPPO',
-  'EA EB EC - ACO-NR',
-  'ED EE EF - ACO-R',
-  'EG EH EI - ACO-OA',
-  'LG LH LI - DR-PLAN',
-  'P3 - PPO',
-  'SG SH SI - CHTR',
-  'S7 S8 S9 - NAV',
-  'VACCN - F4',
-  'OW',
-  'OF',
-  'OL',
-  'OM',
-  'EJ, EK, EL',
-  'EO, EM',
-  'ER',
-  'V3',
-  'P2',
-  'P4',
-  'N4IND'
-];
-
-  for (let r = 0; r < 22; r++) {
-    if (GV(1, r, 0)) return;
-  }
-
-  prod.forEach((p, r) => {
-    if (p) G[1].data[r][0] = p;
-  });
+  const prod = ['A1 A2 A3', 'C0 C1 C2 S0 S1 S2', 'EA EB EC', 'ED EE EF', 'EG EH EI', 'LG LH LI', 'P3', 'SG SH SI', 'S7 S8 S9', '', '', '', '', '', '', '', '', '', '', 'VACCN', '', ''];
+  for (let r = 0; r < 22; r++) if (GV(1, r, 0)) return;
+  prod.forEach((p, r) => { if (p) G[1].data[r][0] = p; });
 }
 
 /* ---------------------------------------------------------------------
@@ -5834,6 +5805,385 @@ function slmCloseFrames() { slmCmd(['RUN', 'modBridgeX.XL_CloseFrames'], '✕ Cl
   };
 }
 
+/* =====================================================================
+   v1.1.0c  AMARDI tab next to CSP · bigger AMARDI + typeable filters +
+   PTI MPIN chips (double-click = details) · LINKS bigger + admin LINKS ·
+   grids never hide rows (E&I 23 / C&S 17) · smaller Agent Town ·
+   ENW mapping · NOTES (own Excel) · TIN edit (double-click) ·
+   E&I: one Fee Schedule per set, one place in COMMERCIAL · Reset = product list
+   ===================================================================== */
+// ---- AMARDI tab back on top (opens the same AMARDI window) ----
+setTimeout(() => { const t = $$('.stab')[SCREENS.indexOf('AMARDI')]; if (t) t.style.display = ''; }, 50);
+
+// ---- E&I columns: Product Info a bit wider, Note smaller ----
+G[1].w = [150, 112, 64, 54, 60, 58];
+
+// ---- Reset Frame: the full product list ----
+const PROD_DEF = ['AA-0', 'A1 A2 A3 (Core)-CCP', 'C0 C1 C2 S0 S1 S2 STDNONPPO', 'EA EB EC - ACO-NR', 'ED EE EF - ACO-R', 'EG EH EI - ACO-OA', 'LG LH LI - DR-PLAN', 'P3 - PPO', 'SG SH SI - CHTR', 'S7 S8 S9 - NAV', 'VACCN - F4', 'OW', 'OF', 'OL', 'OM', 'EJ, EK, EL', 'EO, EM', 'ER', 'V3', 'P2', 'P4', 'N4IND'];
+commercialDefaults = function () {
+  for (let r = 0; r < 22; r++) if (GV(1, r, 0)) return;
+  PROD_DEF.forEach((p, r) => { G[1].data[r][0] = p; });
+};
+
+// ---- CELL MAP: ENW Yes or No = one cell ----
+{
+  const _co = cellsOut;
+  cellsOut = function () {
+    const m = sheet('CELL MAP'); if (!m) return [];
+    const isEnw = r => /ENW/i.test(tr(m[r][1])) || /ENW/i.test(tr(m[r][0]));
+    const keep = m.map(r => r.slice());
+    const enw = [];
+    for (let r = 1; r < m.length; r++) if (isEnw(r)) { for (let sc = 5; sc < m[0].length; sc++) { const shn = tr(m[0][sc]); if (shn) addrs(m[r][sc]).forEach(a => enw.push([shn, up(a), FV('ENW Yes or No')])); } m[r][1] = ''; }
+    let out; try { out = _co(); } finally { m.forEach((r, i) => m[i] = keep[i]); }
+    return out.concat(enw);
+  };
+}
+
+// ---- COMMERCIAL: set = PTI + TIN + EMP (+ the Fee Schedule of its first line) ----
+comFind = function (onlyKey) {
+  const v = sheet('COMMERCIAL'); if (!v) return [];
+  const cP = hdrC(v, 'PTI'), cT = hdrC(v, 'TIN'), cE = hdrC(v, 'EMP'), cF = hdrC(v, 'Fee');
+  let pti, tin, emp = '', fs = '';
+  if (onlyKey) { pti = tin = onlyKey; } else { pti = digits(FV('PTI MPIN')); tin = digits(FV('TIN')); emp = digits(FV('EMP Id')); fs = fsKey(FV('EI - FS')); }
+  if (!pti && !tin) return [];
+  const sets = new Map(); let k3o = '', fso = '';
+  for (let r = 1; r < v.length; r++) {
+    const k3 = [cP, cT, cE].map(c => digits(cell(v, r, c))).join('|');
+    let f = cF >= 0 ? cell(v, r, cF) : '';
+    if (!f && k3 === k3o) f = fso; k3o = k3; fso = f;
+    let ok = (pti && cP >= 0 && digits(cell(v, r, cP)) === pti) || (tin && cT >= 0 && digits(cell(v, r, cT)) === tin);
+    if (ok && !onlyKey) {
+      if (emp && cE >= 0 && cell(v, r, cE) && digits(cell(v, r, cE)) !== emp) ok = false;
+      if (fs && f && fsKey(f) !== fs) ok = false;
+    }
+    if (ok) { const k = k3 + '|' + fsKey(f); if (!sets.has(k)) sets.set(k, []); sets.get(k).push(r); }
+  }
+  return Array.from(sets.values());
+};
+{
+  const _ca = comApply;
+  comApply = function (rows) {
+    _ca(rows);
+    const c = gci(1, 'Fee Sched'); let fs = '';
+    for (let r = 0; r < 22; r++) { if (!fs && GV(1, r, c)) fs = GV(1, r, c); G[1].data[r][c] = ''; }
+    if (!fs) { const v = sheet('COMMERCIAL'), cF = hdrC(v, 'Fee'); if (cF >= 0) for (const r of rows) if (cell(v, r, cF)) { fs = cell(v, r, cF); break; } }
+    G[1].data[0][c] = fs; gridRender(1); persist();
+  };
+}
+comSaveGrid = function () {
+  const pti = FV('PTI MPIN'), tin = digits(FV('TIN')), emp = FV('EMP Id'); let fs = FV('EI - FS');
+  if (!pti && !tin) return popup('E&I', 'Type PTI MPIN or TIN first.', 'red');
+  if (!fs) for (let r = 0; r < 22; r++) { if (GV(1, r, gci(1, 'Fee Sched'))) { fs = GV(1, r, gci(1, 'Fee Sched')); break; } }
+  const v = ensureSheet('COMMERCIAL', COM_HDR);
+  const old = []; let note = '';
+  for (let r = 1; r < v.length; r++) if (digits(v[r][0]) === digits(pti) && digits(v[r][1]) === tin && digits(v[r][2]) === digits(emp)) { old.push(r); if (!note) note = tr(v[r][9]); }
+  if (old.length && !confirm('PTI ' + pti + ' / TIN ' + tin + ' / EMP ' + emp + ' is already in the COMMERCIAL list (' + old.length + ' lines).\n\nOK = replace it with this grid (one place, one Fee Schedule)\nCancel = keep the old one')) return;
+  for (let i = old.length - 1; i >= 0; i--) v.splice(old[i], 1);
+  if ($('#cntx') && tr($('#cntx').value)) note = $('#cntx').value;
+  const rows = [];
+  for (let r = 0; r < 23; r++) {
+    const row = [pti, tin, emp, r === 0 ? fs : ''];
+    if (r === 22) row.push('ENW YES', FV('ENW Yes or No'), '', '', '');
+    else row.push(GV(1, r, gci(1, 'Product Info')), GV(1, r, gci(1, 'Master Name')), GV(1, r, gci(1, 'Master ID')), GV(1, r, gci(1, 'Penalty table')), GV(1, r, gci(1, 'Note')));
+    row.push(r === 0 ? note : '');
+    v.push(row); rows.push(v.length - 1);
+  }
+  comCur = rows; saveDB('COMMERCIAL');
+  say('E&I saved in the COMMERCIAL list: 23 rows, one Fee Schedule (' + (fs || '-') + ')' + (old.length ? ' - old set replaced' : ''), 'ok');
+};
+
+// ---- TIN list: double-click a TIN line in HINT = edit it ----
+{
+  const _hc = hintClick;
+  hintClick = function (i, dbl) { const ref = hintRef[i]; if (ref && ref[0] === 'T' && dbl) return tinEdit(+ref.slice(1)); _hc(i, dbl); };
+}
+function tinEdit(r) {
+  const v = tinData(); if (!v || !v[r]) return;
+  const hdr = v[0], sn = v[r][hdr.length - 2], sr = +v[r][hdr.length - 1], S = DB[norm(sn)]; if (!S) return;
+  let p = $('#popTE');
+  if (!p) { p = makePop('popTE', '✎ TIN LIST - edit this line', 330, 110, 640); el('div', '', p.body).id = 'teBody'; }
+  p.head.textContent = '✎ TIN LIST  -  ' + sn + '  row ' + sr + '   (Esc closes)';
+  const H = S.rows[0], row = S.rows[sr] || [];
+  $('#teBody').innerHTML = '<div style="display:grid;grid-template-columns:130px 1fr 130px 1fr;gap:5px 8px;align-items:center">' +
+    H.map((h, c) => tr(h) ? '<b class="kk">' + esc(h) + '</b><input class="sin" data-te="' + c + '" value="' + esc(row[c] == null ? '' : row[c]) + '">' : '').join('') + '</div>' +
+    '<div style="display:flex;gap:8px;margin-top:10px"><div class="btn st" id="teSave" style="--b:#0E9AA7;flex:1">✔ SAVE</div><div class="btn st lite" id="teDel" style="--b:#A3123A;width:120px">✖ DELETE LINE</div></div>';
+  $('#teSave').onclick = () => {
+    const old = (S.rows[sr] || []).join(' | ');
+    $$('[data-te]', p).forEach(x => { const c = +x.dataset.te; while (S.rows[sr].length <= c) S.rows[sr].push(''); S.rows[sr][c] = x.value.trim(); });
+    try { backupOld(sn, 'row ' + sr, old); } catch (e) {}
+    saveDB(sn); cacheClear(); hintPaint(); p.style.display = 'none'; say('TIN line saved in ' + sn, 'ok');
+  };
+  $('#teDel').onclick = () => {
+    if (!confirm('Delete this line from ' + sn + '?')) return;
+    try { backupOld(sn, 'row ' + sr, S.rows[sr].join(' | ')); } catch (e) {}
+    S.rows.splice(sr, 1); saveDB(sn); cacheClear(); hintPaint(); p.style.display = 'none'; say('TIN line deleted', 'ok');
+  };
+  showPop(p);
+}
+
+// ---- LINKS: higher + bigger · admin can add / edit ----
+{
+  const _ls = linksShow;
+  linksShow = function () {
+    const p = $('#popLK'); if (p) { p.style.left = '40px'; p.style.top = '100px'; p.style.width = '480px'; const l = $('#lkl'); if (l) l.style.height = '560px'; }
+    _ls();
+    if (p && USER.admin && !$('#lkAdd', p)) { const b = el('div', 'btn st lite', p.body, '＋ ADD / EDIT LINKS (admin)'); b.id = 'lkAdd'; b.style.cssText += ';--b:#16A34A;margin-top:6px'; b.onclick = () => { p.style.display = 'none'; ADM.tab = 'links'; admOpenTab('links'); }; }
+  };
+}
+function admOpenTab(k) { ADM.tab = k; try { if (typeof admOpen === 'function') admOpen(); } catch (e) {} setTimeout(() => { ADM.tab = k; admPaint(); }, 60); }
+ADM_TABS.push(['links', '\u{1F517} LINKS']);
+{
+  const _ap = admPaint;
+  admPaint = function () {
+    if (ADM.tab !== 'links') return _ap();
+    $$('#popAD .admtab').forEach(x => x.classList.toggle('on', x.dataset.k === ADM.tab)); ADM.body.innerHTML = ''; admLinks(ADM.body);
+  };
+}
+function admLinks(B) {
+  ahelp(B, '<b>LINKS</b> = the list behind the \u{1F517} button (and OPEN NDB / MED / EI ...). Add one below or edit the table. SYNC shares it (Data\\Links.xlsx).');
+  const L = ensureSheet('LINKS DATA', ['Group', 'Name', 'URL', 'Type']);
+  const bar = abar(B);
+  const g = el('input', 'sin', bar); g.placeholder = 'Group'; g.style.width = '140px';
+  const n = el('input', 'sin', bar); n.placeholder = 'Name'; n.style.width = '180px';
+  const u = el('input', 'sin', bar); u.placeholder = 'URL (https://...  or  \\\\server\\folder)'; u.style.width = '420px';
+  abtn(bar, '＋ ADD LINK', C.teal, () => {
+    if (!tr(n.value) || !tr(u.value)) return say('Name and URL please', 'bad');
+    const row = L[0].map(h => up(h) === 'GROUP' ? tr(g.value) || 'Links' : up(h) === 'NAME' ? tr(n.value) : up(h) === 'URL' ? tr(u.value) : '');
+    L.push(row); saveDB('LINKS DATA'); say('Link added: ' + n.value, 'ok'); admPaint();
+  });
+  sheetEditor(B, 'LINKS DATA', ['Group', 'Name', 'URL', 'Type'], {h: 420});
+}
+
+// ---- ADMIN HIDE BUTTONS: every button + every top tab ----
+function tabsReg() { $$('.stab').forEach((t, i) => { if (!t.dataset.k) reg(t, 'TAB_' + (SCREENS[i] || tr(t.textContent)).replace(/\W+/g, '_')); }); }
+admBtns = function (B) {
+  tabsReg();
+  ahelp(B, 'Tick = HIDE for users (Admins always see everything). Every button, tab and box of the frame is here. Saved in ADMIN_RULES (SYNC shares it).');
+  const v = ensureSheet('ADMIN_RULES', ['Key', 'Rule']);
+  const q = el('input', 'sin', B); q.placeholder = 'filter ...'; q.style.width = '260px';
+  const keys = Object.keys(LAYK).sort();
+  const w = el('div', 'atw', B); w.style.height = '520px';
+  const draw = () => { const f = q.value.toLowerCase(); w.innerHTML = '<div class="bgrid">' + keys.filter(k => !f || k.toLowerCase().includes(f) || (LAYK[k].textContent || '').toLowerCase().includes(f)).map(k => { const on = v.some(r => r[0] === k && up(r[1]) === 'HIDE'); return '<label><input type="checkbox" data-k="' + k + '"' + (on ? ' checked' : '') + '> <b>' + esc((LAYK[k].textContent || '').trim().slice(0, 22) || k) + '</b> <span class="muted">' + k + '</span></label>'; }).join('') + '</div>'; };
+  q.oninput = draw; draw();
+  w.onchange = e => { const k = e.target.dataset.k; if (!k) return; const i = v.findIndex(r => r[0] === k); if (i > 0) v.splice(i, 1); if (e.target.checked) v.push([k, 'HIDE']); saveDB('ADMIN_RULES'); };
+};
+{ const gi = setInterval(() => { if ($$('.stab').length >= SCREENS.length && $('#notesTab')) { clearInterval(gi); tabsReg(); try { applyBtnRules(); } catch (e) {} } }, 300); }
+
+// ---- grids never hide a row: E&I 23 / C&S 17 · Agent Town smaller ----
+function fitGrids() {
+  const pg = $('#pg0'), of = $('#office'); if (!pg || !of) return;
+  const px = v => parseFloat(v) || 0, rh = 19;
+  const need = 30 + (G[1].rows + 1) * rh + 6;                 // gp height for 23 rows
+  $$('.gp', pg).forEach(g => g.style.height = need + 'px');
+  const card = [...pg.children].find(c => c.classList.contains('card') && px(c.style.left) > 700 && px(c.style.top) < 10);
+  const top = px($('.gp', pg).style.top), cardH = top + need + 6;
+  if (card) card.style.height = cardH + 'px';
+  const H = px(pg.style.height) || 769, ot = cardH + 5, oh = H - ot - 4;
+  of.style.top = ot + 'px'; of.style.height = oh + 'px';
+  const cv = $('#ocv'), bar = $('#obar');
+  if (cv) { const ch = oh - (bar ? bar.offsetHeight || 24 : 24) - 2, cw = Math.round(670 * ch / 308); cv.style.height = ch + 'px'; cv.style.width = cw + 'px'; cv.style.marginLeft = Math.max(0, Math.round((px(of.style.width) - cw) / 2)) + 'px'; }
+}
+{ const _al = atLayout; atLayout = function () { _al(); try { fitGrids(); if (typeof stripBuild === 'function' && AT.hide) stripBuild(); } catch (e) {} }; }
+{ const gi = setInterval(() => { if ($('#pg0') && $('#office') && $('#ocv') && $('#scr5')) { clearInterval(gi); setTimeout(() => { try { fitGrids(); } catch (e) {} }, 400); } }, 200); }
+
+// ---- AMARDI: bigger window, typeable filters, PTI MPIN chips ----
+const AMG = 190;
+{
+  const st = document.createElement('style');
+  st.textContent = '#popAMD{height:' + (575 + AMG) + 'px !important}.amdw{height:' + (549 + AMG) + 'px !important}.amdw .scr{height:' + Math.round(649 + AMG / .843) + 'px !important}' +
+    '.amchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;max-height:300px;overflow:auto;padding:2px}' +
+    '.amchip{min-width:64px;height:30px;padding:0 10px;border-radius:999px;display:grid;place-items:center;font:800 11px "Segoe UI";color:#fff;cursor:pointer;background:linear-gradient(180deg,#8B5CF6,#5B2F99);box-shadow:0 3px 8px -3px #5B2F99,inset 0 1px 0 #ffffff66;user-select:none}' +
+    '.amchip:hover{filter:brightness(1.15)}.amchip.on{background:linear-gradient(180deg,#F59E0B,#C2410C)}' +
+    'input.amf{width:100%;height:18px;border:1px solid #cdbde2;border-radius:4px;font:10.5px "Segoe UI";padding:0 4px;background:#fff}input.amf.on{background:#FFF3C4;border-color:#E0A100}';
+  document.head.appendChild(st);
+}
+const amFM = (x, f) => !f || String(x == null ? '' : x).trim().toLowerCase().includes(String(f).trim().toLowerCase());
+amRender = function () {
+  const h = AMX.fullHdr, vis = AMX.vis, f = AMX.flt || {}, cfg = amCfg();
+  let rows = AMX.base.filter(r => vis.every(c => amFM(r[c], f[c])));
+  const s = AMX.srt || (amCol(h, cfg.sort) >= 0 ? {c: amCol(h, cfg.sort), d: cfg.dir || 1} : null);
+  if (s) rows = rows.slice().sort((a, b) => { const p = tr(a[s.c]), q = tr(b[s.c]), n1 = parseFloat(p), n2 = parseFloat(q); return (isNaN(n1) || isNaN(n2) ? p.localeCompare(q) : n1 - n2) * s.d; });
+  const show = rows.slice(0, 1500);
+  AMX.full = show; AMX.hdr = vis.map(c => h[c]); AMX.T.rows = show.map(r => vis.map(c => r[c]));
+  const dl = c => { const vals = Array.from(new Set(AMX.base.filter(r => vis.every(k => k === c || amFM(r[k], f[k]))).map(r => tr(r[c])).filter(Boolean))).sort().slice(0, 400);
+    return '<input data-f="' + c + '" class="amf' + (f[c] ? ' on' : '') + '" list="amdl' + c + '" placeholder="▾ type / all" value="' + esc(f[c] || '') + '"><datalist id="amdl' + c + '">' + vals.map(x => '<option value="' + esc(x) + '">').join('') + '</datalist>'; };
+  AMX.T.t.innerHTML = '<thead><tr>' + vis.map(c => '<th data-s="' + c + '" title="click = sort">' + esc(h[c]) + (s && s.c === c ? (s.d > 0 ? ' ▲' : ' ▼') : '') + '</th>').join('') + '</tr>' +
+    '<tr class="amfr">' + vis.map(c => '<th>' + dl(c) + '</th>').join('') + '</tr></thead><tbody>' +
+    show.map((r, i) => '<tr data-i="' + i + '">' + vis.map(c => '<td>' + esc(r[c] == null ? '' : r[c]) + '</td>').join('') + '</tr>').join('') + '</tbody>';
+  const nf = Object.values(f).filter(Boolean).length, v = sheet(AMX.cur);
+  AMX.c2.ti.textContent = '✦  RESULT  ·  ' + rows.length + ' of ' + (v.length - 1) + ' rows' + (AMX.what ? '  ·  ' + AMX.what : '') + (nf ? '  ·  ' + nf + ' filter(s)' : '') + (rows.length > 1500 ? '  ·  first 1500 shown' : '');
+  amChips(rows);
+};
+document.addEventListener('keydown', e => { const t = e.target; if (e.key === 'Enter' && t.classList && t.classList.contains('amf')) { AMX.flt[t.dataset.f] = t.value; amRender(); } });
+// search value: type or pick (contains)
+{
+  const _ui = amSearchUI;
+  amSearchUI = function () {
+    _ui(); const g = AMX.sg; if (!g) return;
+    $$('select[data-am="v1"], select[data-am="v2"]', g).forEach(s => {
+      const id = 'amv_' + s.dataset.am, inp = document.createElement('input');
+      inp.className = 'sin'; inp.dataset.am = s.dataset.am; inp.setAttribute('list', id); inp.placeholder = '(all) - type or pick'; inp.value = s.value; inp.disabled = s.disabled;
+      const d = document.createElement('datalist'); d.id = id; d.innerHTML = [...s.options].filter(o => o.value).map(o => '<option value="' + esc(o.value) + '">').join('');
+      s.replaceWith(inp); inp.after(d);
+      inp.onkeydown = e => { if (e.key === 'Enter') amSearch(false); };
+    });
+  };
+  const _as = amSearch;
+  amSearch = function (quick) {
+    const v = sheet(AMX.cur), sv = amReadUI();
+    if (!v || v.length < 2) return _as(quick);
+    // exact pick = old way; typed part = contains
+    const h = v[0], A = AMX.cur === 'AM_CAP' ? [amCol(h, 'LOB'), sv.v1] : [amCol(h, sv.c1), sv.v1], B = AMX.cur === 'AM_CAP' ? [amCol(h, 'SPECIALTY'), sv.v2] : [sv.c2 ? amCol(h, sv.c2) : -1, sv.v2];
+    const q = tr(AMX.q.value).toLowerCase(), rows = [];
+    for (let r = 1; r < v.length; r++) {
+      const row = v[r];
+      if (A[0] >= 0 && A[1] && !amFM(row[A[0]], A[1])) continue;
+      if (B[0] >= 0 && B[1] && !amFM(row[B[0]], B[1])) continue;
+      if (quick && q && !row.join('|').toLowerCase().includes(q)) continue;
+      rows.push(row);
+    }
+    AMX.base = rows; AMX.fullHdr = h; AMX.vis = amVis(h);
+    AMX.what = [A[1] ? (AMX.cur === 'AM_CAP' ? 'LOB' : sv.c1) + ' = ' + A[1] : '', B[1] ? (AMX.cur === 'AM_CAP' ? 'SPECIALTY' : sv.c2) + ' = ' + B[1] : '', quick && q ? "any column '" + AMX.q.value + "'" : ''].filter(Boolean).join('  ·  ');
+    amRender();
+  };
+}
+function amMpinCol() { const h = AMX.fullHdr || []; let c = amCol(h, 'MPIN'); if (c < 0) c = amCol(h, 'GROUP_ID'); if (c < 0) c = h.findIndex(x => /MPIN/i.test(x)); return c; }
+function amChips(rows) {
+  if (!AMX.chips) {
+    const cl = $$('.btn', AMX.c1.body).find(x => /CLEAR THIS DATA/.test(x.textContent)); if (!cl) return;
+    // no hint text under CLEAR THIS DATA
+    $$('.tip', AMX.c1.body).forEach(t => { if (/SEND TO FRAME =|Copy:/.test(t.textContent)) t.remove(); });
+    AMX.chipT = el('div', 'slab', AMX.c1.body, ''); AMX.chipT.style.marginTop = '8px';
+    AMX.chips = el('div', 'amchips', AMX.c1.body);
+    AMX.chips.onclick = e => { const b = e.target.closest('.amchip'); if (!b) return; $$('.amchip.on', AMX.chips).forEach(x => x.classList.remove('on')); b.classList.add('on'); copyText(b.dataset.m); say('⎘ PTI MPIN copied: ' + b.dataset.m + '  (double-click = details)', 'ok'); };
+    AMX.chips.ondblclick = e => { const b = e.target.closest('.amchip'); if (b) amMpinDetail(b.dataset.m); };
+  }
+  const c = amMpinCol();
+  const set = c < 0 ? [] : Array.from(new Set(rows.map(r => tr(r[c])).filter(Boolean)));
+  const sv = AMX.sv || {};
+  AMX.chipT.textContent = (AMX.cur === 'AM_CAP' ? 'GROUP / MPIN' : 'PTI MPIN') + (sv.v1 ? '  ·  ' + (sv.c1 || 'LOB') + ' ' + sv.v1 : '') + '  ·  ' + set.length + '   (click = copy · double-click = details)';
+  AMX.chips.innerHTML = set.slice(0, 300).map(m => '<div class="amchip" data-m="' + esc(m) + '">' + esc(m) + '</div>').join('') + (set.length > 300 ? '<div class="muted">+ ' + (set.length - 300) + ' more - use a filter</div>' : '');
+}
+function amMpinDetail(m) {
+  const v = sheet(AMX.cur); if (!v) return;
+  const h = v[0], c = amCol(h, 'MPIN') >= 0 ? amCol(h, 'MPIN') : amMpinCol(); const all = v.slice(1).filter(r => tr(r[c]) === m);
+  const cols = h.map((x, i) => i).filter(i => tr(h[i]) && all.some(r => tr(r[i])));
+  let p = $('#popMD');
+  if (!p) {
+    p = makePop('popMD', '', 120, 120, 1150, 560);
+    const bar = el('div', '', p.body); bar.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:6px';
+    const q = el('input', 'sin', bar); q.id = 'mdQ'; q.placeholder = 'filter (any column) ...'; q.style.width = '320px';
+    const cs = el('select', 'ssel', bar); cs.id = 'mdC'; cs.style.width = '200px';
+    const cv = el('input', 'sin', bar); cv.id = 'mdV'; cv.placeholder = 'value'; cv.style.width = '200px';
+    const cp = el('div', 'btn st lite', bar, '❐ COPY'); cp.style.cssText += ';--b:#5B2F99;width:90px';
+    cp.onclick = () => { copyText([AMD_.hdr.join('\t')].concat(AMD_.show.map(r => r.join('\t'))).join('\n')); say('Copied ' + AMD_.show.length + ' line(s) with headings', 'ok'); };
+    const T = tbl(p.body, 'wide'); T.id = 'mdT'; T.style.height = '470px';
+    [q, cv].forEach(x => x.oninput = mdDraw); cs.onchange = mdDraw;
+  }
+  window.AMD_ = {m, hdr: cols.map(i => h[i]), rows: all.map(r => cols.map(i => r[i] == null ? '' : r[i]))};
+  p.head.textContent = '\u{1F50E} PTI MPIN ' + m + '  -  ' + all.length + ' line(s) · ' + AM_NAME[AMX.cur] + '   (Esc closes)';
+  $('#mdQ').value = ''; $('#mdV').value = ''; $('#mdC').innerHTML = '<option value="">(column)</option>' + AMD_.hdr.map((x, i) => '<option value="' + i + '">' + esc(x) + '</option>').join('');
+  mdDraw(); showPop(p);
+}
+function mdDraw() {
+  const q = $('#mdQ').value.toLowerCase(), c = $('#mdC').value, cv = $('#mdV').value;
+  AMD_.show = AMD_.rows.filter(r => (!q || r.join('|').toLowerCase().includes(q)) && (c === '' || amFM(r[+c], cv)));
+  tblFill($('#mdT'), AMD_.hdr, AMD_.show);
+}
+// AMARDI cards taller (inside the window)
+{ const gi = setInterval(() => { const S = $('#scr' + SCREENS.indexOf('AMARDI')); if (S && AMX.c1 && AMX.c2) { clearInterval(gi);
+  [AMX.c1, AMX.c2].forEach(c => c.style.height = (637 + Math.round(AMG / .843)) + 'px'); if (AMX.T) AMX.T.style.height = (596 + Math.round(AMG / .843)) + 'px'; } }, 300); }
+
+// ---- NOTES: own screen (popup), topics + screens, its own Excel ----
+const NT_HDR = ['Topic', 'Screen', 'Title', 'Note', 'Updated', 'By'];
+const NT_TOPICS = ['General', 'SOP', 'State Rules', 'Agreement', 'CSP', 'MNR / Cosmos', 'Commercial E&I', 'Medicaid C&S', 'Medicare M&R', 'Amardi', 'NDB', 'Excel / Macros', 'Links / Portals', 'Contacts', 'Escalation', 'Training', 'Daily Checklist', 'Ideas'];
+SYNC_ITEMS.push(['HTML NOTES', 'Notes/Superload_Notes.xlsx']);
+const NT = {cur: -1};
+function ntSheet() { return ensureSheet('HTML NOTES', NT_HDR); }
+function notesOpen() {
+  let p = $('#popNT');
+  if (!p) {
+    p = makePop('popNT', '\u{1F4DD} NOTES  -  own Excel: Notes\\Superload_Notes.xlsx (SYNC)   ·   Esc closes', 40, 96, 1320, 760);
+    p.body.innerHTML =
+      '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">' +
+        '<b class="kk">TOPIC</b><select class="ssel" id="ntFT" style="width:200px"></select>' +
+        '<b class="kk">SCREEN</b><select class="ssel" id="ntFS" style="width:220px"></select>' +
+        '<input class="sin" id="ntQ" placeholder="search notes ..." style="width:260px">' +
+        '<span style="flex:1"></span>' +
+        '<div class="btn st" id="ntNew" style="--b:#0E9AA7;width:100px">＋ NEW</div>' +
+        '<div class="btn st" id="ntSave" style="--b:#C2410C;width:110px">✔ SAVE</div>' +
+        '<div class="btn st lite" id="ntCopy" style="--b:#5B2F99;width:90px">❐ COPY</div>' +
+        '<div class="btn st lite" id="ntXl" style="--b:#16A34A;width:110px">⬇ EXCEL</div>' +
+        '<div class="btn st lite" id="ntDel" style="--b:#A3123A;width:100px">✖ DELETE</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;height:660px">' +
+        '<div id="ntList" class="list" style="width:360px;height:100%;overflow:auto"></div>' +
+        '<div style="flex:1;display:flex;flex-direction:column;gap:6px">' +
+          '<div style="display:grid;grid-template-columns:70px 1fr 70px 1fr;gap:6px;align-items:center">' +
+            '<b class="kk">Topic</b><input class="sin" id="ntT" list="ntTL" placeholder="pick or type a new topic"><datalist id="ntTL"></datalist>' +
+            '<b class="kk">Screen</b><select class="ssel" id="ntS"></select>' +
+            '<b class="kk">Title</b><input class="sin" id="ntH" style="grid-column:2 / 5" placeholder="short title">' +
+          '</div>' +
+          '<textarea class="stx" id="ntX" style="flex:1;font-size:13px;line-height:1.5" placeholder="write the note here ..."></textarea>' +
+          '<div class="tip" id="ntInfo"></div>' +
+        '</div>' +
+      '</div>';
+    $('#ntFT').onchange = ntList; $('#ntFS').onchange = ntList; $('#ntQ').oninput = ntList;
+    $('#ntNew').onclick = () => ntPick(-1); $('#ntSave').onclick = ntSave;
+    $('#ntCopy').onclick = () => { copyText($('#ntH').value + '\n' + $('#ntX').value); say('Note copied', 'ok'); };
+    $('#ntDel').onclick = ntDel; $('#ntXl').onclick = ntExcel;
+    $('#ntList').onclick = e => { const d = e.target.closest('[data-r]'); if (d) ntPick(+d.dataset.r); };
+  }
+  const scr = ['(all screens)', 'General'].concat(SCREENS);
+  $('#ntFS').innerHTML = scr.map(x => '<option>' + esc(x) + '</option>').join('');
+  $('#ntS').innerHTML = scr.slice(1).map(x => '<option>' + esc(x) + '</option>').join('');
+  ntTopics(); ntList(); if (NT.cur < 0) ntPick(-1); showPop(p);
+}
+function ntTopics() {
+  const v = ntSheet(), t = Array.from(new Set(NT_TOPICS.concat(v.slice(1).map(r => tr(r[0])).filter(Boolean))));
+  const cur = $('#ntFT').value;
+  $('#ntFT').innerHTML = ['(all topics)'].concat(t).map(x => '<option' + (x === cur ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
+  $('#ntTL').innerHTML = t.map(x => '<option value="' + esc(x) + '">').join('');
+}
+function ntList() {
+  const v = ntSheet(), ft = $('#ntFT').value, fs = $('#ntFS').value, q = $('#ntQ').value.toLowerCase();
+  const rows = []; for (let r = 1; r < v.length; r++) { const x = v[r]; if (ft && ft !== '(all topics)' && tr(x[0]) !== ft) continue; if (fs && fs !== '(all screens)' && tr(x[1]) !== fs) continue; if (q && !x.join('|').toLowerCase().includes(q)) continue; rows.push(r); }
+  const grp = {}; rows.forEach(r => (grp[tr(v[r][0]) || 'General'] = grp[tr(v[r][0]) || 'General'] || []).push(r));
+  $('#ntList').innerHTML = rows.length ? Object.keys(grp).sort().map(g => '<div style="background:#F3ECF8;font-weight:800;cursor:default">' + esc(g) + '  ·  ' + grp[g].length + '</div>' +
+    grp[g].map(r => '<div data-r="' + r + '"' + (r === NT.cur ? ' class="sel"' : '') + '>\u{1F4DD}  <b>' + esc(v[r][2] || '(no title)') + '</b><br><span class="muted">' + esc(v[r][1] || '') + '  ·  ' + esc(v[r][4] || '') + '</span></div>').join('')).join('') : '<div class="muted">No notes yet - NEW</div>';
+}
+function ntPick(r) {
+  const v = ntSheet(); NT.cur = r; const x = r > 0 ? v[r] : null;
+  $('#ntT').value = x ? x[0] : ($('#ntFT').value && $('#ntFT').value !== '(all topics)' ? $('#ntFT').value : 'General');
+  const sc = x ? x[1] : (SCREENS[curScreenIdx()] || 'General'); $('#ntS').value = sc; if ($('#ntS').value !== sc) $('#ntS').value = 'General';
+  $('#ntH').value = x ? x[2] : ''; $('#ntX').value = x ? x[3] : '';
+  $('#ntInfo').textContent = x ? 'Saved ' + (x[4] || '') + ' by ' + (x[5] || '') : 'New note - SAVE keeps it';
+  ntList(); if (!x) $('#ntH').focus();
+}
+function curScreenIdx() { const t = $$('.stab'); for (let i = 0; i < t.length; i++) if (t[i].classList.contains('on')) return i; return 0; }
+function ntSave() {
+  const v = ntSheet(); const t = tr($('#ntT').value) || 'General', x = $('#ntX').value;
+  if (!tr(x) && !tr($('#ntH').value)) return say('Write something first', 'bad');
+  const row = [t, $('#ntS').value, tr($('#ntH').value), x, new Date().toLocaleString(), USER.id];
+  if (NT.cur > 0 && v[NT.cur]) { try { backupOld('HTML NOTES', 'row ' + NT.cur, v[NT.cur].join(' | ')); } catch (e) {} v[NT.cur] = row; } else { v.push(row); NT.cur = v.length - 1; }
+  saveDB('HTML NOTES'); ntTopics(); ntList(); $('#ntInfo').textContent = 'Saved ' + row[4] + '  ·  SYNC puts it in Notes\\Superload_Notes.xlsx'; say('Note saved', 'ok');
+}
+function ntDel() {
+  const v = ntSheet(); if (NT.cur < 1 || !v[NT.cur]) return;
+  if (!confirm('Delete the note "' + (v[NT.cur][2] || '') + '"?')) return;
+  try { backupOld('HTML NOTES', 'row ' + NT.cur, v[NT.cur].join(' | ')); } catch (e) {}
+  v.splice(NT.cur, 1); saveDB('HTML NOTES'); NT.cur = -1; ntTopics(); ntPick(-1);
+}
+function ntExcel() {
+  const v = ntSheet(), wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(v), 'ALL NOTES');
+  const tp = Array.from(new Set(v.slice(1).map(r => tr(r[0]) || 'General')));
+  tp.forEach(t => XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([NT_HDR].concat(v.slice(1).filter(r => (tr(r[0]) || 'General') === t))), t.replace(/[\\\/?*\[\]:]/g, ' ').slice(0, 31)));
+  XLSX.writeFile(wb, 'Superload_Notes.xlsx'); say('Superload_Notes.xlsx made (one sheet per topic)', 'ok');
+}
+{ const gi = setInterval(() => { const tb = $$('.stab'); if (tb.length >= SCREENS.length) { clearInterval(gi); const par = tb[0].parentNode; if ($('#notesTab')) return;
+  const t = el('div', 'stab', par, '<i></i>\u{1F4DD} NOTES'); t.id = 'notesTab'; t.onclick = notesOpen; reg(t, 'TAB_NOTES'); } }, 200); }
+
 
 /* ---------------------------------------------------------------------
    "i"  LAYOUT EDITOR  (password 763388, owner only)
@@ -6119,7 +6469,7 @@ function buildPops() {
   sbtn(r1, 'X', 'SAVE NOTE', C.mari).onclick = comNoteSave;
   const sg = sbtn(r1, 'X', 'SAVE GRID TO LIST', C.teal); sg.onclick = comSaveGrid; sg.title = 'The Commercial grid goes into the COMMERCIAL list with this PTI / TIN / EMP / EI - FS (23 rows, same places)';
   // links
-  p = makePop('popLK', '\u{1F517} LINKS', 40, 380, 380);
+  p = makePop('popLK', '\u{1F517} LINKS', 40, 100, 480);
   el('div', 'list', p.body).id = 'lkl'; $('#lkl').style.height = '300px';
   $('#lkl').onclick = e => { const d = e.target.closest('[data-u]'); if (d) openUrl(d.dataset.u); };
   // run
